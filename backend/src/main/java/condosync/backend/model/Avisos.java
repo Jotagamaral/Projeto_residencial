@@ -2,6 +2,9 @@ package condosync.backend.model;
 
 import jakarta.persistence.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Entity
 @Table(name = "avisos")
 public class Avisos {
@@ -13,15 +16,20 @@ public class Avisos {
     @Column(name = "aviso", nullable = false)
     private String aviso;
 
+    @Column(name = "data", nullable = false)
+    private String data = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+
     public Avisos() {}
 
-    public Avisos(Long id, String aviso) {
+    public Avisos(Long id, String aviso, String data) {
         this.id = id;
         this.aviso = aviso;
+        this.data = data;
     }
 
-    public Avisos(String aviso) {
+    public Avisos(String aviso, String data) {
         this.aviso = aviso;
+        this.data = data;
     }
 
     public Long getId() {
@@ -38,5 +46,13 @@ public class Avisos {
 
     public void setAviso(String aviso) {
         this.aviso = aviso;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 }

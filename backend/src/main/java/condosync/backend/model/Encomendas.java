@@ -22,12 +22,16 @@ public class Encomendas {
     @Column(name = "hora_entrega", nullable = false)
     private LocalDateTime horaEntrega;
 
+    @Column(name = "remetente", nullable = false)
+    private String remetente;
+
     public Encomendas() {}
 
-    public Encomendas(Moradores morador, Funcionarios funcionario, LocalDateTime horaEntrega) {
+    public Encomendas(Moradores morador, Funcionarios funcionario, LocalDateTime horaEntrega, String remetente) {
         this.morador = morador;
         this.funcionario = funcionario;
         this.horaEntrega = horaEntrega;
+        this.remetente = remetente;
     }
 
     public Long getId() {
@@ -60,5 +64,13 @@ public class Encomendas {
 
     public void setHoraEntrega(LocalDateTime horaEntrega) {
         this.horaEntrega = horaEntrega;
+    }
+
+    public String getRemetente() {
+        return remetente;
+    }
+
+    public void setRemetente(String remetente) {
+        this.remetente = remetente;
     }
 }

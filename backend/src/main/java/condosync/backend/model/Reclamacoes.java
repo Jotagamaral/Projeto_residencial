@@ -10,22 +10,22 @@ public class Reclamacoes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
-    @Column(name = "morador")
-    public String morador;
+    @Column(name = "nome")
+    public String nome = "Anônimo";
 
     @Column(name = "reclamacao")
     public String reclamacao;
 
     public Reclamacoes() {}
 
-    public Reclamacoes(Long id, String morador, String reclamacao) {
+    public Reclamacoes(Long id, String nome, String reclamacao) {
         this.id = id;
-        this.morador = morador;
+        this.nome = nome;
         this.reclamacao = reclamacao;
     }
 
-    public Reclamacoes(String morador, String reclamacao) {
-        this.morador = morador;
+    public Reclamacoes(String nome, String reclamacao) {
+        this.nome = nome;
         this.reclamacao = reclamacao;
     }
 
@@ -37,12 +37,12 @@ public class Reclamacoes {
         this.id = id;
     }
 
-    public String getMorador() {
-        return morador;
+    public String getnome() {
+        return nome;
     }
 
-    public void setMorador(String morador) {
-        this.morador = morador;
+    public void setnome(String nome) {
+        this.nome = nome;
     }
 
     public String getReclamacao() {
