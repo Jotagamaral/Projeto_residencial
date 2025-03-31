@@ -33,13 +33,16 @@ public class Moradores {
     @Column(name = "bloco", nullable = false)
     private Character bloco;
 
+    @Column(name = "senha", nullable = false)
+    private String senha;
+
     @OneToMany(mappedBy = "morador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Visitantes> visitantes = new ArrayList<>();
 
     public Moradores() {}
 
     public Moradores(Long id, String nome, String rg, String cpf, String telefone, String email, Integer apartamento,
-                     Character bloco, List<Visitantes> visitantes) {
+                     Character bloco, String senha, List<Visitantes> visitantes) {
         this.id = id;
         this.nome = nome;
         this.rg = rg;
@@ -48,10 +51,12 @@ public class Moradores {
         this.email = email;
         this.apartamento = apartamento;
         this.bloco = bloco;
+        this.senha = senha;
         this.visitantes = visitantes;
     }
 
-    public Moradores(String nome, String rg, String cpf, String telefone, String email, Integer apartamento, Character bloco) {
+    public Moradores(String nome, String rg, String cpf, String telefone, String email, Integer apartamento,
+                     Character bloco, String senha, List<Visitantes> visitantes) {
         this.nome = nome;
         this.rg = rg;
         this.cpf = cpf;
@@ -59,6 +64,8 @@ public class Moradores {
         this.email = email;
         this.apartamento = apartamento;
         this.bloco = bloco;
+        this.senha = senha;
+        this.visitantes = visitantes;
     }
 
     public Long getId() {
@@ -131,6 +138,14 @@ public class Moradores {
 
     public void setVisitantes(List<Visitantes> visitantes) {
         this.visitantes = visitantes;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
     public void adicionarVisitante(Visitantes visitante) {

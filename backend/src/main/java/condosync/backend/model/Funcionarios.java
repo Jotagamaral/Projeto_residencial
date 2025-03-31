@@ -30,21 +30,25 @@ public class Funcionarios {
     @Column(name = "cargo", nullable = false)
     private String cargo;
 
+    @Column(name = "senha", nullable = false)
+    private String senha;
+
     @OneToMany(mappedBy = "funcionario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Encomendas> encomendas;
 
     public Funcionarios() {}
 
-    public Funcionarios(String nome, String rg, String cpf, String telefone, String email, String cargo) {
+    public Funcionarios(String nome, String rg, String cpf, String telefone, String email, String cargo, String senha) {
         this.nome = nome;
         this.rg = rg;
         this.cpf = cpf;
         this.telefone = telefone;
         this.email = email;
         this.cargo = cargo;
+        this.senha = senha;
     }
 
-    public Funcionarios(Long id, String nome, String rg, String cpf, String telefone, String email, String cargo) {
+    public Funcionarios(Long id, String nome, String rg, String cpf, String telefone, String email, String cargo, String senha) {
         this.id = id;
         this.nome = nome;
         this.rg = rg;
@@ -52,6 +56,7 @@ public class Funcionarios {
         this.telefone = telefone;
         this.email = email;
         this.cargo = cargo;
+        this.senha = senha;
     }
 
     public Long getId() {
@@ -108,6 +113,14 @@ public class Funcionarios {
 
     public void setCargo(String cargo) {
         this.cargo = cargo;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
     public List<Encomendas> getEncomendas() {

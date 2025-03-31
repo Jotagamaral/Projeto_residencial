@@ -26,23 +26,29 @@ public class Visitantes {
     @JoinColumn(name = "morador_id", nullable = false)
     private Moradores morador;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "funcionario_id", nullable = false)
+    private Funcionarios funcionario;
+
     public Visitantes() {}
 
-    public Visitantes(Long id, String nome, String rg, String cpf, String telefone, Moradores morador) {
+    public Visitantes(Long id, String nome, String rg, String cpf, String telefone, Moradores morador, Funcionarios funcionario) {
         this.id = id;
         this.nome = nome;
         this.rg = rg;
         this.cpf = cpf;
         this.telefone = telefone;
         this.morador = morador;
+        this.funcionario = funcionario;
     }
 
-    public Visitantes(String nome, String rg, String cpf, String telefone, Moradores morador) {
+    public Visitantes(String nome, String rg, String cpf, String telefone, Moradores morador, Funcionarios funcionario) {
         this.nome = nome;
         this.rg = rg;
         this.cpf = cpf;
         this.telefone = telefone;
         this.morador = morador;
+        this.funcionario = funcionario;
     }
 
     public Long getId() {
@@ -91,5 +97,13 @@ public class Visitantes {
 
     public void setMorador(Moradores morador) {
         this.morador = morador;
+    }
+
+    public Funcionarios getFuncionario() {
+        return funcionario;
+    }
+
+    public void setFuncionario(Funcionarios funcionario) {
+        this.funcionario = funcionario;
     }
 }
