@@ -1,11 +1,11 @@
 import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
+import CustomSidebar from "../components/CustomSidebar";
 import Card from "../components/Card";
 
 function Home() {
   return (
     <div className="flex bg-gray-100">
-      <Sidebar />
+      <CustomSidebar/>
       <div className="w-full">
         <Navbar />
         <div className="flex justify-center gap-4 mt-10">
