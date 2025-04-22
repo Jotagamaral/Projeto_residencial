@@ -12,32 +12,32 @@ function CustomSidebar() {
         </SidebarLogo>
         <SidebarItems>
           <SidebarItemGroup>
-            <SidebarItem className="text-gray-900 hover:bg-gray-200">
-              <Link>Home</Link>
+            <SidebarItem href="/" className="text-gray-900 hover:bg-gray-200">
+              Home
             </SidebarItem>
-            <SidebarItem className="text-gray-900 hover:bg-gray-200">
-              <Link>About</Link>
+            <SidebarItem href="/" className="text-gray-900 hover:bg-gray-200">
+              About
             </SidebarItem>
-            <SidebarItem className="text-gray-900 hover:bg-gray-200">
-              <Link>Services</Link>
+            <SidebarItem href="/" className="text-gray-900 hover:bg-gray-200">
+              Services
             </SidebarItem>
-            <SidebarItem className="text-gray-900 hover:bg-gray-200">
-              <Link>Contact</Link>
+            <SidebarItem href="/" className="text-gray-900 hover:bg-gray-200">
+              Contact
             </SidebarItem>
           </SidebarItemGroup>
         </SidebarItems>
         
         <SidebarItemGroup>
-          <SidebarItem className="text-gray-900 hover:bg-gray-200">
-            <Link>FAQ</Link>
+          <SidebarItem href="/" className="text-gray-900 hover:bg-gray-200">
+            FAQ
           </SidebarItem>
         </SidebarItemGroup>
         <SidebarItemGroup>
-          <SidebarItem className="text-gray-900 hover:bg-gray-200">
-            <Link>Settings</Link>
+          <SidebarItem href="/" className="text-gray-900 hover:bg-gray-200">
+            Settings
           </SidebarItem>
-          <SidebarItem className="text-gray-900 hover:bg-gray-200">
-            <Link>Logout</Link>
+          <SidebarItem href="/" className="text-gray-900 hover:bg-gray-200">
+            Logout
           </SidebarItem>
         </SidebarItemGroup> 
       </Sidebar>
