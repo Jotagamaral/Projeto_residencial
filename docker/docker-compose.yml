@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:17
+    container_name: postgres_condosync
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: condosyncsquad
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_condosync_data:/var/lib/postgresql/data
+    networks:
+      - banco_net_pi2
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_condosync
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: pass123
+    ports:
+      - 4567:80
+    depends_on:
+      - db
+    networks:
+      - banco_net_pi2
+
+volumes:
+  postgres_condosync_data:
+
+networks:
+  banco_net_pi2:
