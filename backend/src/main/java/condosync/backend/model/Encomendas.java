@@ -11,12 +11,15 @@ public class Encomendas {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //Comentando a anotação @ManyToOne até que o usuario tenha acesso
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "morador_id", nullable = false)
+    //@Column(name = "morador_id", nullable = false)
     private Moradores morador;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "funcionario_id", nullable = false)
+    //@Column(name = "funcionario_id", nullable = false)
     private Funcionarios funcionario;
 
     @Column(name = "hora_entrega", nullable = false)
@@ -25,13 +28,17 @@ public class Encomendas {
     @Column(name = "remetente", nullable = false)
     private String remetente;
 
+    @Column(name = "apartamento", nullable = false)
+    private String apartamento;
+
     public Encomendas() {}
 
-    public Encomendas(Moradores morador, Funcionarios funcionario, LocalDateTime horaEntrega, String remetente) {
+    public Encomendas(Moradores morador, Funcionarios funcionario, LocalDateTime horaEntrega, String remetente, String apartamento) {
         this.morador = morador;
         this.funcionario = funcionario;
         this.horaEntrega = horaEntrega;
         this.remetente = remetente;
+        this.apartamento = apartamento;
     }
 
     public Long getId() {
@@ -72,5 +79,13 @@ public class Encomendas {
 
     public void setRemetente(String remetente) {
         this.remetente = remetente;
+    }
+
+    public String getApartamento() {
+        return apartamento;
+    }
+
+    public void setApartamento(String apartamento) {
+        this.apartamento = apartamento;
     }
 }

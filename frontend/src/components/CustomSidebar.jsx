@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems, SidebarLogo } from "flowbite-react";
 
 function CustomSidebar() {
