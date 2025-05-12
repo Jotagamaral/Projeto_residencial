@@ -1,11 +1,14 @@
 import { Label, TextInput, Button, Card } from "flowbite-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 
 function Login() {
     const [cpf, setCpf] = useState("");
     const [senha, setSenha] = useState("");
     const [erro, setErro] = useState("");
+    
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -15,7 +18,11 @@ function Login() {
             const response = await loginUser(cpf, senha);
             console.log("Login bem-sucedido!", response);
 
-        // localStorage.setItem("token", response.token);
+            localStorage.setItem("token", response.token);
+            localStorage.setItem("user", JSON.stringify(response.user));
+            
+            navigate("/");
+
         } catch (err) {
             setErro("CPF ou senha inválidos.");
         }
