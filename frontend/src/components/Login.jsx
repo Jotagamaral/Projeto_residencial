@@ -2,6 +2,7 @@ import { Label, TextInput, Button, Card } from "flowbite-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
+import { Link } from "react-router-dom";
 
 function Login() {
     const [cpf, setCpf] = useState("");
@@ -23,7 +24,8 @@ function Login() {
             
             navigate("/");
 
-        } catch (err) {
+        } catch (erro) {
+            console.log(erro)
             setErro("CPF ou senha inválidos.");
         }
     };
@@ -67,6 +69,14 @@ function Login() {
 
             {erro && <p className="text-sm text-red-300 text-center">{erro}</p>}
             </form>
+
+            <p className="text-sm text-center mt-4">
+            Não possui uma conta?{" "}
+            <Link to="/cadastro" className="underline hover:text-gray-200">
+                Cadastre-se
+            </Link>
+            </p>
+            
         </Card>
         </div>
     );
