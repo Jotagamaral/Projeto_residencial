@@ -16,7 +16,9 @@ public class Reclamacoes {
     @Column(name = "reclamacao")
     public String reclamacao;
 
+    // Default constructor
     public Reclamacoes() {}
+
 
     public Reclamacoes(Long id, String nome, String reclamacao) {
         this.id = id;

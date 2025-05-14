@@ -30,33 +30,24 @@ public class Funcionarios {
     @Column(name = "cargo", nullable = false)
     private String cargo;
 
-    @Column(name = "senha", nullable = false)
-    private String senha;
-
+    @OneToOne
+    @JoinColumn(name = "fk_user", referencedColumnName = "id")
+    private User user;
+    
     @OneToMany(mappedBy = "funcionario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Encomendas> encomendas;
 
+    // Default constructor
     public Funcionarios() {}
 
-    public Funcionarios(String nome, String rg, String cpf, String telefone, String email, String cargo, String senha) {
+    public Funcionarios(String nome, String rg, String cpf, String telefone, String email, String cargo, User user) {
         this.nome = nome;
         this.rg = rg;
         this.cpf = cpf;
         this.telefone = telefone;
         this.email = email;
         this.cargo = cargo;
-        this.senha = senha;
-    }
-
-    public Funcionarios(Long id, String nome, String rg, String cpf, String telefone, String email, String cargo, String senha) {
-        this.id = id;
-        this.nome = nome;
-        this.rg = rg;
-        this.cpf = cpf;
-        this.telefone = telefone;
-        this.email = email;
-        this.cargo = cargo;
-        this.senha = senha;
+        this.user = user;
     }
 
     public Long getId() {
@@ -114,13 +105,12 @@ public class Funcionarios {
     public void setCargo(String cargo) {
         this.cargo = cargo;
     }
-
-    public String getSenha() {
-        return senha;
+    
+    public User getUser() {
+        return user;
     }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<Encomendas> getEncomendas() {
