@@ -1,7 +1,10 @@
 package condosync.backend.controller;
 
 
+import condosync.backend.dao.FuncionariosDAO;
+import condosync.backend.dao.MoradoresDAO;
 import condosync.backend.dao.UserDAO;
+
 import condosync.backend.dto.LoginDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,13 @@ public class LoginController {
     @Autowired
     private UserDAO userDAO;
 
+    @Autowired
+    private MoradoresDAO moradoresDAO;
+
+    @Autowired
+    private FuncionariosDAO funcionariosDAO;
+
+
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody LoginDTO loginDTO) {
         try {
@@ -33,7 +43,34 @@ public class LoginController {
             }
 
             if (user.getSenha().equals(loginDTO.getSenha())) {
-                return ResponseEntity.ok(Map.of("message", "Login realizado com sucesso."));
+                // Return success response with user details
+                var category = user.getCategoria();
+
+                Long id = null;
+                String nome = null;
+
+                if (category.equals("MORADOR")) {
+                    var morador = moradoresDAO.buscarMoradorPorCpf(loginDTO.getCpf().trim());
+                    id = morador.getId();
+                    nome = morador.getNome();
+
+                } else if (category.equals("FUNCIONARIO")) {
+                    var funcionario = funcionariosDAO.buscarFuncionarioPorCpf(loginDTO.getCpf().trim());
+                    id = funcionario.getId();
+                    nome = funcionario.getNome();
+                }
+
+                Map<String, Object> response = Map.of(
+                        "message", "Login realizado com sucesso!",
+                        "user", Map.of(
+                                "id", user.getId(),
+                                "cpf", user.getCpf(),
+                                "categoria", user.getCategoria()
+                        )
+                );
+
+                return ResponseEntity.ok(response);
+
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(Map.of("message", "Senha incorreta."));

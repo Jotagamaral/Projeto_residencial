@@ -51,7 +51,7 @@ public class RegisterController {
             userDAO.inserirUser(user);
 
 
-            if (registerDTO.getTipoUsuario().equals("Morador")) {
+            if (registerDTO.getTipoUsuario().equals("MORADOR")) {
                 Moradores moradores = new Moradores();
                 moradores.setNome(registerDTO.getNome());
                 moradores.setRg(registerDTO.getRg());
@@ -63,7 +63,7 @@ public class RegisterController {
                 moradores.setUser(user);
                 moradoresDAO.inserirMorador(moradores);
 
-            } else if (registerDTO.getTipoUsuario().equals("Funcionário")) {
+            } else if (registerDTO.getTipoUsuario().equals("FUNCIONARIO")) {
                 Funcionarios funcionarios = new Funcionarios();
                 funcionarios.setNome(registerDTO.getNome());
                 funcionarios.setRg(registerDTO.getRg());
