@@ -63,7 +63,8 @@ public class LoginController {
                 Map<String, Object> response = Map.of(
                         "message", "Login realizado com sucesso!",
                         "user", Map.of(
-                                "id", user.getId(),
+                                "id", id,
+                                "nome", nome,
                                 "cpf", user.getCpf(),
                                 "categoria", user.getCategoria()
                         )
