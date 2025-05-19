@@ -16,17 +16,16 @@ public class Reclamacoes {
     @Column(name = "reclamacao")
     public String reclamacao;
 
+    @OneToOne
+    @JoinColumn(name = "fk_morador", referencedColumnName = "id", nullable = true)
+    public Moradores morador;
+
     // Default constructor
     public Reclamacoes() {}
 
 
-    public Reclamacoes(Long id, String nome, String reclamacao) {
+    public Reclamacoes(Long id, String nome, String reclamacao, Moradores morador) {
         this.id = id;
-        this.nome = nome;
-        this.reclamacao = reclamacao;
-    }
-
-    public Reclamacoes(String nome, String reclamacao) {
         this.nome = nome;
         this.reclamacao = reclamacao;
     }
@@ -53,5 +52,12 @@ public class Reclamacoes {
 
     public void setReclamacao(String reclamacao) {
         this.reclamacao = reclamacao;
+    }
+    public Moradores getMorador() {
+        return morador;
+    }
+
+    public void setMorador(Moradores morador) {
+        this.morador = morador;
     }
 }
