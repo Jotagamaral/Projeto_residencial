@@ -1,7 +1,7 @@
 import { Label, TextInput, Button, Card } from "flowbite-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../services/api";
+import { loginUser } from "../services/userService";
 import { Link } from "react-router-dom";
 
 function Login() {
