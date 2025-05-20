@@ -3,9 +3,9 @@
 function AvisoList({ avisos }) {
     if (!avisos.length) {
         return <p className="text-center text-gray-500 mt-4">Nenhum aviso encontrado.</p>;
-        }
+    }
     
-        return (
+    return (
         <div className="mt-6 px-4">
             <h2 className="text-2xl font-bold mb-4">Avisos</h2>
             <div className="grid gap-4">

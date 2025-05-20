@@ -5,6 +5,7 @@ import RegisterPage from "./pages/RegistePage";
 import LoginPage from "./pages/LoginPage";
 import Encomendas from "./pages/Encomendas/Encomendas";
 import CadastroEncomenda from "./pages/Encomendas/CadastroEncomenda";
+import Reclamacoes from "./pages/Reclamacoes/Reclamacoes";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/encomendas" element={<Encomendas />} />
         <Route path="/cadastro_encomendas" element={<CadastroEncomenda />} />
+        <Route path="/reclamacoes" element={<Reclamacoes />} />
       </Routes>
     </Router>
   );
