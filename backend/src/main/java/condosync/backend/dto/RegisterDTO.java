@@ -1,16 +1,33 @@
 package condosync.backend.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class RegisterDTO {
+    @NotBlank(message = "Tipo de usuário é obrigatório")
     private String tipoUsuario;
+
+    @NotBlank(message = "Nome é obrigatório")
     private String nome;
+
+    @NotBlank(message = "CPF é obrigatório")
     private String cpf;
+
     private String rg;
+
     private String telefone;
+
+    @NotBlank(message = "Email é obrigatório")
     private String email;
+
+    @NotBlank(message = "Senha é obrigatória")
     private String senha;
+
     private Integer apartamento;
+
     private Character bloco;
+
     private String cargo;
+
 
     // Getters and Setters
     public String getTipoUsuario() {

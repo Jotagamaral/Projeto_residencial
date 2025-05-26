@@ -117,7 +117,7 @@ function Register() {
                             <Label htmlFor="email" className="flex items-center gap-1">
                                 Email:
                             </Label>
-                            <TextInput id="email" type="email" placeholder="Digite seu email" onChange={(e) => setEmail(e.target.value)}/>
+                            <TextInput id="email" type="email" placeholder="Digite seu email" onChange={(e) => setEmail(e.target.value)} required/>
                         </div>
                         <div className="flex flex-col flex-1 min-w-[200px]">
                             <Label htmlFor="rg" className="flex items-center gap-1">

@@ -17,6 +17,7 @@ public class User {
     @Column(name = "senha", nullable = false)
     private String senha;
 
+    @Column(name = "categoria", nullable = false)
     private String categoria;
 
     // Default constructor

@@ -14,7 +14,7 @@ public class Moradores {
     @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(name = "rg", nullable = false, unique = true)
+    @Column(name = "rg", nullable = true, unique = true)
     private String rg;
 
     @Column(name = "cpf", nullable = false, unique = true)

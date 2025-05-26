@@ -28,6 +28,7 @@ public class Reclamacoes {
         this.id = id;
         this.nome = nome;
         this.reclamacao = reclamacao;
+        this.morador = morador;
     }
 
     public Long getId() {
