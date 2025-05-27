@@ -1,4 +1,4 @@
-// components/AvisoList.jsx
+// components/EncomendasList.jsx
 
 function Encomendas({encomendas}) {
     if (!encomendas.length || !encomendas) {
