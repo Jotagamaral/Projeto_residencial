@@ -1,46 +1,18 @@
-// src/services/api.js
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// src/services/userService.js
+import axios from 'axios';
 
-export async function loginUser(cpf, senha) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/login`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ cpf, senha }),
-        });
-
-        if (!response.ok) {
-        throw new Error("Erro ao fazer login");
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Erro na requisição de login:", error);
-        throw error;
-    }
-}
 
 export async function registerUser(userData) {
     try {
-        const response = await fetch(`${API_BASE_URL}/register`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-        });
-
-        if (!response.ok) {
-        throw new Error("Erro ao fazer cadastro");
-        }
-
-        const data = await response.json();
-        return data;
+        const response = await axios.post(`/register`, userData);
+        return response.data;
     } catch (error) {
         console.error("Erro na requisição de cadastro:", error);
-        throw error;
+
+        if (error.response && error.response.data && error.response.data.message) {
+            throw new Error(error.response.data.message);
+        } else {
+            throw new Error("Erro ao fazer cadastro. Tente novamente.");
+        }
     }
 }

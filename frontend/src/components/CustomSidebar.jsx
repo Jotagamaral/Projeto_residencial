@@ -1,6 +1,9 @@
 import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems, SidebarLogo } from "flowbite-react";
+import { useAuth } from '../context/AuthContext';
 
 function CustomSidebar() {
+  const { logout } = useAuth();
+
   return (
     <div>
       <Sidebar className="h-screen bg-blue-600 text-white">
@@ -32,15 +35,9 @@ function CustomSidebar() {
           </SidebarItem>
         </SidebarItemGroup>
         <SidebarItemGroup>
-          <SidebarItem href="/login" className="text-gray-900 hover:bg-gray-200">
+          <SidebarItem onClick={logout} className="text-gray-900 hover:bg-gray-200">
             Logout
           </SidebarItem>
-
-          {/*
-          <SidebarItem href="/" className="text-gray-900 hover:bg-gray-200">
-            Logout
-          </SidebarItem>
-            */}
 
         </SidebarItemGroup> 
       </Sidebar>

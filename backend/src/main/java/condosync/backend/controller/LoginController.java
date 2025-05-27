@@ -67,7 +67,8 @@ public class LoginController {
                                 "nome", nome,
                                 "cpf", user.getCpf(),
                                 "categoria", user.getCategoria()
-                        )
+                        ),
+                        "token", "dummy-jwt-token"
                 );
 
                 return ResponseEntity.ok(response);
@@ -79,7 +80,7 @@ public class LoginController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "ERRO:" + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "[ERRO]:" + e.getMessage()));
         }
     }
 }
