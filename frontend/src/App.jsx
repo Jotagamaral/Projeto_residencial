@@ -9,6 +9,7 @@ import Reclamacoes from "./pages/Reclamacoes/Reclamacoes";
 
 import { AuthProvider } from './context/AuthContext'; // Importar AuthProvider
 import PrivateRoute from './components/PrivateRoute'; // Importar PrivateRoute
+import Reservas from "./pages/Reservas/Reservas";
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
             <Route path="/encomendas" element={<Encomendas />} />
             <Route path="/cadastro_encomendas" element={<CadastroEncomenda />} />
             <Route path="/reclamacoes" element={<Reclamacoes />} />
+            <Route path="/reservas" element={<Reservas />} />
+
             {/* Adicione outras rotas protegidas aqui */}
           </Route>
 

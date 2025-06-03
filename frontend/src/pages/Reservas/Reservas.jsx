@@ -19,9 +19,9 @@ function Reservas () {
           setReservas(dados);
         } catch (error) {
             console.error(error)
-          setErro("Erro ao carregar reservas.");
+            setErro("Erro ao carregar reservas.");
         } finally {
-          console.log("Dados na encomenda final:", reservas);
+          console.log("Dados na reserva final:", reservas);
           setLoading(false);
         }
       }
@@ -36,7 +36,7 @@ function Reservas () {
             <div className="w-full flex flex-col items-center justify-center py-8">
             <div className="mt-10 px-8">
                 {loading && <p>Carregando Reservas...</p>}
-                {erro && <p className="text-red-500">{erro}</p>}
+                {!loading && erro && <p className="text-red-500">{erro}</p>}
                 {!loading && !erro && <ReservasList reservas={reservas} />}
             </div>
             </div>

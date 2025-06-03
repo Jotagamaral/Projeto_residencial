@@ -19,6 +19,7 @@ function Encomendas() {
           setEncomendas(dados);
         } catch (error) {
           setErro("Erro ao carregar encomendas.");
+          console.error(error);
         } finally {
           console.log("Dados na encomenda final:", encomendas);
           setLoading(false);
@@ -35,7 +36,7 @@ function Encomendas() {
             <div className="w-full flex flex-col items-center justify-center py-8">
             <div className="mt-10 px-8">
                 {loading && <p>Carregando Encomendas...</p>}
-                {erro && <p className="text-red-500">{erro}</p>}
+                {!loading && erro && <p className="text-red-500">{erro}</p>}
                 {!loading && !erro && <EncomendasList encomendas={encomendas} />}
             </div>
             </div>

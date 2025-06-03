@@ -17,6 +17,7 @@ function Reclamacoes() {
           console.log("Dados na Reclamação.jsx:", dados);
           setReclamacoes(dados);
         } catch (error) {
+          console.log("Erro:", error)
           setErro("Erro ao carregar reclamacoes.");
         } finally {
           console.log("Dados na reclamacao final:", reclamacoes);
@@ -34,7 +35,7 @@ function Reclamacoes() {
             <div className="w-full flex flex-col items-center justify-center py-8">
             <div className="mt-10 px-8">
                 {loading && <p>Carregando Reclamações...</p>}
-                {erro && <p className="text-red-500">{erro}</p>}
+                {!loading && erro && <p className="text-red-500">{erro}</p>}
                 {!loading && !erro && <ReclamacoesList reclamacoes={reclamacoes} />}
             </div>
             </div>

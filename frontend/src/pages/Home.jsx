@@ -19,6 +19,7 @@ function Home() {
         setAvisos(dados);
       } catch (error) {
         setErro("Erro ao carregar avisos.");
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -57,7 +58,7 @@ function Home() {
         {/* Área de Avisos */}
         <div className="mt-10 px-8">
           {loading && <p>Carregando avisos...</p>}
-          {erro && <p className="text-red-500">{erro}</p>}
+          {!loading && erro && <p className="text-red-500">{erro}</p>}
           {!loading && !erro && <AvisoList avisos={avisos} />}
         </div>
       </div>
