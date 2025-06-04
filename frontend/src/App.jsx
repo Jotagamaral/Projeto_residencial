@@ -10,6 +10,9 @@ import Reclamacoes from "./pages/Reclamacoes/Reclamacoes";
 import { AuthProvider } from './context/AuthContext'; // Importar AuthProvider
 import PrivateRoute from './components/PrivateRoute'; // Importar PrivateRoute
 import Reservas from "./pages/Reservas/Reservas";
+import CadastroReclamacao from "./pages/Reclamacoes/CadastroReclamacoes";
+import CadastroReservas from "./pages/Reservas/CadastroReservas";
+import CadastroAvisos from "./pages/Avisos/CadastroAvisos";
 
 function App() {
   return (
@@ -25,9 +28,12 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/encomendas" element={<Encomendas />} />
-            <Route path="/cadastro_encomendas" element={<CadastroEncomenda />} />
             <Route path="/reclamacoes" element={<Reclamacoes />} />
             <Route path="/reservas" element={<Reservas />} />
+            <Route path="/cadastro_reclamacao" element={<CadastroReclamacao />} />
+            <Route path="/cadastro_reserva" element={<CadastroReservas/>} />
+            <Route path="/cadastro_encomendas" element={<CadastroEncomenda />} />
+            <Route path="/cadastro_aviso" element={<CadastroAvisos />} />    
 
             {/* Adicione outras rotas protegidas aqui */}
           </Route>
