@@ -2,26 +2,25 @@ import React from 'react';
 import { useEffect, useState } from "react";
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
-import EncomendasList from "../../components/EncomendasList"; // importar o novo componente
-import { buscarEncomendas } from "../../services/encomendasService"; // importar o serviço
+import EncomendasList from "../../components/EncomendasList";
+import { buscarEncomendas } from "../../services/encomendasService";
+import { useNavigate } from "react-router-dom";
 
 function Encomendas() {
 
     const [encomendas, setEncomendas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
       async function carregarEncomendas() {
         try {
           const dados = await buscarEncomendas();
-          console.log("Dados na encomenda.jsx:", dados);
           setEncomendas(dados);
         } catch (error) {
           setErro("Erro ao carregar encomendas.");
-          console.error(error);
         } finally {
-          console.log("Dados na encomenda final:", encomendas);
           setLoading(false);
         }
       }
@@ -34,56 +33,26 @@ function Encomendas() {
           <div className="w-full">
             <Navbar />
             <div className="w-full flex flex-col items-center justify-center py-8">
-            <div className="mt-10 px-8">
+              <div className="mt-10 px-8 w-full max-w-4xl">
                 {loading && <p>Carregando Encomendas...</p>}
                 {!loading && erro && <p className="text-red-500">{erro}</p>}
                 {!loading && !erro && <EncomendasList encomendas={encomendas} />}
+              </div>
             </div>
-            </div>
+            {/* Botão fixo no canto inferior direito */}
+            <button
+              className="fixed bottom-8 right-8 bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-6 text-lg rounded-xl flex items-center justify-center gap-3 focus:outline-none focus:shadow-outline z-50"
+              onClick={() => navigate("/cadastro_encomendas")}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <line x1="12" y1="5" x2="12" y2="19" strokeWidth="3" strokeLinecap="round"/>
+                <line x1="5" y1="12" x2="19" y2="12" strokeWidth="3" strokeLinecap="round"/>
+              </svg>
+              <span className="flex items-center justify-center text-xl font-bold">Nova encomenda</span>
+            </button>
           </div>
         </div>
       );
-    }
-
-export default Encomendas;
-
-/*return (
-    <div className="flex bg-gray-100 min-h-screen">
-      <CustomSidebar />
-      <div className="w-full">
-        <Navbar />
-        <div className="w-full flex flex-col items-center justify-center py-8">
-          <div className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 w-full max-w-4xl">
-            <h2 className="text-gray-700 text-xl font-bold mb-6 text-center">
-              Encomendas Registradas
-            </h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border border-gray-200">
-                <thead>
-                  <tr className="bg-gray-200 text-gray-700 text-sm uppercase">
-                    <th className="py-2 px-4 border">Remetente</th>
-                    <th className="py-2 px-4 border">Destinatário</th>
-                    <th className="py-2 px-4 border">Apartamento</th>
-                    <th className="py-2 px-4 border">Hora da Entrega</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {encomendas.map((item) => (
-                    <tr key={item.id} className="text-center border-t">
-                      <td className="py-2 px-4 border">{item.remetente}</td>
-                      <td className="py-2 px-4 border">{item.destinatario}</td>
-                      <td className="py-2 px-4 border">{item.apartamento}</td>
-                      <td className="py-2 px-4 border">{item.hora_entrega}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
-export default Encomendas;*/
+export default Encomendas;

@@ -50,72 +50,78 @@ function CadastroReservas() {
       <CustomSidebar />
       <div className="w-full">
         <Navbar />
-        <div className="w-full flex flex-col items-center justify-center py-8">
-          <div className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 w-full max-w-xl">
-            <h2 className="block text-gray-700 text-xl font-bold mb-6 text-center">
-              Reservas já cadastradas
-            </h2>
-            <div className="overflow-x-auto mb-6">
-              <table className="min-w-full bg-white border border-gray-200">
-                <thead>
-                  <tr className="bg-gray-200 text-gray-700 text-sm uppercase">
-                    <th className="py-2 px-4 border">Data</th>
-                    <th className="py-2 px-4 border">Local</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reservas.map((reserva) => (
-                    <tr key={reserva.id} className="text-center border-t">
-                      <td className="py-2 px-4 border">{reserva.data}</td>
-                      <td className="py-2 px-4 border">{getNomeLocal(reserva.local_id)}</td>
+        <div className="flex flex-col items-center justify-center py-8 w-full">
+          <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl">
+            {/* Reservas cadastradas - Esquerda */}
+            <div className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 w-full md:w-1/2 flex flex-col">
+              <h2 className="block text-gray-700 text-xl font-bold mb-6 text-center">
+                Reservas já cadastradas
+              </h2>
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200">
+                  <thead>
+                    <tr className="bg-gray-200 text-gray-700 text-sm uppercase">
+                      <th className="py-2 px-4 border">Data</th>
+                      <th className="py-2 px-4 border">Local</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {reservas.map((reserva) => (
+                      <tr key={reserva.id} className="text-center border-t">
+                        <td className="py-2 px-4 border">{reserva.data}</td>
+                        <td className="py-2 px-4 border">{getNomeLocal(reserva.local_id)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <h2 className="block text-gray-700 text-xl font-bold mb-6 text-center">
-              Cadastrar Reserva
-            </h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="data">
-                  Data da Reserva:
-                </label>
-                <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  id="data"
-                  type="date"
-                  value={data}
-                  onChange={(e) => setData(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="local">
-                  Local:
-                </label>
-                <select
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  id="local"
-                  value={localId}
-                  onChange={(e) => setLocalId(e.target.value)}
-                  required
-                >
-                  <option value="">Selecione o local</option>
-                  {locais.map((local) => (
-                    <option key={local.id} value={local.id}>{local.nome}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex justify-center">
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="submit"
-                >
-                  Cadastrar Reserva
-                </button>
-              </div>
-            </form>
+            {/* Cadastro de nova reserva - Direita */}
+            <div className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 w-full md:w-1/2 flex flex-col">
+              <h2 className="block text-gray-700 text-xl font-bold mb-6 text-center">
+                Cadastrar Reserva
+              </h2>
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="data">
+                    Data da Reserva:
+                  </label>
+                  <input
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="data"
+                    type="date"
+                    value={data}
+                    onChange={(e) => setData(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="local">
+                    Local:
+                  </label>
+                  <select
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="local"
+                    value={localId}
+                    onChange={(e) => setLocalId(e.target.value)}
+                    required
+                  >
+                    <option value="">Selecione o local</option>
+                    {locais.map((local) => (
+                      <option key={local.id} value={local.id}>{local.nome}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="submit"
+                  >
+                    Cadastrar Reserva
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
