@@ -71,8 +71,17 @@ public class ReclamacaoController {
             Optional<Moradores> moradorOptional = moradoresRepository.findById(reclamacaoDTO.getMoradorId());
             
             if (moradorOptional.isEmpty()) {
+
+                Map<String, Object> response = Map.of(
+                            "message", "Erro na criação da reclamação.",
+                            "error", Map.of(
+                                    "code", "404",
+                                    "message", "Morador não encontrado."
+                            )
+                    );
+
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(null);
+                        .body(response);
             }
 
             Moradores morador = moradorOptional.get();
