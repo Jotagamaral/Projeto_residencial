@@ -2,7 +2,6 @@ package condosync.backend.dao;
 
 import condosync.backend.model.Locais;
 import condosync.backend.model.Moradores;
-import condosync.backend.model.Reclamacoes;
 import condosync.backend.model.Reservas;
 import condosync.backend.repository.ReservasRepository;
 import org.springframework.beans.factory.annotation.Autowired;

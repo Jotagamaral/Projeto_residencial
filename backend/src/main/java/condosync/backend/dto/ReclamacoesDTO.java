@@ -6,14 +6,18 @@ public class ReclamacoesDTO {
     private Long id;
     private String nome;
     private String reclamacao;
-    private Long morador;
+    private Long moradorId;
+
+    // Construtor padrão
+    public ReclamacoesDTO() {
+    }
 
     // Construtor
     public ReclamacoesDTO(Reclamacoes reclamacao) {
         this.id = reclamacao.getId();
-        this.nome = reclamacao.getnome();
+        this.nome = reclamacao.getNome();
         this.reclamacao = reclamacao.getReclamacao();
-        this.morador = reclamacao.getMorador().getId();
+        this.moradorId = reclamacao.getMorador().getId();
     }
 
     // Getters e Setters
@@ -41,11 +45,11 @@ public class ReclamacoesDTO {
         this.reclamacao = reclamacao;
     }
 
-    public Long getMorador() {
-        return morador;
+    public Long getMoradorId() {
+        return moradorId;
     }
 
-    public void setMorador(Long morador) {
-        this.morador = morador;
+    public void setMoradorId(Long moradorId) {
+        this.moradorId = moradorId;
     }
 }
