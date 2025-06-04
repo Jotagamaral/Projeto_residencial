@@ -5,6 +5,7 @@ import condosync.backend.model.Reclamacoes;
 import condosync.backend.model.Moradores;
 import condosync.backend.repository.ReclamacoesRepository;
 import condosync.backend.repository.MoradoresRepository; // Importar o MoradoresRepository
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -84,6 +85,7 @@ public class ReclamacaoController {
                         .body(response);
             }
 
+            // Criando reclamacao
             Moradores morador = moradorOptional.get();
 
             Reclamacoes novaReclamacao = new Reclamacoes();
@@ -93,8 +95,14 @@ public class ReclamacaoController {
 
             Reclamacoes reclamacao = reclamacoesRepository.save(novaReclamacao);
 
+            // Response
+            Map<String, Object> response = Map.of(
+                "message", "Aviso criado com sucesso.",
+                "aviso", new ReclamacoesDTO(reclamacao)
+            );
+
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ReclamacoesDTO(reclamacao));
+                    .body(response);
 
         } catch (Exception e) {
             e.printStackTrace();
