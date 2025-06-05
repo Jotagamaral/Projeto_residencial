@@ -9,6 +9,11 @@ public class ReservasDTO {
     private LocalDate data;
     private Long morador;
 
+    // Contructor Default
+    public ReservasDTO(){
+        
+    }
+
     // Construtor
     public ReservasDTO(Reservas reservas) {
         this.id = reservas.getId();

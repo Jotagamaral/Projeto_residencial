@@ -29,6 +29,7 @@ public class ReclamacaoController {
         this.moradoresRepository = moradoresRepository;
     }
 
+    // GET Reclamações
     @GetMapping
     public List<ReclamacoesDTO> listarTodos() {
         return reclamacoesRepository.findAll().stream()
@@ -36,6 +37,7 @@ public class ReclamacaoController {
                 .collect(Collectors.toList());
     }
 
+    // POST Reclamações
     @PostMapping
     public ResponseEntity<Object> criarReclamacao(@RequestBody ReclamacoesDTO reclamacaoDTO) {
 
@@ -96,13 +98,13 @@ public class ReclamacaoController {
             Reclamacoes reclamacao = reclamacoesRepository.save(novaReclamacao);
 
             // Response
-            Map<String, Object> response = Map.of(
+            Map<String, Object> responseReclamacao = Map.of(
                 "message", "Aviso criado com sucesso.",
                 "aviso", new ReclamacoesDTO(reclamacao)
             );
 
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(response);
+                    .body(responseReclamacao);
 
         } catch (Exception e) {
             e.printStackTrace();
