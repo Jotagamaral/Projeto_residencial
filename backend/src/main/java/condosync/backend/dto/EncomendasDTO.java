@@ -6,16 +6,25 @@ import condosync.backend.model.Encomendas;
 
 public class EncomendasDTO {
     private Long id;
-    private String remetente;
-    private String destinatario;
-    private String apartamento;
+    private Long moradorId;
+    private String morador;
+    private Long funcionarioId;
+    private String funcionario;
     private LocalDateTime horaEntrega;
+    private String remetente;
+    private String apartamento;
+
+    // Constructor Default
+    public EncomendasDTO(){}
 
     // Construtor
     public EncomendasDTO(Encomendas encomenda) {
         this.id = encomenda.getId();
         this.remetente = encomenda.getRemetente();
-        this.destinatario = encomenda.getMorador().getNome(); // Supondo que Morador tem um campo "nome"
+        this.moradorId = encomenda.getMorador().getId();
+        this.morador = encomenda.getMorador().getNome();
+        this.funcionarioId = encomenda.getFuncionario().getId();
+        this.funcionario = encomenda.getFuncionario().getNome();
         this.apartamento = encomenda.getApartamento();
         this.horaEntrega = encomenda.getHoraEntrega();
     }
@@ -36,12 +45,36 @@ public class EncomendasDTO {
         this.remetente = remetente;
     }
 
-    public String getDestinatario() {
-        return destinatario;
+    public Long getMoradorId() {
+        return moradorId;
     }
 
-    public void setDestinatario(String destinatario) {
-        this.destinatario = destinatario;
+    public void setMoradorId(Long moradorId) {
+        this.moradorId = moradorId;
+    }
+
+    public String getMorador() {
+        return morador;
+    }
+
+    public void setMorador(String morador) {
+        this.morador = morador;
+    }
+
+    public Long getFuncionarioId() {
+        return funcionarioId;
+    }
+
+    public void setFuncionarioId(Long funcionarioId) {
+        this.funcionarioId = funcionarioId;
+    }
+
+    public String getFuncionario() {
+        return funcionario;
+    }
+
+    public void setFuncionario(String funcionario) {
+        this.funcionario = funcionario;
     }
 
     public String getApartamento() {

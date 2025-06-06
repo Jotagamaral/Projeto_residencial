@@ -42,10 +42,10 @@ public class ReclamacaoController {
     public ResponseEntity<Object> criarReclamacao(@RequestBody ReclamacoesDTO reclamacaoDTO) {
 
         try {
-
+            // ERRORS
             if (reclamacaoDTO.getReclamacao() == null || reclamacaoDTO.getReclamacao().trim().isEmpty()) {
                 // Preparar response
-                Map<String, Object> response = Map.of(
+                Map<String, Object> badResponse = Map.of(
                             "message", "Erro na criação da reclamação.",
                             "error", Map.of(
                                     "code", "400",
@@ -53,13 +53,12 @@ public class ReclamacaoController {
                             )
                     );
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(response);
+                throw new Exception("[ERRO]: ReclamacaoDTO", new Throwable(badResponse.toString()));
             }
 
             if (reclamacaoDTO.getMoradorId() == null) {
-
-                Map<String, Object> response = Map.of(
+                // Preparar response
+                Map<String, Object> badResponse = Map.of(
                             "message", "Erro na criação da reclamação.",
                             "error", Map.of(
                                     "code", "400",
@@ -67,15 +66,14 @@ public class ReclamacaoController {
                             )
                     );
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(response);
+                throw new Exception("[ERRO]: ReclamacaoDTO", new Throwable(badResponse.toString()));
             }
 
             Optional<Moradores> moradorOptional = moradoresRepository.findById(reclamacaoDTO.getMoradorId());
             
             if (moradorOptional.isEmpty()) {
-
-                Map<String, Object> response = Map.of(
+                // Preparar response
+                Map<String, Object> badResponse = Map.of(
                             "message", "Erro na criação da reclamação.",
                             "error", Map.of(
                                     "code", "404",
@@ -83,8 +81,7 @@ public class ReclamacaoController {
                             )
                     );
 
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(response);
+                throw new Exception("[ERRO]: ReclamacaoDTO", new Throwable(badResponse.toString()));
             }
 
             // Criando reclamacao
@@ -99,7 +96,7 @@ public class ReclamacaoController {
 
             // Response
             Map<String, Object> responseReclamacao = Map.of(
-                "message", "Aviso criado com sucesso.",
+                "message", "Reclamação criada com sucesso.",
                 "aviso", new ReclamacoesDTO(reclamacao)
             );
 

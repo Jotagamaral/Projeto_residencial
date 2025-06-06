@@ -24,7 +24,7 @@ function Encomendas({encomendas}) {
                 {encomendas.map((item) => (
                     <tr key={item.id} className="text-center border-t">
                     <td className="py-2 px-4 border">{item.remetente}</td>
-                    <td className="py-2 px-4 border">{item.destinatario}</td>
+                    <td className="py-2 px-4 border">{item.morador}</td>
                     <td className="py-2 px-4 border">{item.apartamento}</td>
                     <td className="py-2 px-4 border">{item.horaEntrega}</td>
                     </tr>
