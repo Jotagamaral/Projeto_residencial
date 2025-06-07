@@ -6,9 +6,7 @@ const PrivateRoute = () => {
 const { isAuthenticated } = useAuth();
 
 
-if (isAuthenticated) {
-    console.log("Usuário autenticado. Permitindo acesso à rota protegida.");
-} else {
+if (!isAuthenticated) {
     console.log("Usuário não autenticado. Redirecionando para a página de login.");
 }
 

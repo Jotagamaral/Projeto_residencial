@@ -49,21 +49,21 @@ useEffect(() => {
 // Função de login
 const login = async (cpf, senha) => {
     try {
-    const response = await axios.post('/login', { cpf, senha });
-    const { jwt, user: userDataFromBackend } = response.data;
+        const response = await axios.post('/login', { cpf, senha });
+        const { jwt, user: userDataFromBackend } = response.data;
 
-    localStorage.setItem('jwtToken', jwt);
-    localStorage.setItem('user', JSON.stringify(userDataFromBackend));
+        localStorage.setItem('jwtToken', jwt);
+        localStorage.setItem('user', JSON.stringify(userDataFromBackend));
 
-    setToken(jwt);
-    setIsAuthenticated(true);
-    setUser(userDataFromBackend);
-    console.log("Usuário logado com sucesso:", userDataFromBackend);
-    navigate('/');
+        setToken(jwt);
+        setIsAuthenticated(true);
+        setUser(userDataFromBackend);
+        console.log("Usuário logado com sucesso:", userDataFromBackend);
+        navigate('/');
     } catch (error) {
-    console.error("Erro no AuthContext login:", error);
-    if (error.response && error.response.data && error.response.data.message) {
-        throw new Error(error.response.data.message);
+        console.error("Erro no AuthContext login:", error);
+        if (error.response && error.response.data && error.response.data.message) {
+            throw new Error(error.response.data.message);
     } else {
         throw new Error("Erro ao fazer login. Verifique suas credenciais.");
     }
