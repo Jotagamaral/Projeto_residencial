@@ -49,13 +49,14 @@ public class EncomendasController {
 
         try {
             // ERRORS
-            if (encomendasDTO.getApartamento().trim().isEmpty()) {
+
+            if (encomendasDTO.getRemetente().isEmpty()) {
                 // Preparar badResponse
                 Map<String, Object> badResponse = Map.of(
                     "message","Erro na criação da encomenda",
                     "error",Map.of(
                             "code","400",
-                            "message","Apartamento não pode ser vazio"));
+                            "message","Remetente não pode ser vazio"));
 
                 throw new Exception("[Erro]: EncomendaDTO", new Throwable(badResponse.toString()));
             }
@@ -63,7 +64,7 @@ public class EncomendasController {
             Optional<Moradores> moradorOptional = moradoresRepository.findById(encomendasDTO.getMoradorId());
 
             if (moradorOptional.isEmpty()) {
-                 // Preparar badResponse
+                // Preparar badResponse
                 Map<String, Object> badResponse = Map.of(
                     "message","Erro na criação da encomenda",
                     "error",Map.of(
@@ -90,13 +91,13 @@ public class EncomendasController {
             
             Moradores morador = moradorOptional.get();
             Funcionarios funcionarios = funcionarioOptional.get();
-
             Encomendas novaEncomenda = new Encomendas();
+            
             novaEncomenda.setRemetente(encomendasDTO.getRemetente());
             novaEncomenda.setMorador(morador);
             novaEncomenda.setFuncionario(funcionarios);
-            novaEncomenda.setApartamento(encomendasDTO.getApartamento());
             novaEncomenda.setHoraEntrega(encomendasDTO.getHoraEntrega());
+            
             Encomendas encomendaSalva = encomendasRepository.save(novaEncomenda);
             EncomendasDTO encomenda = new EncomendasDTO(encomendaSalva);
 

@@ -28,8 +28,6 @@ public class Encomendas {
     @Column(name = "remetente", nullable = false)
     private String remetente;
 
-    @Column(name = "apartamento", nullable = false)
-    private String apartamento;
 
     public Encomendas() {}
 
@@ -38,7 +36,6 @@ public class Encomendas {
         this.funcionario = funcionario;
         this.horaEntrega = horaEntrega;
         this.remetente = remetente;
-        this.apartamento = apartamento;
     }
 
     public Long getId() {
@@ -79,13 +76,5 @@ public class Encomendas {
 
     public void setRemetente(String remetente) {
         this.remetente = remetente;
-    }
-
-    public String getApartamento() {
-        return apartamento;
-    }
-
-    public void setApartamento(String apartamento) {
-        this.apartamento = apartamento;
     }
 }

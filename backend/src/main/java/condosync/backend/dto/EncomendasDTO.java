@@ -12,7 +12,7 @@ public class EncomendasDTO {
     private String funcionario;
     private LocalDateTime horaEntrega;
     private String remetente;
-    private String apartamento;
+    private int apartamento;
 
     // Constructor Default
     public EncomendasDTO(){}
@@ -23,9 +23,9 @@ public class EncomendasDTO {
         this.remetente = encomenda.getRemetente();
         this.moradorId = encomenda.getMorador().getId();
         this.morador = encomenda.getMorador().getNome();
+        this.apartamento = encomenda.getMorador().getApartamento();
         this.funcionarioId = encomenda.getFuncionario().getId();
         this.funcionario = encomenda.getFuncionario().getNome();
-        this.apartamento = encomenda.getApartamento();
         this.horaEntrega = encomenda.getHoraEntrega();
     }
 
@@ -77,11 +77,11 @@ public class EncomendasDTO {
         this.funcionario = funcionario;
     }
 
-    public String getApartamento() {
+    public int getApartamento() {
         return apartamento;
     }
 
-    public void setApartamento(String apartamento) {
+    public void setApartamento(int apartamento) {
         this.apartamento = apartamento;
     }
 
