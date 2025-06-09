@@ -1,16 +1,37 @@
 import React, { useState } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
+import { publicarAviso } from '../../services/avisosService'; // ADICIONE ESTA LINHA
+import { useNavigate } from 'react-router-dom'; // ADICIONE ESTA LINHA
+
 
 function CadastroAvisos() {
   const [aviso, setAviso] = useState('');
   const [data, setData] = useState('');
+  const [erro, setErro] = useState(null); // Para feedback de erro
+  const navigate = useNavigate(); // Para redirecionar
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Aqui você faria o POST para o backend
-    setAviso('');
-    setData('');
+    setErro(null);
+
+    const [ano, mes, dia] = data.split('-');
+    const dataFormatada = `${dia}/${mes}/${ano}`; 
+
+    const avisoData = {
+      aviso,
+      data: dataFormatada,
+    };
+
+    try {
+      await publicarAviso(avisoData);
+      setAviso('');
+      setData('');
+      navigate('/'); // Redireciona após sucesso
+    } catch (error) {
+      setErro('Erro ao cadastrar aviso.');
+      console.error(error);
+    }
   };
 
   return (

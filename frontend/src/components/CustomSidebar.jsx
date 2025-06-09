@@ -6,7 +6,7 @@ function CustomSidebar() {
 
   return (
     <div>
-      <Sidebar className="h-screen bg-blue-600 text-white">
+      <Sidebar className="max-h-screen bg-blue-600 text-white">
         <SidebarLogo href="/" className="text-white text-center mb-2">
         <span className="self-center whitespace-nowrap text-2xl font-bold">
           CondoSync
@@ -25,6 +25,9 @@ function CustomSidebar() {
             </SidebarItem>
             <SidebarItem href="/encomendas" className="text-gray-900 hover:bg-gray-200">
               Encomendas
+            </SidebarItem>
+            <SidebarItem href="/cadastro_aviso" className="text-gray-900 hover:bg-gray-200">
+              Novos avisos
             </SidebarItem>
           </SidebarItemGroup>
         </SidebarItems>
