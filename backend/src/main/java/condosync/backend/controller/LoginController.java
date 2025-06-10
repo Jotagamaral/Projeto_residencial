@@ -1,10 +1,12 @@
 package condosync.backend.controller;
 
+
 import condosync.backend.dao.FuncionariosDAO;
 import condosync.backend.dao.MoradoresDAO;
+import condosync.backend.dao.UserDAO;
+
 import condosync.backend.dto.LoginDTO;
-import condosync.backend.model.Funcionarios;
-import condosync.backend.model.Moradores;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,43 +22,65 @@ import java.util.Map;
 public class LoginController {
 
     @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
     private MoradoresDAO moradoresDAO;
 
     @Autowired
     private FuncionariosDAO funcionariosDAO;
 
+
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody LoginDTO loginDTO) {
         try {
-            Funcionarios funcionario = funcionariosDAO.buscarFuncionarioPorCpf(loginDTO.getcpf().trim());
 
-            Moradores morador = moradoresDAO.buscarMoradorPorCpf(loginDTO.getcpf().trim());
+            var user = userDAO.buscarUserPorCpf(loginDTO.getCpf().trim());
 
-            if (funcionario != null && morador != null) {
+            if (user == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(Map.of("message", "Erro ao logar, consulte o serviço técnico."));
+                        .body(Map.of("message", "Usuário não encontrado."));
+            }
 
-            } else if (funcionario != null && morador == null && funcionario.getSenha().trim().equals(loginDTO.getsenha().trim())) {
-                return ResponseEntity.ok(Map.of(
-                        "id", funcionario.getId(),
-                        "nome", funcionario.getNome(),
-                        "message", "Login realizado com sucesso!"
-                ));
+            if (user.getSenha().equals(loginDTO.getSenha())) {
+                // Return success response with user details
+                var category = user.getCategoria();
 
-            } else if (funcionario == null && morador != null && morador.getSenha().trim().equals(loginDTO.getsenha().trim())) {
-                return ResponseEntity.ok(Map.of(
-                        "id", morador.getId(),
-                        "nome", morador.getNome(),
-                        "message", "Login realizado com sucesso!"
-                ));
+                Long id = null;
+                String nome = null;
+
+                if (category.equals("MORADOR")) {
+                    var morador = moradoresDAO.buscarMoradorPorCpf(loginDTO.getCpf().trim());
+                    id = morador.getId();
+                    nome = morador.getNome();
+
+                } else if (category.equals("FUNCIONARIO")) {
+                    var funcionario = funcionariosDAO.buscarFuncionarioPorCpf(loginDTO.getCpf().trim());
+                    id = funcionario.getId();
+                    nome = funcionario.getNome();
+                }
+
+                Map<String, Object> response = Map.of(
+                        "message", "Login realizado com sucesso!",
+                        "user", Map.of(
+                                "id", id,
+                                "nome", nome,
+                                "cpf", user.getCpf(),
+                                "categoria", user.getCategoria()
+                        ),
+                        "token", "dummy-jwt-token"
+                );
+
+                return ResponseEntity.ok(response);
 
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("message", "Credenciais inválidas. Tente novamente."));
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("message", "Senha incorreta."));
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "ERRO:" + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "[ERRO]:" + e.getMessage()));
         }
     }
 }

@@ -13,3 +13,15 @@ export async function buscarAvisos() {
         throw error; // repassa o erro para quem chamou lidar
     }
 }
+
+export async function publicarAviso(avisoData) {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/avisos`, avisoData);
+        console.log("[avisosService] Aviso publicado:", response.status);
+        console.log(response.data);
+        return response.data;
+    } catch (error) {
+        console.error("[avisosService] Erro ao publicar aviso:", error);
+        throw error;
+    }
+}

@@ -14,7 +14,7 @@ public class Moradores {
     @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(name = "rg", nullable = false, unique = true)
+    @Column(name = "rg", nullable = true, unique = true)
     private String rg;
 
     @Column(name = "cpf", nullable = false, unique = true)
@@ -32,13 +32,15 @@ public class Moradores {
     @Column(name = "bloco", nullable = false)
     private Character bloco;
 
-    @Column(name = "senha", nullable = false)
-    private String senha;
+    @OneToOne
+    @JoinColumn(name = "fk_user", referencedColumnName = "id")
+    private User user;
 
+    // Default constructor
     public Moradores() {}
 
     public Moradores(Long id, String nome, String rg, String cpf, String telefone, String email, Integer apartamento,
-                    Character bloco, String senha) {
+                    Character bloco, User user) {
         this.id = id;
         this.nome = nome;
         this.rg = rg;
@@ -47,7 +49,7 @@ public class Moradores {
         this.email = email;
         this.apartamento = apartamento;
         this.bloco = bloco;
-        this.senha = senha;
+        this.user = user;
     }
 
     public Long getId() {
@@ -113,12 +115,10 @@ public class Moradores {
     public void setBloco(Character bloco) {
         this.bloco = bloco;
     }
-
-    public String getSenha() {
-        return senha;
+    public User getUser() {
+        return user;
     }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
+    public void setUser(User user) {
+        this.user = user;
     }
 }

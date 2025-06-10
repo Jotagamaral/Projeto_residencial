@@ -10,5 +10,4 @@ import java.util.List;
 public interface EncomendasRepository extends JpaRepository<Encomendas, Long> {
     List<Encomendas> findByFuncionario(Funcionarios funcionario);
     List<Encomendas> findByMorador(Moradores morador);
-    void deleteById(Long id);
 }
