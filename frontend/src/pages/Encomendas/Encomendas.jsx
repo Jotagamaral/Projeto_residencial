@@ -11,9 +11,22 @@ function Encomendas() {
     const [encomendas, setEncomendas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState(null);
+    const [tipoCargo, setTipoCargo] = useState('')
     const navigate = useNavigate();
 
     useEffect(() => {
+
+      const userString = localStorage.getItem('user');
+        if (userString) {
+            try {
+                const userObject = JSON.parse(userString);
+                setTipoCargo(userObject.categoria)
+                
+            } catch (e) {
+                console.error("Erro ao parsear dados do usuário do localStorage:", e);
+            }
+        }
+
       async function carregarEncomendas() {
         try {
           const dados = await buscarEncomendas();
@@ -40,7 +53,8 @@ function Encomendas() {
               </div>
             </div>
             {/* Botão fixo no canto inferior direito */}
-            <button
+            {tipoCargo === "FUNCIONARIO" && (
+              <button
               className="fixed bottom-8 right-8 bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-6 text-lg rounded-xl flex items-center justify-center gap-3 focus:outline-none focus:shadow-outline z-50"
               onClick={() => navigate("/cadastro_encomendas")}
             >
@@ -50,6 +64,8 @@ function Encomendas() {
               </svg>
               <span className="flex items-center justify-center text-xl font-bold">Nova encomenda</span>
             </button>
+            )}
+            
           </div>
         </div>
       );
