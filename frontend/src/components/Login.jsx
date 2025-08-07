@@ -1,4 +1,3 @@
-import { Label, TextInput, Button, Card } from "flowbite-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
@@ -16,50 +15,55 @@ function Login() {
 
         try {
             await login(cpf, senha);
-
         } catch (err) {
             console.error("Erro no login:", err);
-            // Captura a mensagem de erro que o AuthContext lançou
             setErro(err.message || "Ocorreu um erro desconhecido. Tente novamente.");
         }
     };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            <h1 className="text-4xl font-cursive mb-4">Condosync</h1>
+            <h1 className="text-4xl font-cursive mb-4">CondoSync</h1>
             <h2 className="text-xl font-semibold mb-6">LOGIN</h2>
 
-            <Card className="w-80 bg-blue-600 text-white">
+            <div className="w-80 bg-blue-600 text-white p-6 rounded-lg shadow-lg">
                 <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                     <div>
-                        <Label htmlFor="cpf" value="CPF:" className="text-white" />
-                        <TextInput
+                        <label htmlFor="cpf" className="text-white mb-1 block">
+                            CPF:
+                        </label>
+                        <input
                             id="cpf"
                             type="text"
                             placeholder="Digite seu CPF"
                             required
                             value={cpf}
                             onChange={(e) => setCpf(e.target.value)}
-                            className="mt-1"
+                            className="w-full mt-1 p-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                     </div>
 
                     <div>
-                        <Label htmlFor="senha" value="Senha:" className="text-white" />
-                        <TextInput
+                        <label htmlFor="senha" className="text-white mb-1 block">
+                            Senha:
+                        </label>
+                        <input
                             id="senha"
                             type="password"
                             placeholder="Digite sua senha"
                             required
                             value={senha}
                             onChange={(e) => setSenha(e.target.value)}
-                            className="mt-1"
+                            className="w-full mt-1 p-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                     </div>
 
-                    <Button type="submit" className="bg-white text-white hover:bg-gray-200">
+                    <button
+                        type="submit"
+                        className="bg-green-500 text-white p-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
+                    >
                         Entrar
-                    </Button>
+                    </button>
 
                     {erro && <p className="text-sm text-red-300 text-center">{erro}</p>}
                 </form>
@@ -70,8 +74,7 @@ function Login() {
                         Cadastre-se
                     </Link>
                 </p>
-
-            </Card>
+            </div>
         </div>
     );
 }

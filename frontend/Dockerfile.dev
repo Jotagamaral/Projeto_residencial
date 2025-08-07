@@ -1,0 +1,14 @@
+# Usa a imagem oficial do Node.js com a versão 22 (LTS).
+FROM node:22-alpine
+
+# Define o diretório de trabalho dentro do contêiner.
+WORKDIR /app
+
+# Copia os arquivos de configuração de dependências.
+COPY package*.json ./
+
+# Instala as dependências.
+RUN npm install
+
+# Exponha a porta que o servidor de desenvolvimento vai usar.
+EXPOSE 5173

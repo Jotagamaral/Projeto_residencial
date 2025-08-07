@@ -1,0 +1,16 @@
+# Usa a imagem oficial do OpenJDK com o JDK 21 (necessário para o Gradle).
+FROM openjdk:21-jdk-slim
+
+# Define o diretório de trabalho no contêiner.
+WORKDIR /app
+
+# Copia o Gradle Wrapper e a pasta `gradle` para o contêiner.
+# Isso é necessário para que o comando ./gradlew funcione no ambiente do Docker.
+COPY gradlew .
+COPY gradle gradle
+
+# Garante que o Gradle Wrapper seja executável.
+RUN chmod +x gradlew
+
+# Exponha a porta na qual a sua aplicação Spring Boot vai rodar.
+EXPOSE 8080
