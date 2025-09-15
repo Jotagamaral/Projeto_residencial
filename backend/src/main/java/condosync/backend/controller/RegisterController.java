@@ -50,7 +50,7 @@ public class RegisterController {
             }
 
             boolean cpfValido = RegisterService.validarCpf(cpf);
-            if (cpfValido) {
+            if (!cpfValido) {
                 throw new Exception("CPF inválido.");
             }
 
