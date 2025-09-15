@@ -1,5 +1,7 @@
 package condosync.backend.controller;
 
+import condosync.backend.services.RegisterService;
+
 import condosync.backend.dao.FuncionariosDAO;
 import condosync.backend.model.Funcionarios;
 
@@ -14,6 +16,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,21 +37,29 @@ public class RegisterController {
     @Autowired
     private FuncionariosDAO funcionariosDAO;
 
+    @Autowired
+    private RegisterService RegisterService;
+
     @PostMapping("/register")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Object> register(@Valid @RequestBody RegisterDTO registerDTO) {
         try {
-            if (userDAO.buscarUserPorCpf(registerDTO.getCpf().strip()) != null) {
+            String cpf = registerDTO.getCpf().strip();
+            if (userDAO.buscarUserPorCpf(cpf) != null) {
                 throw new Exception("Usuário já cadastrado.");
             }
 
-            // Cadastro de Usuário
+            boolean cpfValido = RegisterService.validarCpf(cpf);
+            if (cpfValido) {
+                throw new Exception("CPF inválido.");
+            }
+
             User user = new User();
             user.setCpf(registerDTO.getCpf());
             user.setSenha(registerDTO.getSenha());
             user.setCategoria(registerDTO.getTipoUsuario());
 
             if (registerDTO.getTipoUsuario().equals("MORADOR")) {
-                // Cadastro de Morador
                 Moradores moradores = new Moradores();
                 moradores.setNome(registerDTO.getNome());
                 moradores.setRg(registerDTO.getRg());
@@ -59,7 +70,6 @@ public class RegisterController {
                 int apartamento = registerDTO.getApartamento();
                 char bloco = registerDTO.getBloco();
 
-                // Verifica se apartamento ou bloco são nulos ou inválidos
                 if (apartamento <= 0 || bloco == '\0') {
                     throw new Exception("Apartamento e bloco devem ser informados corretamente.");
                 }
@@ -71,7 +81,6 @@ public class RegisterController {
                 moradoresDAO.inserirMorador(moradores);
 
             } else if (registerDTO.getTipoUsuario().equals("FUNCIONARIO")) {
-                // Cadastro de Funcionário
                 Funcionarios funcionarios = new Funcionarios();
                 funcionarios.setNome(registerDTO.getNome());
                 funcionarios.setRg(registerDTO.getRg());
@@ -81,7 +90,6 @@ public class RegisterController {
 
                 String cargo = registerDTO.getCargo();
 
-                // Verifica se o cargo é nulo ou vazio
                 if (cargo == null || cargo.isEmpty()) {
                     throw new Exception("Cargo deve ser informado.");
                 }
@@ -92,14 +100,13 @@ public class RegisterController {
                 funcionariosDAO.inserirFuncionario(funcionarios);
             }
 
-            // Preparar response
             Map<String, Object> response = Map.of(
-                        "message", "Usuário cadastrado com sucesso.",
-                        "User", Map.of(
-                                "id", user.getId(),
-                                "nome", registerDTO.getNome()
-                        )
-                );
+                    "message", "Usuário cadastrado com sucesso.",
+                    "User", Map.of(
+                            "id", user.getId(),
+                            "nome", registerDTO.getNome()
+                    )
+            );
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
