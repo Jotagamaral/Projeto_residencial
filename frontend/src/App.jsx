@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
 import Home from "./pages/Home";
 import Perfil from "./pages/Perfil";
 import RegisterPage from "./pages/RegisterPage"; // Renomeei RegistePage para RegisterPage
@@ -19,12 +20,13 @@ function App() {
       <AuthProvider> {/* Envolva toda a aplicação com o AuthProvider */}
         <Routes>
           {/* Rotas Públicas */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<RegisterPage />} />
 
           {/* Rotas Protegidas */}
           <Route element={<PrivateRoute />}>
-            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/encomendas" element={<Encomendas />} />
             <Route path="/reclamacoes" element={<Reclamacoes />} />
