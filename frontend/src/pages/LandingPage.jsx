@@ -122,7 +122,15 @@ export default function LandingPage() {
           <p className="text-gray-600">
             Ficou interessado? Fale conosco e descubra como o CondoSync pode transformar a gestão do seu condomínio.
           </p>
-          <Button>Fale Conosco</Button>
+          <a
+            href="https://wa.me/5561982704201?text=Gostaria%20de%20esclarecer%20minhas%20dúvidas%20sobre%20o%20CondoSync."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+          >
+            Fale Conosco
+          </a>
+
         </div>
       </section>
 
