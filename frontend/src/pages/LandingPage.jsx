@@ -82,7 +82,7 @@ export default function LandingPage() {
             <CardContent>
               <h4 className="text-xl font-semibold mb-4">Cadastro de Moradores</h4>
               <p className="text-gray-600">
-                Organize os dados dos moradores de forma simples e segura.
+                Organize os dados dos moradores de forma simples e segura e anonimizada.
               </p>
             </CardContent>
           </Card>
@@ -137,6 +137,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-blue-600 text-white text-center py-6 mt-auto">
         <p>&copy; {new Date().getFullYear()} CondoSync. Todos os direitos reservados.</p>
+
       </footer>
     </div>
   );

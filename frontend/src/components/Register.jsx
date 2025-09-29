@@ -254,6 +254,9 @@ function Register() {
                         Realizar Login
                     </Link>
                 </p>
+                <p className="text-sm text-center mt-2 text-gray-500">
+                    Seus dados estão protegidos e anonimizados!
+                </p>
             </div>
         </div>
     );
