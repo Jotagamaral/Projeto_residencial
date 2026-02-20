@@ -1,0 +1,29 @@
+# Estágio de build (Usa uma imagem completa do JDK para compilar o projeto)
+FROM openjdk:21-jdk-slim as builder
+
+# Define o diretório de trabalho no contêiner
+WORKDIR /app
+
+# Copia os arquivos de build do Gradle e o código-fonte
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle settings.gradle ./
+COPY src src
+
+# Garante permissões de execução para o Gradle Wrapper
+RUN chmod +x gradlew
+
+# Baixa as dependências e compila a aplicação
+RUN ./gradlew clean build -x test
+
+# Estágio de produção (Usa a mesma imagem do JDK, que contém o JRE)
+FROM openjdk:21-jdk-slim
+
+# Define o diretório de trabalho no contêiner
+WORKDIR /app
+
+# Copia o arquivo .jar compilado do estágio de build
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+# Define o comando que será executado quando o contêiner iniciar
+ENTRYPOINT ["java", "-jar", "/app.jar"]

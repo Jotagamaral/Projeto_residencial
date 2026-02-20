@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://aws-0-sa-east-1.pooler.supabase.com:6543/postgres
+      SPRING_DATASOURCE_USERNAME: postgres.vuytwwmyafbaubeoapcj
+      SPRING_DATASOURCE_PASSWORD: condosync
+      SERVER_PORT: 8080
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3000:80"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080/api
