@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "backend_novo": {
+      "commandName": "Project",
+      "applicationUrl": "http://localhost:3000",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
