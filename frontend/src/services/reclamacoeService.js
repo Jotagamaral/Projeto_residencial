@@ -15,14 +15,13 @@ export async function buscarReclamacoes() {
 }
 
 export async function publicarReclamacao(reclamacoesData) {
-
     try {
         const response = await axios.post(`${API_BASE_URL}/reclamacoes`, reclamacoesData);
-        console.log("[reclamacoeService] Reclamação publicada: ", response.status)
-        console.log(response.data) 
-        
+        console.log("[reclamacoeService] Reclamação publicada: ", response.status);
+        console.log(response.data);
+        return response.data;
     } catch (error) {
-        console.log("[reclamacoeService] Erro ao publicar reclamações: ", error)
+        console.error("[reclamacoeService] Erro ao publicar reclamações: ", error);
+        throw error;
     }
-    
 }

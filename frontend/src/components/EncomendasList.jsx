@@ -1,39 +1,53 @@
-// components/EncomendasList.jsx
-
-function Encomendas({encomendas}) {
-    if (!encomendas.length || !encomendas) {
-        return <p className="text-center text-gray-500 mt-4">Nenhuma encomenda encontrada.</p>;
-    }
-    
+function EncomendasList({ encomendas }) {
+  if (!encomendas || !encomendas.length) {
     return (
-    <div className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 w-full max-w-4xl">
-        <h2 className="text-gray-700 text-xl font-bold mb-6 text-center">
-        Encomendas Registradas
-        </h2>
-        <div className="overflow-x-auto"></div>
-        <table className="min-w-full bg-white border border-gray-200">
-            <thead>
-                <tr className="bg-gray-200 text-gray-700 text-sm uppercase">
-                    <th className="py-2 px-4 border">Remetente</th>
-                    <th className="py-2 px-4 border">Destinatário</th>
-                    <th className="py-2 px-4 border">Apartamento</th>
-                    <th className="py-2 px-4 border">Hora da Entrega</th>
-                </tr>
-            </thead>
-            <tbody>
-                {encomendas.map((item) => (
-                    <tr key={item.id} className="text-center border-t">
-                    <td className="py-2 px-4 border">{item.remetente}</td>
-                    <td className="py-2 px-4 border">{item.morador}</td>
-                    <td className="py-2 px-4 border">{item.apartamento}</td>
-                    <td className="py-2 px-4 border">{item.horaEntrega}</td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    </div>
+      <div className='bg-white p-8 rounded-2xl shadow-md text-center'>
+        <p className='text-gray-500'>Nenhuma encomenda encontrada.</p>
+      </div>
     );
-    }
-    
-    export default Encomendas;
-    
+  }
+
+  return (
+    <div className='bg-white shadow-md rounded-2xl overflow-hidden'>
+      <div className='overflow-x-auto'>
+        <table className='min-w-full'>
+          <thead>
+            <tr className='bg-blue-600 text-white text-sm uppercase'>
+              <th className='py-3 px-4 text-left font-semibold'>Remetente</th>
+              <th className='py-3 px-4 text-left font-semibold'>
+                Destinatário
+              </th>
+              <th className='py-3 px-4 text-left font-semibold'>
+                Apartamento
+              </th>
+              <th className='py-3 px-4 text-left font-semibold'>
+                Hora da Entrega
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {encomendas.map((item, index) => (
+              <tr
+                key={item.id}
+                className={`border-t border-gray-100 transition-all duration-200 hover:bg-blue-50 ${
+                  index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                }`}
+              >
+                <td className='py-3 px-4 text-gray-700'>{item.remetente}</td>
+                <td className='py-3 px-4 text-gray-700'>{item.morador}</td>
+                <td className='py-3 px-4 text-gray-700'>
+                  {item.apartamento}
+                </td>
+                <td className='py-3 px-4 text-gray-700'>
+                  {item.horaEntrega}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+export default EncomendasList;

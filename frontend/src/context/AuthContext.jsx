@@ -50,7 +50,7 @@ useEffect(() => {
 const login = async (cpf, senha) => {
     try {
         const response = await axios.post('/login', { cpf, senha });
-        const { jwt, user: userDataFromBackend } = response.data;
+        const { token: jwt, user: userDataFromBackend } = response.data;
 
         localStorage.setItem('jwtToken', jwt);
         localStorage.setItem('user', JSON.stringify(userDataFromBackend));
@@ -58,8 +58,7 @@ const login = async (cpf, senha) => {
         setToken(jwt);
         setIsAuthenticated(true);
         setUser(userDataFromBackend);
-        console.log("Usuário logado com sucesso:", userDataFromBackend);
-        navigate('/');
+        navigate('/home');
     } catch (error) {
         console.error("Erro no AuthContext login:", error);
         if (error.response && error.response.data && error.response.data.message) {
