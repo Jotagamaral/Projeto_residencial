@@ -2,6 +2,10 @@ using backend_novo.Data;
 using backend_novo.Repositories;
 using backend_novo.Services;
 using Microsoft.EntityFrameworkCore;
+using dotenv.net;
+
+DotEnv.Load();
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +13,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMoradorRepository, MoradorRepository>();
