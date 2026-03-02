@@ -58,6 +58,7 @@ const login = async (cpf, senha) => {
         setToken(jwt);
         setIsAuthenticated(true);
         setUser(userDataFromBackend);
+        console.log("Usuário logado com sucesso:", userDataFromBackend);
         navigate('/home');
     } catch (error) {
         console.error("Erro no AuthContext login:", error);
