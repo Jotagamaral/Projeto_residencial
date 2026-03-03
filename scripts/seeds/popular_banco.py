@@ -10,8 +10,16 @@ load_dotenv()
 
 
 
-# Configurações de Conexão
-DB_URL = os.getenv("SEED_DB_CONNECTION")
+# Fetch variables
+SEED_USER = os.getenv("SEED_USER")
+SEED_PASSWORD = os.getenv("SEED_PASSWORD")
+SEED_HOST = os.getenv("SEED_HOST")
+SEED_PORT = os.getenv("SEED_PORT")
+SEED_DBNAME = os.getenv("SEED_DBNAME")
+
+# Construct the SQLAlchemy connection string
+DB_URL = f"postgresql+psycopg2://{SEED_USER}:{SEED_PASSWORD}@{SEED_HOST}:{SEED_PORT}/{SEED_DBNAME}?sslmode=require"
+
 engine = create_engine(DB_URL)
 fake = Faker('pt_BR')
 
