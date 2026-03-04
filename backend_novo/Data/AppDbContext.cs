@@ -1,3 +1,5 @@
+using System.Reflection.Metadata;
+using System.Xml;
 using backend_novo.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +12,11 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Morador> Moradores { get; set; } = null!;
     public DbSet<Funcionario> Funcionarios { get; set; } = null!;
+
+    // Novas Models 
+
+    public DbSet<Usuario> Usuario { get; set; } = null!;
+    public DbSet<CategoriaAcesso> CategoriaAcesso { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +39,20 @@ public class AppDbContext : DbContext
             entity.HasIndex(f => f.Cpf).IsUnique();
             entity.HasIndex(f => f.Rg).IsUnique();
             entity.HasIndex(f => f.Email).IsUnique();
+        });
+
+        // Novas Entidades
+
+        // Config CSTB001_USER
+        modelBuilder.Entity<Usuario>(entity =>
+        {
+            entity.HasIndex(u => u.Cpf).IsUnique();
+            entity.HasIndex(u => u.Rg).IsUnique();
+            entity.HasIndex(u => u.Email).IsUnique();
+
+            entity.HasOne(u => u.Categoria)
+                  .WithMany()
+                  .HasForeignKey(u => u.CategoriaAcessoId);
         });
     }
 }
