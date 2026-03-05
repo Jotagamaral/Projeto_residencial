@@ -1,7 +1,10 @@
 bin/
+/bin/
+**/bin/
 obj/
 *.user
 *.userosscache
 *.suo
 .vs/
 .vscode/
+.env
