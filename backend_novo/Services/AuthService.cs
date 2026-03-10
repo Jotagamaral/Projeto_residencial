@@ -4,56 +4,69 @@ using System.Text;
 using backend_novo.DTOs;
 using backend_novo.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
-// Adicione o using do seu DbContext / Repositório aqui
+using Microsoft.EntityFrameworkCore;
+using backend_novo.Data;
 
 namespace backend_novo.Services
 {
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
-        // Injete seu repositório ou DbContext aqui. Exemplo:
-        // private readonly MeuDbContext _context;
+        private readonly AppDbContext _context; 
 
-        public AuthService(IConfiguration configuration /*, MeuDbContext context */)
+        public AuthService(IConfiguration configuration, AppDbContext context)
         {
             _configuration = configuration;
-            // _context = context;
+            _context = context;
         }
 
-        public async Task<string> AutenticarAsync(LoginDto dto)
+        public async Task<LoginResponseDTO> AutenticarAsync(LoginDto dto)
         {
-            // 1. Buscar o usuário no banco de dados (Exemplo usando EF Core)
-            // var usuario = await _context.Usuarios
-            //     .Include(u => u.CategoriaAcesso) 
-            //     .FirstOrDefaultAsync(u => u.EmPessoal == dto.Email && u.LgAtivo);
+            // Busca no banco Usuarios com Categoria Acesso
+            var usuario = await _context.Usuario
+                .Include(u => u.Categoria) 
+                .FirstOrDefaultAsync(u => u.Email == dto.Email && u.Ativo);
 
-            // Simulando a busca para fins de compilação:
-            var usuarioExiste = true; // Substitua pela lógica do banco
-            var senhaValida = true;   // Substitua pela validação de hash (BCrypt, etc.)
-            var roleDoUsuario = "Morador"; // Isso deve vir da tabela CSTB010_CATEGORIA_ACESSO
-
-            if (!usuarioExiste || !senhaValida)
+            // Validação do usuário e da senha (BCrypt)
+            if (usuario == null || !BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.Senha))
             {
-                throw new Exception("Email ou senha inválidos."); 
+                return new LoginResponseDTO
+                {
+                    Message = "Email ou senha inválidos.",
+                    Token = null,
+                    User = null
+                };
             }
 
-            // 2. Criar as Claims (Dados embutidos no token)
+            // Dados retornados do Banco
+            var idUsuario = usuario.Id;
+            var emailUsuario = usuario.Email;
+            var nomeUsuario = usuario.Nome; 
+            var cpfUsuario = usuario.Cpf;
+            
+            // Role de Categoria Acesso
+            var roleDoUsuario = usuario.Categoria?.CategoriaAcessoNome ?? "Teste Null"; 
+
+            // Criar as Claims (Dados embutidos no token)
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, "1"), // ID_USER
-                new Claim(ClaimTypes.Email, dto.Email),
-                new Claim(ClaimTypes.Role, roleDoUsuario) // AQUI ESTÁ A LÓGICA DE ROLES
+                new Claim(ClaimTypes.NameIdentifier, idUsuario.ToString()),
+                new Claim(ClaimTypes.Email, emailUsuario),
+                new Claim(ClaimTypes.Role, roleDoUsuario) 
             };
 
-            // 3. Gerar a chave e o token
+            // Gerar a chave e o token
             var jwtSettings = _configuration.GetSection("JwtSettings");
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings["Secret"]));
+            var secret = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret não configurada.");
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+            var expirationMinutes = double.TryParse(jwtSettings["ExpirationInMinutes"], out var exp) ? exp : 60;
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpirationInMinutes"])),
+                Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
                 Issuer = jwtSettings["Issuer"],
                 Audience = jwtSettings["Audience"],
                 SigningCredentials = creds
@@ -61,8 +74,21 @@ namespace backend_novo.Services
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
 
-            return tokenHandler.WriteToken(token);
+            // Retornar o DTO preenchido com sucesso
+            return new LoginResponseDTO
+            {
+                Message = "Login realizado com sucesso.",
+                Token = tokenString,
+                User = new UserResponseDTO
+                {
+                    Id = idUsuario,
+                    Nome = nomeUsuario,
+                    Cpf = cpfUsuario,
+                    Categoria = roleDoUsuario
+                }
+            };
         }
     }
 }
