@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 
 function Login() {
-    const [cpf, setCpf] = useState("");
+    const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [erro, setErro] = useState("");
     const { login } = useAuth();
@@ -13,7 +13,7 @@ function Login() {
         e.preventDefault();
         setErro("");
         try {
-            await login(cpf, senha);
+            await login(email, senha);
         } catch (err) {
             console.error("Erro no login:", err);
             setErro(err.message || "Ocorreu um erro desconhecido. Tente novamente.");
@@ -29,14 +29,14 @@ function Login() {
                     <h2 className="text-xl md:text-2xl font-semibold text-blue-500 mb-6">Acesse sua conta</h2>
                     <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
                         <div className="flex flex-col gap-1">
-                            <label htmlFor="cpf" className="text-blue-700 font-medium">CPF</label>
+                            <label htmlFor="email" className="text-blue-700 font-medium">E-mail</label>
                             <input
-                                id="cpf"
+                                id="email"
                                 type="text"
-                                placeholder="Digite seu CPF"
+                                placeholder="Digite seu email"
                                 required
-                                value={cpf}
-                                onChange={(e) => setCpf(e.target.value)}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 className="w-full p-3 rounded-xl border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900 bg-blue-50"
                             />
                         </div>
