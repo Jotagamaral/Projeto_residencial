@@ -9,114 +9,72 @@ function Register() {
     const [senha, setSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
     const [erro, setErro] = useState("");
-    const [tipoUsuario, setTipoUsuario] = useState("MORADOR");
+    const [tipoUsuario, setTipoUsuario] = useState(2);
     const [apartamento, setApartamento] = useState("");
     const [bloco, setBloco] = useState("");
     const [cargo, setCargo] = useState("");
     const [telefone, setTelefone] = useState("");
     const [email, setEmail] = useState("");
     const [rg, setRg] = useState("");
-    const [cpfValidado, setCpfValidado] = useState(false);
-    const [validandoCpf, setValidandoCpf] = useState(false);
-    const [cpfErro, setCpfErro] = useState("");
+    const [carregando, setCarregando] = useState(false);
 
     const navigate = useNavigate();
-
-    const handleValidarCpf = async () => {
-        setCpfErro("");
-        setValidandoCpf(true);
-        try {
-            // const valido = await validarCpfApi(cpf);
-            const valido = true // TESTES
-            if (valido) {
-                setCpfValidado(true);
-            } else {
-                setCpfErro("CPF inválido. Verifique e tente novamente.");
-                setCpfValidado(false);
-            }
-        } catch (err) {
-            setCpfErro(err.message || "Erro ao validar CPF. Tente novamente.");
-            setCpfValidado(false);
-        }
-        setValidandoCpf(false);
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErro("");
+        setCarregando(true);
 
+        // Preenchimento de senha
         if (senha !== confirmarSenha) {
             setErro("As senhas não coincidem.");
+            setCarregando(false);
             return;
         }
 
         try {
-            const response = await registerUser({
-                nome,
-                cpf,
-                senha,
-                tipoUsuario,
-                apartamento,
-                bloco,
-                cargo,
-                telefone,
-                email,
-                rg,
+            await registerUser({
+                nome, cpf, senha, categoriaAcessoId: tipoUsuario, apartamento, bloco, cargo, telefone, email, rg,
             });
-            console.log("Cadastro bem-sucedido!", response);
+
             navigate("/login");
-        } catch (erro) {
-            console.log(erro);
-            setErro("Erro ao cadastrar. Tente novamente.");
+        } catch (err) {
+            setErro(err.message || "Erro ao cadastrar. Tente novamente.");
+        } finally {
+            setCarregando(false);
         }
     };
-
-
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500 p-6">
             <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl p-6 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                {/* Left: CPF validation + form (stacked) */}
                 <div className="p-4 md:p-8">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-blue-700 mb-2 tracking-tight font-cursive">CondoSync</h1>
                     <h2 className="text-xl md:text-2xl font-semibold text-blue-500 mb-6">CADASTRE-SE</h2>
 
-                    {/* Seção de validação de CPF */}
-                    <div className="w-full max-w-md mb-6 bg-blue-50 rounded-xl shadow p-4 flex flex-col items-start">
-                        <label htmlFor="cpf" className="font-medium text-blue-700 mb-2">Digite seu CPF para validação:</label>
-                        <div className="flex w-full gap-2">
-                            <input
-                                id="cpf"
-                                type="text"
-                                placeholder="CPF"
-                                value={cpf}
-                                onChange={(e) => { setCpf(e.target.value); setCpfValidado(false); setCpfErro(""); }}
-                                className="flex-1 rounded-xl p-3 border border-blue-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                disabled={cpfValidado || validandoCpf}
-                            />
-                            <button
-                                type="button"
-                                onClick={handleValidarCpf}
-                                className={`px-6 py-2 rounded-xl font-bold bg-gradient-to-r from-green-400 to-blue-500 text-white shadow-md hover:scale-105 transition-transform duration-200 ${cpfValidado ? "opacity-50 cursor-not-allowed" : ""}`}
-                                disabled={cpfValidado || validandoCpf || !cpf}
-                            >
-                                {validandoCpf ? "Validando..." : "Validar"}
-                            </button>
-                        </div>
-                        {cpfValidado && <p className="text-green-600 font-semibold mt-2">CPF válido! Preencha seus dados abaixo.</p>}
-                        {cpfErro && <p className="text-red-500 font-semibold mt-2">{cpfErro}</p>}
-                    </div>
-
-                    {/* Formulário de cadastro só aparece após CPF validado */}
-                    {cpfValidado && (
                         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
+                            {/* Input de CPF integrado ao formulário */}
+                            <div className="flex flex-col">
+                                <label htmlFor="cpf" className="font-medium text-blue-700 mb-1">CPF:<span className="text-red-500">*</span></label>
+                                <input
+                                    id="cpf"
+                                    type="text"
+                                    placeholder="000.000.000-00"
+                                    value={cpf}
+                                    onChange={(e) => setCpf(e.target.value)}
+                                    required
+                                    className="rounded-xl p-3 border border-blue-300 bg-blue-50 focus:ring-2 focus:ring-blue-400"
+                                />
+                            </div>
+
                             {/* Tipo de usuário */}
                             <div className="flex justify-start gap-4 mb-2">
                                 <button
                                     type="button"
-                                    onClick={() => setTipoUsuario("MORADOR")}
+                                    // 2 (Morador)
+                                    onClick={() => setTipoUsuario(2)} 
                                     className={`px-4 py-2 rounded-lg font-semibold transition-colors shadow-md border-2 ${
-                                        tipoUsuario === "MORADOR"
+                                        tipoUsuario === 2
                                             ? "bg-green-400 text-white border-green-500"
                                             : "bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200"
                                     }`}
@@ -125,9 +83,10 @@ function Register() {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => setTipoUsuario("FUNCIONARIO")}
+                                    // 3 (Funcionário)
+                                    onClick={() => setTipoUsuario(3)} 
                                     className={`px-4 py-2 rounded-lg font-semibold transition-colors shadow-md border-2 ${
-                                        tipoUsuario === "FUNCIONARIO"
+                                        tipoUsuario === 3
                                             ? "bg-green-400 text-white border-green-500"
                                             : "bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200"
                                     }`}
@@ -135,6 +94,7 @@ function Register() {
                                     Funcionário
                                 </button>
                             </div>
+                            
                             <div className="flex flex-wrap gap-4">
                                 <div className="flex flex-col flex-1 min-w-[200px]">
                                     <label htmlFor="nome" className="font-medium text-blue-700 mb-1">Nome:<span className="text-red-500">*</span></label>
@@ -147,7 +107,7 @@ function Register() {
                                         className="rounded-xl p-3 border border-blue-300 bg-blue-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
                                     />
                                 </div>
-                                {tipoUsuario === "MORADOR" && (
+                                {tipoUsuario === 2 && (
                                     <>
                                         <div className="flex flex-col flex-1 min-w-[200px]">
                                             <label htmlFor="apartamento" className="font-medium text-blue-700 mb-1">Apartamento:<span className="text-red-500">*</span></label>
@@ -173,7 +133,7 @@ function Register() {
                                         </div>
                                     </>
                                 )}
-                                {tipoUsuario === "FUNCIONARIO" && (
+                                {tipoUsuario === 3 && (
                                     <div className="flex flex-col flex-1 min-w-[200px]">
                                         <label htmlFor="cargo" className="font-medium text-blue-700 mb-1">Cargo:<span className="text-red-500">*</span></label>
                                         <input
@@ -197,7 +157,7 @@ function Register() {
                                     />
                                 </div>
                                 <div className="flex flex-col flex-1 min-w-[200px]">
-                                    <label htmlFor="email" className="font-medium text-blue-700 mb-1">Email:</label>
+                                    <label htmlFor="email" className="font-medium text-blue-700 mb-1">Email:<span className="text-red-500">*</span></label>
                                     <input
                                         id="email"
                                         type="email"
@@ -242,13 +202,13 @@ function Register() {
                             </div>
                             <button
                                 type="submit"
-                                className="w-full md:w-1/2 bg-gradient-to-r from-green-400 to-blue-500 text-white p-3 rounded-xl font-bold shadow-md hover:scale-105 transition-transform duration-200 mt-2"
-                            >
-                                Cadastrar
+                                disabled={carregando}
+                                className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-white p-3 rounded-xl font-bold hover:scale-105 transition-all"
+                                >
+                                {carregando ? "Processando..." : "Finalizar Cadastro"}
                             </button>
                             {erro && <p className="text-red-500 text-sm text-left font-semibold mt-2">{erro}</p>}
                         </form>
-                    )}
                 </div>
 
                 {/* Coluna de Ad/Marketing - Exemplo Limpeza */}
