@@ -3,9 +3,9 @@ import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // LOGIN
-export async function loginUser(email, senha) {
+export async function loginUser(cpf, senha) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, senha });
+        const response = await axios.post(`${API_BASE_URL}/login`, { cpf, senha });
         console.log(response.data)
         return response.data; // Retorna { token, user }
     } catch (error) {
@@ -18,7 +18,7 @@ export async function loginUser(email, senha) {
 // REGISTER
 export async function registerUser(userData) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/auth/register`, userData);
+        const response = await axios.post(`${API_BASE_URL}/register`, userData);
         return response.data;
     } catch (error) {
         console.error("Erro na requisição de cadastro:", error);

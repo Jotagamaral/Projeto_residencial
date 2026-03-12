@@ -1,101 +1,225 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
+import {
+  FaBuilding,
+  FaIdCard,
+  FaLock,
+  FaArrowRight,
+  FaShieldAlt,
+  FaUsers,
+  FaCalendarAlt,
+  FaBox,
+  FaCheckCircle,
+} from 'react-icons/fa';
 
 function Login() {
-    const [email, setEmail] = useState("");
-    const [senha, setSenha] = useState("");
-    const [erro, setErro] = useState("");
-    const { login } = useAuth();
+  const [cpf, setCpf] = useState('');
+  const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState('');
+  const [sucesso, setSucesso] = useState(false);
+  const [carregando, setCarregando] = useState(false);
+  const { login } = useAuth();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setErro("");
-        try {
-            await login(email, senha);
-        } catch (err) {
-            console.error("Erro no login:", err);
-            setErro(err.message || "Ocorreu um erro desconhecido. Tente novamente.");
-        }
-    };
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setErro('');
+      setSucesso(false);
+      setCarregando(true);
+      try {
+        await login(cpf, senha);
+        setSucesso(true);
+      } catch (err) {
+        setSucesso(false);
+        setErro(
+          err.message || 'Ocorreu um erro desconhecido. Tente novamente.'
+        );
+      } finally {
+        setCarregando(false);
+      }
+    },
+    [cpf, senha, login]
+  );
 
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500 p-6">
-            <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl p-6 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                {/* Form column */}
-                <div className="p-4 md:p-8">
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-blue-700 mb-2 tracking-tight font-cursive">CondoSync</h1>
-                    <h2 className="text-xl md:text-2xl font-semibold text-blue-500 mb-6">Acesse sua conta</h2>
-                    <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
-                        <div className="flex flex-col gap-1">
-                            <label htmlFor="email" className="text-blue-700 font-medium">E-mail</label>
-                            <input
-                                id="email"
-                                type="text"
-                                placeholder="Digite seu email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-3 rounded-xl border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900 bg-blue-50"
-                            />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <label htmlFor="senha" className="text-blue-700 font-medium">Senha</label>
-                            <input
-                                id="senha"
-                                type="password"
-                                placeholder="Digite sua senha"
-                                required
-                                value={senha}
-                                onChange={(e) => setSenha(e.target.value)}
-                                className="w-full p-3 rounded-xl border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900 bg-blue-50"
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full md:w-2/3 bg-gradient-to-r from-green-400 to-blue-500 text-white p-3 rounded-xl font-bold shadow-md hover:scale-105 transition-transform duration-200"
-                        >
-                            Entrar
-                        </button>
-                        {erro && <p className="text-sm text-red-500 text-center font-semibold mt-2">{erro}</p>}
-                    </form>
-                    <div className="mt-6 text-sm text-blue-700">
-                        <p>Não possui uma conta? <Link to="/cadastro" className="underline font-bold hover:text-blue-400">Cadastre-se</Link></p>
-                        <p className="mt-2 text-gray-500">Seus dados estão protegidos e anonimizados.</p>
-                    </div>
-                </div>
+  return (
+    <div className='flex min-h-screen bg-gray-100'>
+      <div className='hidden lg:flex lg:w-1/2 bg-blue-600 relative overflow-hidden'>
+        <div className='absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800' />
+        <div className='absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full -translate-y-1/2 translate-x-1/2' />
+        <div className='absolute bottom-0 left-0 w-72 h-72 bg-blue-400/10 rounded-full translate-y-1/3 -translate-x-1/3' />
 
-                {/* Coluna de Ad/Marketing - Exemplo Gás */}
-                <aside className="p-6 bg-gradient-to-br from-amber-50 to-white rounded-2xl border border-amber-100">
-                    <h3 className="text-2xl font-bold text-amber-800 mb-3">O gás acabou no meio da receita?</h3>
-                    <p className="text-gray-700 mb-4">
-                        Com a <span className="font-bold">Chama Express</span>, você pede seu botijão online e recebe em menos de 40 minutos, com instalação segura e gratuita.
-                    </p>
-                    
-                    <ul className="text-gray-700 list-disc list-inside mb-4 space-y-1">
-                        <li>Entrega rápida (até 40 min)</li>
-                        <li>Instalação segura inclusa</li>
-                        <li>Pagamento fácil (PIX ou cartão)</li>
-                    </ul>
-
-                    <div className="flex items-center gap-4 mb-6">
-                        <button className="px-5 py-2 bg-amber-600 text-white rounded-lg font-semibold shadow hover:bg-amber-500 transition-colors">
-                            Pedir Agora
-                        </button>
-                        <button className="px-4 py-2 border border-amber-300 rounded-lg text-amber-700 font-medium hover:bg-amber-50 transition-colors">
-                            Agendar
-                        </button>
-                    </div>
-
-                    <div>
-                        {/* Sugestão: Use o logo do parceiro ou uma imagem temática */}
-                        <img src="/img/anuncio-gas-logo.png" alt="Chama Express - Entrega de Gás" className="w-32 opacity-90" />
-                    </div>
-                </aside>
+        <div className='relative z-10 flex flex-col justify-center px-16 py-12'>
+          <div className='flex items-center gap-3 mb-12'>
+            <div className='flex size-12 items-center justify-center rounded-2xl bg-white/10'>
+              <FaBuilding className='text-xl text-white' />
             </div>
+            <span className='text-2xl font-bold text-white'>CondoSync</span>
+          </div>
+
+          <h2 className='text-4xl font-bold text-white leading-tight mb-4'>
+            Gestão condominial
+            <br />
+            simplificada
+          </h2>
+          <p className='text-blue-100 text-lg mb-12 max-w-md'>
+            Tenha o controle do seu condomínio na palma da mão, de forma
+            prática e moderna.
+          </p>
+
+          <div className='space-y-4'>
+            {[
+              {
+                icon: FaUsers,
+                title: 'Reclamações',
+                desc: 'Registre e acompanhe ocorrências',
+              },
+              {
+                icon: FaCalendarAlt,
+                title: 'Reservas',
+                desc: 'Agende áreas comuns facilmente',
+              },
+              {
+                icon: FaBox,
+                title: 'Encomendas',
+                desc: 'Controle de entregas em tempo real',
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className='flex items-center gap-4 bg-white/10 rounded-xl px-5 py-3.5'
+              >
+                <div className='flex size-10 items-center justify-center rounded-xl bg-white/10'>
+                  <item.icon className='text-sm text-blue-200' />
+                </div>
+                <div>
+                  <p className='text-sm font-semibold text-white'>
+                    {item.title}
+                  </p>
+                  <p className='text-xs text-blue-200'>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-    );
+      </div>
+
+      <div className='flex flex-1 items-center justify-center px-4 py-8 sm:px-8'>
+        <div className='w-full max-w-md'>
+          <div className='flex items-center gap-3 mb-2 lg:hidden'>
+            <div className='flex size-10 items-center justify-center rounded-xl bg-blue-50'>
+              <FaBuilding className='text-base text-blue-500' />
+            </div>
+            <span className='text-xl font-bold text-gray-900'>CondoSync</span>
+          </div>
+
+          <div className='mb-8'>
+            <h1 className='text-2xl font-bold text-gray-900'>Bem-vindo de volta</h1>
+            <p className='text-sm text-gray-500 mt-1'>
+              Acesse sua conta para continuar
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className='space-y-5'>
+            <div className='bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5'>
+              <div>
+                <label
+                  htmlFor='cpf'
+                  className='block text-sm font-medium text-gray-700 mb-2'
+                >
+                  CPF
+                </label>
+                <div className='relative'>
+                  <FaIdCard className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs' />
+                  <input
+                    id='cpf'
+                    type='text'
+                    placeholder='Digite seu CPF'
+                    required
+                    value={cpf}
+                    onChange={(e) => setCpf(e.target.value)}
+                    className='w-full pl-10 pr-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 focus:bg-white transition-all duration-200'
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor='senha'
+                  className='block text-sm font-medium text-gray-700 mb-2'
+                >
+                  Senha
+                </label>
+                <div className='relative'>
+                  <FaLock className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs' />
+                  <input
+                    id='senha'
+                    type='password'
+                    placeholder='Digite sua senha'
+                    required
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    className='w-full pl-10 pr-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 focus:bg-white transition-all duration-200'
+                  />
+                </div>
+              </div>
+            </div>
+
+            {sucesso && (
+              <div className='bg-emerald-50 border border-emerald-100 rounded-xl p-3.5 flex items-center justify-center gap-2'>
+                <FaCheckCircle className='text-sm text-emerald-500' />
+                <p className='text-sm text-emerald-600 font-medium'>
+                  Login realizado com sucesso! Redirecionando...
+                </p>
+              </div>
+            )}
+
+            {erro && (
+              <div className='bg-red-50 border border-red-100 rounded-xl p-3.5'>
+                <p className='text-sm text-red-600 text-center font-medium'>
+                  {erro}
+                </p>
+              </div>
+            )}
+
+            <button
+              type='submit'
+              disabled={carregando}
+              className='w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2.5 shadow-lg hover:shadow-xl transition-all duration-200 text-sm'
+            >
+              {carregando ? (
+                <div className='size-5 border-2 border-white border-t-transparent rounded-full animate-spin' />
+              ) : (
+                <>
+                  Entrar
+                  <FaArrowRight className='text-xs' />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className='mt-8 text-center'>
+            <p className='text-sm text-gray-500'>
+              Não possui uma conta?{' '}
+              <Link
+                to='/cadastro'
+                className='text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200'
+              >
+                Cadastre-se
+              </Link>
+            </p>
+          </div>
+
+          <div className='mt-8 flex items-center justify-center gap-2 text-gray-400'>
+            <FaShieldAlt className='text-xs' />
+            <p className='text-xs'>
+              Seus dados estão protegidos e anonimizados
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default Login;
