@@ -46,12 +46,11 @@ function Register() {
       }
 
       try {
-        const tipoUsuarioStr = tipoUsuario === 2 ? 'MORADOR' : 'FUNCIONARIO';
         await registerUser({
           nome,
           cpf,
           senha,
-          tipoUsuario: tipoUsuarioStr,
+          categoriaAcessoId: tipoUsuario,
           apartamento: apartamento ? Number(apartamento) : null,
           bloco: bloco ? bloco.charAt(0) : null,
           cargo,
