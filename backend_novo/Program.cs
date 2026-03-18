@@ -30,6 +30,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api - CondoSync", Version = "v1" });
 
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
     
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -94,7 +97,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMoradorRepository, MoradorRepository>();
 builder.Services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
-builder.Services.AddScoped<ILoginService, LoginService>();
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
