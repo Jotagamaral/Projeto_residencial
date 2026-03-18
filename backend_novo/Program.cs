@@ -102,19 +102,23 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-
+// Captura a URL do Frontend do ambiente
+var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
 // CORS
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+   options.AddPolicy("CondoSyncPolicy", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(frontendUrl)
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
 var app = builder.Build();
+
+app.UseCors("CondoSyncPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -122,8 +126,6 @@ app.UseAuthorization();
 // Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
-
-app.UseCors();
 
 app.MapControllers();
 
