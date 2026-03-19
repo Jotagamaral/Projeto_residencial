@@ -3,43 +3,30 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend_novo.Models;
 
-[Table("moradores")]
+[Table("CSTB002_MORADOR")]
 public class Morador
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Column("id")]
+    [Column("ID_MORADOR")]
     public long Id { get; set; }
 
+    [Column("ID_USER")]
     [Required]
-    [Column("nome")]
-    public string Nome { get; set; } = string.Empty;
+    public long IdUser { get; set; }
 
-    [Column("rg")]
-    public string? Rg { get; set; }
+    [Column("IC_BLOCO")]
+    [StringLength(10)]
+    public string? Bloco { get; set; }
 
+    [Column("NR_APARTAMENTO")]
+    public int? Apartamento { get; set; }
+
+    [Column("LG_ATIVO")]
     [Required]
-    [Column("cpf")]
-    public string Cpf { get; set; } = string.Empty;
+    public bool Ativo { get; set; } = true;
 
-    [Column("telefone")]
-    public string? Telefone { get; set; }
-
-    [Required]
-    [Column("email")]
-    public string Email { get; set; } = string.Empty;
-
-    [Required]
-    [Column("apartamento")]
-    public int Apartamento { get; set; }
-
-    [Required]
-    [Column("bloco")]
-    public char Bloco { get; set; }
-
-    [Column("fk_user")]
-    public long? FkUser { get; set; }
-
-    [ForeignKey("FkUser")]
-    public User? User { get; set; }
+    // Relacionamento
+    [ForeignKey("IdUser")]
+    public virtual Usuario? Usuario { get; set; }
 }
