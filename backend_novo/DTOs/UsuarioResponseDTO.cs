@@ -8,9 +8,11 @@ public class UsuarioResponseDto
     public string Cpf { get; set; } = string.Empty;
     public string CategoriaAcesso { get; set; } = string.Empty;
 
-    // Se for morador
-    public MoradorResponseDto? DetalhesMorador { get; set; }
+    public object? Detalhes { get; set;}
+
+    // // Se for morador
+    // public MoradorResponseDto? DetalhesMorador { get; set; }
     
-    // Se for funcionário
-    public FuncionarioResponseDto? DetalhesFuncionario { get; set; }
+    // // Se for funcionário
+    // public FuncionarioResponseDto? DetalhesFuncionario { get; set; }
 }

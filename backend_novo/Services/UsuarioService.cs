@@ -3,6 +3,7 @@ using backend_novo.Models;
 using backend_novo.Repositories.Interfaces;
 using backend_novo.Services.Interfaces;
 using backend_novo.Data;
+using backend_novo.Constants;
 
 namespace backend_novo.Services;
 
@@ -33,6 +34,19 @@ public class UsuarioService : IUsuarioService
         if (usuarioExistente != null)
             throw new Exception("Este CPF já está em uso.");
 
+        // Impede criar Admin
+        if (dto.CategoriaAcessoId == CategoriaAcessoConstants.ADMIN_ID)
+        {
+            throw new UnauthorizedAccessException("Não é permitido registrar usuários administradores através desta rota.");
+        }
+
+        // Validação de Categorias Inválidas
+        if (dto.CategoriaAcessoId != CategoriaAcessoConstants.MORADOR_ID && 
+            dto.CategoriaAcessoId != CategoriaAcessoConstants.FUNCIONARIO_ID)
+        {
+            throw new ArgumentException("Categoria de acesso inválida.");
+        }
+
         using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
@@ -60,7 +74,7 @@ public class UsuarioService : IUsuarioService
 
 
             // Tipo de Acesso
-            if (dto.CategoriaAcessoId == 2) // MORADOR
+            if (dto.CategoriaAcessoId == CategoriaAcessoConstants.MORADOR_ID)
             {
                 if (dto.Apartamento == null || string.IsNullOrEmpty(dto.Bloco))
                     throw new ArgumentException("Apartamento e Bloco são obrigatórios para moradores.");
@@ -82,7 +96,7 @@ public class UsuarioService : IUsuarioService
                 };
 
             }
-            else if (dto.CategoriaAcessoId == 3) // FUNCIONARIO
+            else if (dto.CategoriaAcessoId == CategoriaAcessoConstants.FUNCIONARIO_ID) // FUNCIONARIO
             {
                 if (dto.CargoId == null)
                     throw new ArgumentException("A Categoria do Cargo (ID) é obrigatória para funcionários.");
@@ -113,8 +127,7 @@ public class UsuarioService : IUsuarioService
                 Email = usuarioSalvo.Email, 
                 Cpf = usuarioSalvo.Cpf,
                 CategoriaAcesso = nomeCategoria,
-                DetalhesMorador = detalhesMorador,
-                DetalhesFuncionario = detalhesFuncionario
+                Detalhes = (object?)detalhesMorador ?? detalhesFuncionario
             };
         }
         catch (Exception)
