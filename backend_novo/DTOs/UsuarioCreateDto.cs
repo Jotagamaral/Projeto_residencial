@@ -18,6 +18,27 @@ public class UsuarioCreateDto
     /// <example>joao@condosync.com</example>
     [Required, EmailAddress]
     public string Email { get; set; } = string.Empty;
+
+    /// <summary>Nº do Rg do usuário.</summary>
+    /// <example>1928347432</example>
+    public string? Rg { get; set; }
+
+    /// <summary>Nº do Celular do usuário.</summary>
+    /// <example>61992324334</example>
+    public string? Celular { get; set; }
+    
+    /// <summary>Nº do apartamento (obrigatório se for Morador).</summary>
+    /// <example>101</example>
+    
+    public int? Apartamento { get; set; }
+
+    /// <summary>Bloco do apartamento (obrigatório se for Morador).</summary>
+    /// <example>A</example>
+    public string? Bloco { get; set; }
+
+    /// <summary>ID da categoria do cargo (obrigatório se for Funcionário).</summary>
+    /// <example>2</example>
+    public long? CargoId { get; set; }
     
     /// <summary>Senha de acesso (mínimo 6 caracteres).</summary>
     /// <example>Senha@123</example>
@@ -28,4 +49,6 @@ public class UsuarioCreateDto
     /// <example>2</example>
     [Required]
     public long CategoriaAcessoId { get; set; }
+
+
 }
