@@ -26,9 +26,16 @@ public class AuthController : ControllerBase
     /// 
     ///     POST /api/auth/register
     ///     {
-    ///        "nome": "João",
-    ///        "cpf": "12345678900",
-    ///        "categoriaAcessoId": 2
+    ///         "nome": "João",
+    ///         "cpf": "12345678901",
+    ///         "email": "joao@condosync.com",
+    ///         "rg": null,
+    ///         "celular": "61932234334",
+    ///         "apartamento": 101,
+    ///         "bloco": "A",
+    ///         "cargoId": null,
+    ///         "senha": "Senha@123",
+    ///         "categoriaAcessoId": 2
     ///     }
     /// </remarks>
     /// <param name="dto">Objeto contendo os dados necessários para o cadastro.</param>

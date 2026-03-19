@@ -10,13 +10,15 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<User> Users { get; set; } = null!;
-    public DbSet<Morador> Moradores { get; set; } = null!;
-    public DbSet<Funcionario> Funcionarios { get; set; } = null!;
 
-    // Novas Models 
+    // Models 
 
     public DbSet<Usuario> Usuario { get; set; } = null!;
     public DbSet<CategoriaAcesso> CategoriaAcesso { get; set; } = null!;
+
+    public DbSet<CategoriaCargo> CategoriaCargo { get; set; } = null!;
+    public DbSet<Morador> Moradores { get; set; } = null!;
+    public DbSet<Funcionario> Funcionarios { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,21 +29,21 @@ public class AppDbContext : DbContext
             entity.HasIndex(u => u.Cpf).IsUnique();
         });
 
-        modelBuilder.Entity<Morador>(entity =>
-        {
-            entity.HasIndex(m => m.Cpf).IsUnique();
-            entity.HasIndex(m => m.Rg).IsUnique();
-            entity.HasIndex(m => m.Email).IsUnique();
-        });
+        // modelBuilder.Entity<Morador>(entity =>
+        // {
+        //     entity.HasIndex(m => m.Cpf).IsUnique();
+        //     entity.HasIndex(m => m.Rg).IsUnique();
+        //     entity.HasIndex(m => m.Email).IsUnique();
+        // });
 
-        modelBuilder.Entity<Funcionario>(entity =>
-        {
-            entity.HasIndex(f => f.Cpf).IsUnique();
-            entity.HasIndex(f => f.Rg).IsUnique();
-            entity.HasIndex(f => f.Email).IsUnique();
-        });
+        // modelBuilder.Entity<Funcionario>(entity =>
+        // {
+        //     entity.HasIndex(f => f.Cpf).IsUnique();
+        //     entity.HasIndex(f => f.Rg).IsUnique();
+        //     entity.HasIndex(f => f.Email).IsUnique();
+        // });
 
-        // Novas Entidades
+        // Entidades
 
         // Config CSTB001_USER
         modelBuilder.Entity<Usuario>(entity =>
