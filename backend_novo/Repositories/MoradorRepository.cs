@@ -1,6 +1,6 @@
 using backend_novo.Data;
 using backend_novo.Models;
-using Microsoft.EntityFrameworkCore;
+using backend_novo.Repositories.Interfaces;
 
 namespace backend_novo.Repositories;
 
@@ -13,8 +13,9 @@ public class MoradorRepository : IMoradorRepository
         _context = context;
     }
 
-    public async Task<Morador?> GetByCpfAsync(string cpf)
+    public async Task<Morador> AdicionarAsync(Morador morador)
     {
-        return await _context.Moradores.FirstOrDefaultAsync(m => m.Cpf == cpf);
+        await _context.Moradores.AddAsync(morador);
+        return morador; 
     }
 }

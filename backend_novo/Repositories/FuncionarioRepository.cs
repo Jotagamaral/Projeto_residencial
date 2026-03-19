@@ -1,6 +1,6 @@
 using backend_novo.Data;
 using backend_novo.Models;
-using Microsoft.EntityFrameworkCore;
+using backend_novo.Repositories.Interfaces;
 
 namespace backend_novo.Repositories;
 
@@ -13,8 +13,9 @@ public class FuncionarioRepository : IFuncionarioRepository
         _context = context;
     }
 
-    public async Task<Funcionario?> GetByCpfAsync(string cpf)
+    public async Task<Funcionario> AdicionarAsync(Funcionario funcionario)
     {
-        return await _context.Funcionarios.FirstOrDefaultAsync(f => f.Cpf == cpf);
+        await _context.Funcionarios.AddAsync(funcionario);
+        return funcionario; 
     }
 }
