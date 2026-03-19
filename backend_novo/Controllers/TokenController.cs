@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using backend_novo.Constants;
 
 namespace backend_novo.Controllers
 {
@@ -26,7 +27,7 @@ namespace backend_novo.Controllers
         /// </summary>
 
         // Somente usuários com a Role "Morador" podem acessar
-        [Authorize(Roles = "Morador")]
+        [Authorize(Roles = CategoriaAcessoConstants.MORADOR_ROLE)]
         [HttpGet("area-morador")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -40,7 +41,7 @@ namespace backend_novo.Controllers
         /// </summary>
 
         // Somente usuários com a Role "Funcionario" podem acessar
-        [Authorize(Roles = "Funcionario")]
+        [Authorize(Roles = CategoriaAcessoConstants.FUNCIONARIO_ROLE)]
         [HttpGet("area-funcionario")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
