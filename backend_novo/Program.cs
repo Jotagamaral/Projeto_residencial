@@ -25,6 +25,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// Leitura de dados das requisões
+builder.Services.AddHttpContextAccessor();
+
 // Swagger com Token
 builder.Services.AddSwaggerGen(c =>
 {
@@ -94,13 +97,15 @@ builder.Services.AddAuthorization();
 
 // Adição dos Serviços
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMoradorRepository, MoradorRepository>();
 builder.Services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
+builder.Services.AddScoped<IReservaService, ReservaService>();
 
 // Captura a URL do Frontend do ambiente
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
