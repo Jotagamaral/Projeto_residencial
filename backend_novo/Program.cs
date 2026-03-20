@@ -112,6 +112,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
 builder.Services.AddScoped<IReservaService, ReservaService>();
 
+builder.Services.AddScoped<IEncomendaRepository, EncomendaRepository>();
+builder.Services.AddScoped<IEncomendaService, EncomendaService>();
+
 // CORS
 builder.Services.AddCors(options =>
 {

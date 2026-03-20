@@ -10,25 +10,11 @@ import {
 function CadastroEncomenda() {
   const [remetente, setRemetente] = useState('');
   const [moradorId, setMoradorId] = useState('');
-  const [funcionarioId, setFuncionarioId] = useState(null);
   const [listaMoradores, setListaMoradores] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const carregarDados = async () => {
-      const userString = localStorage.getItem('user');
-      if (userString) {
-        try {
-          const userObject = JSON.parse(userString);
-          setFuncionarioId(userObject.id);
-        } catch (e) {
-          console.error(
-            'Erro ao parsear dados do usuário do localStorage:',
-            e
-          );
-        }
-      }
-
       try {
         const moradoresRetorno = await buscarMoradores();
         setListaMoradores(moradoresRetorno);
@@ -52,20 +38,10 @@ function CadastroEncomenda() {
         alert('Selecione um destinatário (morador)!');
         return;
       }
-      if (!funcionarioId) {
-        alert('ID do funcionário não disponível. Tente relogar.');
-        return;
-      }
-
-      const now = new Date();
-      const pad = (n) => n.toString().padStart(2, '0');
-      const formattedHoraEntrega = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
       const encomendaData = {
         remetente: remetente,
-        moradorId: moradorId,
-        funcionarioId: funcionarioId,
-        horaEntrega: formattedHoraEntrega,
+        moradorId: Number(moradorId),
       };
 
       try {
@@ -76,7 +52,7 @@ function CadastroEncomenda() {
         console.error('[CadastroEncomendas.jsx]: ', error);
       }
     },
-    [remetente, moradorId, funcionarioId, navigate]
+    [remetente, moradorId, navigate]
   );
 
   return (

@@ -20,7 +20,11 @@ public class AppDbContext : DbContext
     //* Reservas
     public DbSet<Local> Locais { get; set; } = null!;
     public DbSet<CategoriaReserva> CategoriasReserva { get; set; } = null!;
-    public DbSet<Reserva> Reservas { get; set; } = null!; 
+    public DbSet<Reserva> Reservas { get; set; } = null!;
+
+    //* Encomendas
+    public DbSet<Encomenda> Encomendas { get; set; } = null!;
+    public DbSet<CategoriaEncomenda> CategoriasEncomenda { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
