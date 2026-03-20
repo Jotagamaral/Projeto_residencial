@@ -10,6 +10,7 @@ using backend_novo.Repositories;
 using backend_novo.Repositories.Interfaces;
 using backend_novo.Services;
 using backend_novo.Services.Interfaces;
+using backend_novo.Workers;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -70,14 +71,25 @@ builder.Services.AddSwaggerGen(c =>
 
 // Conexão Banco de dados
 
-var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION") ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("ERRO CRÍTICO: A string de conexão com o banco de dados (DB_CONNECTION) não foi encontrada.");
+}
+
+// Autenticação e Autorização
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? builder.Configuration["Jwt:Key"];
+
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException("ERRO CRÍTICO: A chave do JWT (JWT_KEY) não foi encontrada.");
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Autenticação e Autorização
-
-var key = Encoding.ASCII.GetBytes("condosync12345678909876543212345");
+var key = Encoding.ASCII.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(x =>
 {
@@ -114,6 +126,11 @@ builder.Services.AddScoped<IReservaService, ReservaService>();
 
 builder.Services.AddScoped<IEncomendaRepository, EncomendaRepository>();
 builder.Services.AddScoped<IEncomendaService, EncomendaService>();
+
+// RabbitMQ
+builder.Services.AddSingleton<IMessageBusService, RabbitMQService>();
+builder.Services.AddHostedService<LogWorker>();
+builder.Services.AddScoped<AuditLogActionFilter>();
 
 // CORS
 builder.Services.AddCors(options =>
