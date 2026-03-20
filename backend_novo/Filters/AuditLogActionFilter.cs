@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using backend_novo.Data;
 using backend_novo.DTOs;
 using backend_novo.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,12 +8,12 @@ namespace backend_novo.Filters;
 
 public class AuditLogActionFilter : IAsyncActionFilter
 {
-    private readonly AppDbContext _context;
+    private readonly IMessageBusService _messageBus;
     private readonly ILogger<AuditLogActionFilter> _logger;
 
-    public AuditLogActionFilter(AppDbContext context, ILogger<AuditLogActionFilter> logger)
+    public AuditLogActionFilter(IMessageBusService messageBus, ILogger<AuditLogActionFilter> logger)
     {
-        _context = context;
+        _messageBus = messageBus;
         _logger = logger;
     }
 
@@ -23,7 +22,7 @@ public class AuditLogActionFilter : IAsyncActionFilter
         var executedContext = await next();
 
         try
-        {
+        {   
             var routeValues = context.ActionDescriptor.RouteValues;
             var controllerName = routeValues.TryGetValue("controller", out var controller)
                 ? controller
@@ -42,8 +41,7 @@ public class AuditLogActionFilter : IAsyncActionFilter
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
-            _context.Logs.Add(log);
-            await _context.SaveChangesAsync();
+            _messageBus.PublishLog(log);
         }
         catch (Exception ex)
         {

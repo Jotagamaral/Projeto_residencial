@@ -3,32 +3,32 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend_novo.Models;
 
-[Table("logs")]
+[Table("CSTB999_LOG")]
 public class Log
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Column("id")]
+    [Column("ID_LOG")]
     public long Id { get; set; }
 
-    [Column("user_id")]
+    [Column("ID_USER")]
     public long? UserId { get; set; }
 
-    [Required]
-    [Column("entity_name")]
+    [Column("NO_ENTIDADE")]
+    [MaxLength(255)]
     public string EntityName { get; set; } = string.Empty;
 
-    [Column("entity_id")]
+    [Column("ID_ENTIDADE")]
     public long? EntityId { get; set; }
 
-    [Required]
-    [Column("action")]
+    [Column("TX_ACAO")]
+    [MaxLength(255)]
     public string Action { get; set; } = string.Empty;
 
-    [Required]
-    [Column("method")]
+    [Column("TX_METODO")]
+    [MaxLength(16)]
     public string Method { get; set; } = string.Empty;
 
-    [Column("created_at")]
+    [Column("DT_CRIACAO")]
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
