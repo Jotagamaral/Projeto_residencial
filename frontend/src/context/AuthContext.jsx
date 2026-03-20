@@ -34,9 +34,9 @@ export const AuthProvider = ({ children }) => {
         };
     }, [token]);
 
-    const login = async (cpf, senha) => {
+    const login = async (email, senha) => {
         try {
-            const data = await loginUser(cpf, senha);
+            const data = await loginUser(email, senha);
             const { token: jwt, user: userData } = data;
 
             localStorage.setItem('jwtToken', jwt);

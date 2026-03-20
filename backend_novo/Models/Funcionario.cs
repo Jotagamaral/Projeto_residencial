@@ -3,41 +3,32 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend_novo.Models;
 
-[Table("funcionarios")]
+[Table("CSTB003_FUNCIONARIO")]
 public class Funcionario
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Column("id")]
+    [Column("ID_FUNCIONARIO")]
     public long Id { get; set; }
 
+    [Column("ID_USER")]
     [Required]
-    [Column("nome")]
-    public string Nome { get; set; } = string.Empty;
+    public long IdUser { get; set; }
 
+    [Column("ID_CATEGORIA_CARGO")]
     [Required]
-    [Column("rg")]
-    public string Rg { get; set; } = string.Empty;
+    public long IdCategoriaCargo { get; set; }
 
+    [Column("LG_ATIVO")]
     [Required]
-    [Column("cpf")]
-    public string Cpf { get; set; } = string.Empty;
+    public bool Ativo { get; set; } = true;
 
-    [Required]
-    [Column("telefone")]
-    public string Telefone { get; set; } = string.Empty;
+    // Relacionamentos
+    [ForeignKey("IdCategoriaCargo")]
+    public virtual CategoriaCargo? CategoriaCargo { get; set; }
+    
+    [ForeignKey("IdUser")]
+    public virtual Usuario? Usuario { get; set; }
 
-    [Required]
-    [Column("email")]
-    public string Email { get; set; } = string.Empty;
 
-    [Required]
-    [Column("cargo")]
-    public string Cargo { get; set; } = string.Empty;
-
-    [Column("fk_user")]
-    public long? FkUser { get; set; }
-
-    [ForeignKey("FkUser")]
-    public User? User { get; set; }
 }

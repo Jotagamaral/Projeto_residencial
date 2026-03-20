@@ -3,9 +3,9 @@ import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // LOGIN
-export async function loginUser(cpf, senha) {
+export async function loginUser(email, senha) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/login`, { cpf, senha });
+        const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, senha });
         console.log(response.data)
         return response.data; // Retorna { token, user }
     } catch (error) {
@@ -18,7 +18,7 @@ export async function loginUser(cpf, senha) {
 // REGISTER
 export async function registerUser(userData) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/register`, userData);
+        const response = await axios.post(`${API_BASE_URL}/auth/register`, userData);
         return response.data;
     } catch (error) {
         console.error("Erro na requisição de cadastro:", error);
@@ -28,17 +28,5 @@ export async function registerUser(userData) {
         } else {
             throw new Error("Erro ao fazer cadastro. Tente novamente.");
         }
-    }
-}
-
-// Função para validar CPF via API externa
-export async function validarCpfApi(cpf) {
-    try {
-        // Validação de CPF será feita no Backend
-        const response = await axios.get(`${API_BASE_URL}/valida-cpf?cpf=${cpf}`);
-        return response.data.valido; // true ou false
-    } catch (error) {
-        console.error("Erro na validação de CPF:", error);
-        throw new Error("Erro ao validar CPF. Tente novamente.");
     }
 }

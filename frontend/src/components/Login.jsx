@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa';
 
 function Login() {
-  const [cpf, setCpf] = useState('');
+  const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState(false);
@@ -28,7 +28,7 @@ function Login() {
       setSucesso(false);
       setCarregando(true);
       try {
-        await login(cpf, senha);
+        await login(email, senha);
         setSucesso(true);
       } catch (err) {
         setSucesso(false);
@@ -39,7 +39,7 @@ function Login() {
         setCarregando(false);
       }
     },
-    [cpf, senha, login]
+    [email, senha, login]
   );
 
   return (
@@ -124,20 +124,20 @@ function Login() {
             <div className='bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5'>
               <div>
                 <label
-                  htmlFor='cpf'
+                  htmlFor='email'
                   className='block text-sm font-medium text-gray-700 mb-2'
                 >
-                  CPF
+                  E-mail
                 </label>
                 <div className='relative'>
                   <FaIdCard className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs' />
                   <input
-                    id='cpf'
+                    id='email'
                     type='text'
-                    placeholder='Digite seu CPF'
+                    placeholder='Digite seu e-mail'
                     required
-                    value={cpf}
-                    onChange={(e) => setCpf(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className='w-full pl-10 pr-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 focus:bg-white transition-all duration-200'
                   />
                 </div>

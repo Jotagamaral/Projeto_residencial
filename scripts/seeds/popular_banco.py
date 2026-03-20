@@ -132,12 +132,7 @@ def populate_full_database(qtd_moradores=20, qtd_funcionarios=5, qtd_visitantes=
                     "mid": random.choice(moradores_criados), "fid": random.choice(funcionarios_criados), 
                     "remetente": random.choice(['Amazon', 'Mercado Livre', 'Correios'])
                 }).scalar()
-                
-                # Simulando trigger de histórico manualmente
-                conn.execute(text("""
-                    INSERT INTO "CSTBH005_ENCOMENDA" ("ID_ENCOMENDA", "ID_MORADOR", "ID_FUNCIONARIO", "ID_CATEGORIA_ENCOMENDA", "IC_ACAO_REGISTRO", "ID_USER_AUDITOR")
-                    VALUES (:eid, :mid, :fid, 1, 'I', :admin)
-                """), {"eid": eid, "mid": random.choice(moradores_criados), "fid": random.choice(funcionarios_criados), "admin": admin_id})
+            
 
             # Reclamações e Avisos
             for _ in range(5):
