@@ -40,13 +40,6 @@ public class AppDbContext : DbContext
         //     entity.HasIndex(f => f.Email).IsUnique();
         // });
 
-        modelBuilder.Entity<Funcionario>(entity =>
-        {
-            entity.HasIndex(f => f.Cpf).IsUnique();
-            entity.HasIndex(f => f.Rg).IsUnique();
-            entity.HasIndex(f => f.Email).IsUnique();
-        });
-
         modelBuilder.Entity<Log>(entity =>
         {
             entity.Property(l => l.EntityName).HasMaxLength(255);

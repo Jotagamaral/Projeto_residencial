@@ -22,17 +22,17 @@ namespace backend_novo.Services
 
         public async Task<LoginResponseDTO> AutenticarAsync(LoginDto dto)
         {
-            // Busca no banco Usuarios com Categoria Acesso
+            var cpfLimpo = dto.Cpf.Trim();
+
             var usuario = await _context.Usuario
                 .Include(u => u.Categoria) 
-                .FirstOrDefaultAsync(u => u.Email == dto.Email && u.Ativo);
+                .FirstOrDefaultAsync(u => u.Cpf == cpfLimpo && u.Ativo);
 
-            // Validação do usuário e da senha (BCrypt)
             if (usuario == null || !BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.Senha))
             {
                 return new LoginResponseDTO
                 {
-                    Message = "Email ou senha inválidos.",
+                    Message = "CPF ou senha inválidos.",
                     Token = null,
                     User = null
                 };

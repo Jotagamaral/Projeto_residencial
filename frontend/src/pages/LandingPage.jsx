@@ -11,6 +11,7 @@ import {
   FaShieldAlt,
   FaUsers,
   FaCheck,
+  FaHome,
 } from 'react-icons/fa';
 
 function useScrollDirection() {
@@ -71,24 +72,24 @@ export default function LandingPage() {
             <div className='flex size-11 items-center justify-center rounded-2xl bg-blue-600 shadow-lg shadow-blue-600/25 group-hover:shadow-blue-600/40 transition-shadow'>
               <FaBuilding className='text-xl text-white' />
             </div>
-            <span className='text-xl font-bold text-gray-900'>CondoSync</span>
+            <span className={`text-xl font-bold transition-colors duration-300 ${headerScrolled ? 'text-gray-900' : 'text-white'}`}>CondoSync</span>
           </button>
           <nav className='hidden md:flex items-center gap-10'>
             <button
               onClick={() => scrollTo('features')}
-              className='text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors'
+              className={`text-sm font-medium transition-colors ${headerScrolled ? 'text-gray-500 hover:text-blue-600' : 'text-white/70 hover:text-white'}`}
             >
               Serviços
             </button>
             <button
               onClick={() => scrollTo('about')}
-              className='text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors'
+              className={`text-sm font-medium transition-colors ${headerScrolled ? 'text-gray-500 hover:text-blue-600' : 'text-white/70 hover:text-white'}`}
             >
               Sobre
             </button>
             <button
               onClick={() => scrollTo('cta')}
-              className='text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors'
+              className={`text-sm font-medium transition-colors ${headerScrolled ? 'text-gray-500 hover:text-blue-600' : 'text-white/70 hover:text-white'}`}
             >
               Contato
             </button>
@@ -112,35 +113,134 @@ export default function LandingPage() {
         <div className='absolute -bottom-20 -left-40 w-[400px] h-[400px] rounded-full bg-blue-400/10 blur-3xl' />
         <div className='absolute inset-0 opacity-30' style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }} />
 
-        <div className='relative z-10 max-w-4xl'>
-          <div className='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-8'>
-            <span className='size-2 rounded-full bg-emerald-400 animate-pulse' />
-            <span className='text-sm font-medium text-white/90'>Gestão condominial em um só lugar</span>
+        <div className='relative z-10 max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center'>
+          <div>
+            <div className='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-8'>
+              <span className='size-2 rounded-full bg-emerald-400 animate-pulse' />
+              <span className='text-sm font-medium text-white/90'>Gestão condominial em um só lugar</span>
+            </div>
+            <h1 className='text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.08] tracking-tight'>
+              Seu condomínio,
+              <br />
+              <span className='text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-200'>
+                simplificado.
+              </span>
+            </h1>
+            <p className='mt-8 text-lg md:text-xl text-blue-100/90 max-w-xl leading-relaxed'>
+              Reclamações, reservas, encomendas e avisos. Interface moderna, segura e pensada para o dia a dia.
+            </p>
+            <div className='mt-12 flex flex-wrap gap-4'>
+              <Link
+                to='/cadastro'
+                className='group inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 font-semibold rounded-2xl shadow-2xl shadow-black/10 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1 transition-all duration-200'
+              >
+                Começar agora
+                <FaArrowRight className='text-sm group-hover:translate-x-1 transition-transform' />
+              </Link>
+              <button
+                onClick={() => scrollTo('features')}
+                className='inline-flex items-center gap-3 px-8 py-4 bg-white/10 text-white font-semibold rounded-2xl border-2 border-white/25 hover:bg-white/20 hover:border-white/40 transition-all duration-200'
+              >
+                Ver serviços
+              </button>
+            </div>
           </div>
-          <h1 className='text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.08] tracking-tight'>
-            Seu condomínio,
-            <br />
-            <span className='text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-200'>
-              simplificado.
-            </span>
-          </h1>
-          <p className='mt-8 text-lg md:text-xl text-blue-100/90 max-w-xl leading-relaxed'>
-            Reclamações, reservas, encomendas e avisos. Interface moderna, segura e pensada para o dia a dia.
-          </p>
-          <div className='mt-12 flex flex-wrap gap-4'>
-            <Link
-              to='/cadastro'
-              className='group inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 font-semibold rounded-2xl shadow-2xl shadow-black/10 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1 transition-all duration-200'
+
+          <div
+            className='hidden lg:block'
+            style={{ perspective: '1200px' }}
+          >
+            <div
+              className='rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md shadow-2xl shadow-black/20 overflow-hidden'
+              style={{ transform: 'rotateY(-6deg) rotateX(2deg)' }}
             >
-              Começar agora
-              <FaArrowRight className='text-sm group-hover:translate-x-1 transition-transform' />
-            </Link>
-            <button
-              onClick={() => scrollTo('features')}
-              className='inline-flex items-center gap-3 px-8 py-4 bg-white/10 text-white font-semibold rounded-2xl border-2 border-white/25 hover:bg-white/20 hover:border-white/40 transition-all duration-200'
-            >
-              Ver serviços
-            </button>
+              <div className='flex items-center gap-2 px-4 py-3 bg-black/20 border-b border-white/10'>
+                <span className='size-3 rounded-full bg-red-400/80' />
+                <span className='size-3 rounded-full bg-yellow-400/80' />
+                <span className='size-3 rounded-full bg-emerald-400/80' />
+                <span className='ml-3 text-[11px] text-white/40 font-medium'>CondoSync — Dashboard</span>
+              </div>
+              <div className='flex'>
+                <div className='w-14 shrink-0 bg-black/15 border-r border-white/10 py-4 flex flex-col items-center gap-4'>
+                  <div className='size-7 rounded-lg bg-indigo-400/30 flex items-center justify-center'>
+                    <FaBuilding className='text-white/60 text-[10px]' />
+                  </div>
+                  <div className='size-7 rounded-lg bg-white/10 flex items-center justify-center'>
+                    <FaHome className='text-white/40 text-[10px]' />
+                  </div>
+                  <div className='size-7 rounded-lg bg-white/10 flex items-center justify-center'>
+                    <FaCalendarAlt className='text-white/40 text-[10px]' />
+                  </div>
+                  <div className='size-7 rounded-lg bg-white/10 flex items-center justify-center'>
+                    <FaBox className='text-white/40 text-[10px]' />
+                  </div>
+                  <div className='size-7 rounded-lg bg-white/10 flex items-center justify-center'>
+                    <FaComments className='text-white/40 text-[10px]' />
+                  </div>
+                </div>
+                <div className='flex-1 p-4 space-y-4'>
+                  <div className='flex items-center justify-between'>
+                    <div>
+                      <div className='h-3 w-28 rounded bg-white/25' />
+                      <div className='h-2 w-40 rounded bg-white/10 mt-2' />
+                    </div>
+                    <div className='size-8 rounded-full bg-white/10' />
+                  </div>
+                  <div className='grid grid-cols-3 gap-3'>
+                    <div className='rounded-xl bg-white/10 border border-white/10 p-3'>
+                      <div className='size-7 rounded-lg bg-orange-400/20 flex items-center justify-center mb-2'>
+                        <FaComments className='text-orange-300 text-[9px]' />
+                      </div>
+                      <div className='h-4 w-8 rounded bg-white/30 mb-1' />
+                      <div className='h-2 w-14 rounded bg-white/10' />
+                    </div>
+                    <div className='rounded-xl bg-white/10 border border-white/10 p-3'>
+                      <div className='size-7 rounded-lg bg-emerald-400/20 flex items-center justify-center mb-2'>
+                        <FaCalendarAlt className='text-emerald-300 text-[9px]' />
+                      </div>
+                      <div className='h-4 w-8 rounded bg-white/30 mb-1' />
+                      <div className='h-2 w-14 rounded bg-white/10' />
+                    </div>
+                    <div className='rounded-xl bg-white/10 border border-white/10 p-3'>
+                      <div className='size-7 rounded-lg bg-indigo-400/20 flex items-center justify-center mb-2'>
+                        <FaBox className='text-indigo-300 text-[9px]' />
+                      </div>
+                      <div className='h-4 w-8 rounded bg-white/30 mb-1' />
+                      <div className='h-2 w-14 rounded bg-white/10' />
+                    </div>
+                  </div>
+                  <div className='rounded-xl bg-white/10 border border-white/10 p-3'>
+                    <div className='flex items-center justify-between mb-3'>
+                      <div className='h-3 w-20 rounded bg-white/20' />
+                      <div className='h-2 w-12 rounded bg-white/10' />
+                    </div>
+                    <div className='space-y-2'>
+                      <div className='flex items-center gap-3'>
+                        <div className='size-6 rounded-lg bg-white/10' />
+                        <div className='flex-1'>
+                          <div className='h-2 w-full rounded bg-white/15' />
+                          <div className='h-2 w-2/3 rounded bg-white/8 mt-1' />
+                        </div>
+                      </div>
+                      <div className='flex items-center gap-3'>
+                        <div className='size-6 rounded-lg bg-white/10' />
+                        <div className='flex-1'>
+                          <div className='h-2 w-full rounded bg-white/15' />
+                          <div className='h-2 w-1/2 rounded bg-white/8 mt-1' />
+                        </div>
+                      </div>
+                      <div className='flex items-center gap-3'>
+                        <div className='size-6 rounded-lg bg-white/10' />
+                        <div className='flex-1'>
+                          <div className='h-2 w-3/4 rounded bg-white/15' />
+                          <div className='h-2 w-1/3 rounded bg-white/8 mt-1' />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

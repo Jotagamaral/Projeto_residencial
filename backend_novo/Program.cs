@@ -112,17 +112,14 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
 builder.Services.AddScoped<IReservaService, ReservaService>();
 
-// Captura a URL do Frontend do ambiente
-var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
 // CORS
 builder.Services.AddCors(options =>
 {
    options.AddPolicy("CondoSyncPolicy", policy =>
     {
-        policy.WithOrigins(frontendUrl)
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowAnyHeader();
     });
 });
 

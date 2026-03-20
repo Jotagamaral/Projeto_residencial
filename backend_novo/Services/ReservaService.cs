@@ -27,6 +27,19 @@ public class ReservaService : IReservaService
         _context = context;
     }
 
+    public async Task<IEnumerable<ReservaResponseDto>> ListarReservasAsync()
+    {
+        var reservas = await _reservaRepository.ListarAtivasAsync();
+        return reservas.Select(r => new ReservaResponseDto
+        {
+            Id = r.Id,
+            IdLocal = r.IdLocal,
+            DataInicio = r.DataInicio,
+            DataFim = r.DataFim,
+            Status = r.Categoria?.Nome ?? "CONFIRMADA"
+        });
+    }
+
     public async Task<ReservaResponseDto> CriarReservaAsync(ReservaCreateDto dto)
     {
         // Extrair o ID_USER do Token JWT
