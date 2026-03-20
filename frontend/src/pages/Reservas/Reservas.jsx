@@ -51,21 +51,8 @@ function Reservas() {
   const [mesAtual, setMesAtual] = useState(hoje.getMonth());
   const [anoAtual, setAnoAtual] = useState(hoje.getFullYear());
   const [diaSelecionado, setDiaSelecionado] = useState(null);
-  const [idMorador, setIdMorador] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
-
-  useEffect(() => {
-    const userString = localStorage.getItem('user');
-    if (userString) {
-      try {
-        const userObject = JSON.parse(userString);
-        setIdMorador(userObject.id);
-      } catch (e) {
-        console.error('Erro ao parsear dados do usuário:', e);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     async function carregarDados() {
@@ -94,15 +81,15 @@ function Reservas() {
 
   const reservasFiltradas = useMemo(() => {
     if (!filtroLocal) return [];
-    return reservas.filter(
-      (r) =>
-        (r.local && (r.local.id === Number(filtroLocal) || r.local === Number(filtroLocal))) ||
-        r.local_id === Number(filtroLocal)
-    );
+    return reservas.filter((r) => r.idLocal === Number(filtroLocal));
   }, [filtroLocal, reservas]);
 
   const datasReservadas = useMemo(
-    () => reservasFiltradas.map((r) => r.data),
+    () =>
+      reservasFiltradas.map((r) => {
+        const d = new Date(r.dataInicio);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }),
     [reservasFiltradas]
   );
 
@@ -160,15 +147,30 @@ function Reservas() {
   }, [mesAtual]);
 
   const adicionarReserva = useCallback(async () => {
-    if (!filtroLocal || !diaSelecionado || !idMorador) {
-      alert('Selecione um local, um dia e esteja logado como morador!');
+    if (!filtroLocal || !diaSelecionado) {
+      alert('Selecione um local e um dia!');
       return;
     }
-    const dataStr = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}-${String(diaSelecionado.dia).padStart(2, '0')}`;
+    const dataInicio = new Date(
+      diaSelecionado.ano,
+      diaSelecionado.mes,
+      diaSelecionado.dia,
+      8,
+      0,
+      0
+    );
+    const dataFim = new Date(
+      diaSelecionado.ano,
+      diaSelecionado.mes,
+      diaSelecionado.dia,
+      22,
+      0,
+      0
+    );
     const reservaData = {
-      local: Number(filtroLocal),
-      data: dataStr,
-      morador: idMorador,
+      idLocal: Number(filtroLocal),
+      dataInicio: dataInicio.toISOString(),
+      dataFim: dataFim.toISOString(),
     };
     try {
       await publicarReserva(reservaData);
@@ -177,9 +179,11 @@ function Reservas() {
       setDiaSelecionado(null);
       alert('Reserva adicionada!');
     } catch (error) {
-      alert('Erro ao adicionar reserva!');
+      const msg =
+        error.response?.data?.message || 'Erro ao adicionar reserva!';
+      alert(msg);
     }
-  }, [filtroLocal, diaSelecionado, idMorador, anoAtual, mesAtual]);
+  }, [filtroLocal, diaSelecionado, anoAtual, mesAtual]);
 
   useEffect(() => {
     setDiaSelecionado(null);
@@ -189,7 +193,7 @@ function Reservas() {
 
   const reservasDoMes = useMemo(() => {
     return reservasFiltradas.filter((r) => {
-      const d = new Date(r.data);
+      const d = new Date(r.dataInicio);
       return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
     });
   }, [reservasFiltradas, mesAtual, anoAtual]);
@@ -441,8 +445,7 @@ function Reservas() {
                     <div className='space-y-3'>
                       {reservasDoMes.length > 0 ? (
                         reservasDoMes.slice(0, 5).map((r, idx) => {
-                          const data = new Date(r.data);
-                          const morador = r.morador;
+                          const data = new Date(r.dataInicio);
                           return (
                             <div
                               key={idx}
@@ -458,7 +461,7 @@ function Reservas() {
                               </div>
                               <div className='flex-1 min-w-0'>
                                 <p className='text-xs font-semibold text-gray-700 truncate'>
-                                  {morador?.nome || 'Morador'}
+                                  {r.status || 'Confirmada'}
                                 </p>
                                 <p className='text-[10px] text-gray-400'>
                                   Reserva confirmada

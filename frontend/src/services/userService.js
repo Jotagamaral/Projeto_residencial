@@ -3,14 +3,13 @@ import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // LOGIN
-export async function loginUser(email, senha) {
+export async function loginUser(cpf, senha) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, senha });
-        console.log(response.data)
-        return response.data; // Retorna { token, user }
+        const response = await axios.post(`${API_BASE_URL}/auth/login`, { cpf, senha });
+        return response.data;
     } catch (error) {
-        console.error("Erro na requisição de login:", error);
-        const message = error.response?.data?.message || "Erro ao fazer login. Verifique suas credenciais.";
+        console.error('Erro na requisição de login:', error);
+        const message = error.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.';
         throw new Error(message);
     }
 }

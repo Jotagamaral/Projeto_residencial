@@ -15,11 +15,16 @@ public class AppDbContext : DbContext
     public DbSet<CategoriaCargo> CategoriaCargo { get; set; } = null!;
     public DbSet<Morador> Moradores { get; set; } = null!;
     public DbSet<Funcionario> Funcionarios { get; set; } = null!;
+    public DbSet<Log> Logs { get; set; } = null!;
 
     //* Reservas
     public DbSet<Local> Locais { get; set; } = null!;
     public DbSet<CategoriaReserva> CategoriasReserva { get; set; } = null!;
-    public DbSet<Reserva> Reservas { get; set; } = null!; 
+    public DbSet<Reserva> Reservas { get; set; } = null!;
+
+    //* Encomendas
+    public DbSet<Encomenda> Encomendas { get; set; } = null!;
+    public DbSet<CategoriaEncomenda> CategoriasEncomenda { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,6 +43,14 @@ public class AppDbContext : DbContext
         //     entity.HasIndex(f => f.Rg).IsUnique();
         //     entity.HasIndex(f => f.Email).IsUnique();
         // });
+
+        modelBuilder.Entity<Log>(entity =>
+        {
+            entity.Property(l => l.EntityName).HasMaxLength(255);
+            entity.Property(l => l.Action).HasMaxLength(255);
+            entity.Property(l => l.Method).HasMaxLength(16);
+            entity.Property(l => l.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
 
         // Entidades
 

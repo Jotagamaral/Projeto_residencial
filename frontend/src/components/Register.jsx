@@ -33,6 +33,15 @@ function Register() {
 
   const navigate = useNavigate();
 
+  const handleCpfChange = useCallback((e) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+    const masked = digits
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    setCpf(masked);
+  }, []);
+
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -48,7 +57,7 @@ function Register() {
       try {
         await registerUser({
           nome,
-          cpf,
+          cpf: cpf.replace(/\D/g, ''),
           senha,
           categoriaAcessoId: tipoUsuario,
           apartamento: apartamento ? Number(apartamento) : null,
@@ -270,7 +279,8 @@ function Register() {
                         type='text'
                         placeholder='000.000.000-00'
                         value={cpf}
-                        onChange={(e) => setCpf(e.target.value)}
+                        onChange={handleCpfChange}
+                        maxLength={14}
                         required
                         className={inputClass}
                       />

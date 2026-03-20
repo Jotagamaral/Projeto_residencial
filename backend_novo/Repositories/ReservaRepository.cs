@@ -20,6 +20,16 @@ public class ReservaRepository : IReservaRepository
         return reserva;
     }
 
+    public async Task<IEnumerable<Reserva>> ListarAtivasAsync()
+    {
+        return await _context.Reservas
+            .Where(r => r.Ativo)
+            .Include(r => r.Local)
+            .Include(r => r.Morador)
+            .OrderByDescending(r => r.DataInicio)
+            .ToListAsync();
+    }
+
     public async Task<bool> ExisteConflitoDeHorarioAsync(long idLocal, DateTime inicio, DateTime fim)
     {
         return await _context.Reservas

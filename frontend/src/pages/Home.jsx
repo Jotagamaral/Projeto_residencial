@@ -69,9 +69,9 @@ function Home() {
     const mesAtual = hoje.getMonth();
     const anoAtual = hoje.getFullYear();
     return reservas.filter((r) => {
-      if (!r.data) return false;
-      const [ano, mes] = r.data.split('-');
-      return Number(ano) === anoAtual && Number(mes) === mesAtual + 1;
+      if (!r.dataInicio) return false;
+      const d = new Date(r.dataInicio);
+      return d.getFullYear() === anoAtual && d.getMonth() === mesAtual;
     }).length;
   }, [reservas]);
 
@@ -90,12 +90,14 @@ function Home() {
     });
 
     reservas.slice(0, 1).forEach((res) => {
-      const localNome = res.local?.nome || 'Local';
+      const dataFormatada = res.dataInicio
+        ? new Date(res.dataInicio).toLocaleDateString('pt-BR')
+        : '';
       atividades.push({
         tipo: 'reserva',
         titulo: 'Reserva confirmada',
-        descricao: `${localNome} - ${res.data}`,
-        timestamp: res.data,
+        descricao: `${res.status || 'Confirmada'} - ${dataFormatada}`,
+        timestamp: dataFormatada,
       });
     });
 

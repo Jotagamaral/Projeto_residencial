@@ -28,6 +28,22 @@ public class ReservaController : ControllerBase
     /// </remarks>
     /// <param name="dto">Dados do local e horário da reserva.</param>
     /// <returns>Retorna os detalhes da reserva confirmada.</returns>
+    [HttpGet]
+    [Authorize]
+    [ProducesResponseType(typeof(IEnumerable<ReservaResponseDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListarReservas()
+    {
+        try
+        {
+            var reservas = await _reservaService.ListarReservasAsync();
+            return Ok(reservas);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
+        }
+    }
+
     [HttpPost]
     [Authorize(Roles = CategoriaAcessoConstants.MORADOR_ROLE)]
     [ProducesResponseType(typeof(ReservaResponseDto), StatusCodes.Status201Created)]

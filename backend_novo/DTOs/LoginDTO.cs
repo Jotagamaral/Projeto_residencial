@@ -4,10 +4,10 @@ namespace backend_novo.DTOs;
 
 public class LoginDto
 {
-    /// <summary>E-mail cadastrado.</summary>
-    /// <example>joao@condosync.com</example>
-    [Required]
-    public string Email { get; set; } = string.Empty;
+    /// <summary>CPF cadastrado (somente números).</summary>
+    /// <example>12345678901</example>
+    [Required, StringLength(11)]
+    public string Cpf { get; set; } = string.Empty;
 
     /// <summary>Senha definida no cadastro.</summary>
     /// <example>Senha@123</example>

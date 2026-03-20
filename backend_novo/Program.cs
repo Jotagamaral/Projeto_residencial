@@ -5,6 +5,7 @@ using System.Text;
 
 // Sistema
 using backend_novo.Data;
+using backend_novo.Filters;
 using backend_novo.Repositories;
 using backend_novo.Repositories.Interfaces;
 using backend_novo.Services;
@@ -22,7 +23,11 @@ DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddScoped<AuditLogActionFilter>();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.AddService<AuditLogActionFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 
 // Leitura de dados das requisões
@@ -107,17 +112,17 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
 builder.Services.AddScoped<IReservaService, ReservaService>();
 
-// Captura a URL do Frontend do ambiente
-var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
+builder.Services.AddScoped<IEncomendaRepository, EncomendaRepository>();
+builder.Services.AddScoped<IEncomendaService, EncomendaService>();
+
 // CORS
 builder.Services.AddCors(options =>
 {
    options.AddPolicy("CondoSyncPolicy", policy =>
     {
-        policy.WithOrigins(frontendUrl)
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowAnyHeader();
     });
 });
 
