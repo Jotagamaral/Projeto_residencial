@@ -5,6 +5,7 @@ using System.Text;
 
 // Sistema
 using backend_novo.Data;
+using backend_novo.Filters;
 using backend_novo.Repositories;
 using backend_novo.Repositories.Interfaces;
 using backend_novo.Services;
@@ -22,7 +23,11 @@ DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddScoped<AuditLogActionFilter>();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.AddService<AuditLogActionFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger com Token

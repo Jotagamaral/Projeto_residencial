@@ -1,5 +1,3 @@
-using System.Reflection.Metadata;
-using System.Xml;
 using backend_novo.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Morador> Moradores { get; set; } = null!;
     public DbSet<Funcionario> Funcionarios { get; set; } = null!;
+    public DbSet<Log> Logs { get; set; } = null!;
 
     // Novas Models 
 
@@ -39,6 +38,14 @@ public class AppDbContext : DbContext
             entity.HasIndex(f => f.Cpf).IsUnique();
             entity.HasIndex(f => f.Rg).IsUnique();
             entity.HasIndex(f => f.Email).IsUnique();
+        });
+
+        modelBuilder.Entity<Log>(entity =>
+        {
+            entity.Property(l => l.EntityName).HasMaxLength(255);
+            entity.Property(l => l.Action).HasMaxLength(255);
+            entity.Property(l => l.Method).HasMaxLength(16);
+            entity.Property(l => l.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
 
         // Novas Entidades
