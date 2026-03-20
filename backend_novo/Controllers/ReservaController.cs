@@ -26,7 +26,6 @@ public class ReservaController : ControllerBase
     /// Lembre-se: O ID do Morador é extraído automaticamente do Token JWT.
     /// Não é necessário enviar quem está reservando no corpo da requisição.
     /// </remarks>
-    /// <param name="dto">Dados do local e horário da reserva.</param>
     /// <returns>Retorna os detalhes da reserva confirmada.</returns>
     [HttpGet]
     [Authorize]
