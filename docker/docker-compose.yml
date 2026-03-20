@@ -1,33 +1,42 @@
 services:
-  db:
-    image: postgres:17
-    container_name: postgres_condosync
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123
-      POSTGRES_DB: condosyncsquad
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: condosync_rabbitmq
     ports:
-      - 5432:5432
-    volumes:
-      - postgres_condosync_data:/var/lib/postgresql/data
-    networks:
-      - banco_net_pi2
+      - "5672:5672"   # Comunicação interna/AMQP
+      - "15672:15672" # Painel Web (guest/guest)
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin_condosync
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: pass123
+  backend:
+    build:
+      context: ./backend_novo  # Caminho para sua pasta .NET
+      dockerfile: Dockerfile   # Certifique-se de ter um Dockerfile para .NET
+    container_name: condosync_api
     ports:
-      - 4567:80
+      - "${PORT_BACKEND}:8080" # Mapeia a porta configurada para a 8080 interna do container
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      - Jwt__Key=${JWT_KEY}
+      - RabbitMQ__Host=${RABBITMQ_HOST}
+      - RabbitMQ__Port=${RABBITMQ_PORT}
+      - RabbitMQ__UserName=${RABBITMQ_USER}
+      - RabbitMQ__Password=${RABBITMQ_PASS}
     depends_on:
-      - db
-    networks:
-      - banco_net_pi2
+      - rabbitmq
 
-volumes:
-  postgres_condosync_data:
-
-networks:
-  banco_net_pi2:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: condosync_web
+    ports:
+      - "${PORT_FRONTEND}:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=http://localhost:${PORT_BACKEND}/api
+    command: npm run dev -- --host
