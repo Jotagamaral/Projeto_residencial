@@ -65,5 +65,18 @@ public class AppDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(u => u.CategoriaAcessoId);
         });
+
+        modelBuilder.Entity<Reserva>(entity =>
+        {
+            entity.Property(e => e.DataInicio)
+                .HasConversion(
+                    v => v.ToUniversalTime(),
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+            entity.Property(e => e.DataFim)
+                .HasConversion(
+                    v => v.ToUniversalTime(),
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        });
     }
 }

@@ -30,14 +30,21 @@ public class ReservaRepository : IReservaRepository
             .ToListAsync();
     }
 
-    public async Task<bool> ExisteConflitoDeHorarioAsync(long idLocal, DateTime inicio, DateTime fim)
+    public async Task<bool> ExisteConflitoDeHorarioAsync(long idLocal, DateTime dataInicio, DateTime dataFim, long? reservaIdParaIgnorar = null)
+{
+    // Monta a query base
+    var query = _context.Reservas
+        .Where(r => r.IdLocal == idLocal && 
+                    r.Ativo &&
+                    r.DataInicio < dataFim && 
+                    r.DataFim > dataInicio);
+
+    // Se recebemos um ID para ignorar, adicionamos essa regra ao WHERE
+    if (reservaIdParaIgnorar.HasValue)
     {
-        return await _context.Reservas
-            .AnyAsync(r => 
-                r.IdLocal == idLocal &&
-                r.Ativo == true &&
-                r.DataInicio < fim && 
-                r.DataFim > inicio
-            );
+        query = query.Where(r => r.Id != reservaIdParaIgnorar.Value);
     }
+
+    return await query.AnyAsync();
+}
 }
