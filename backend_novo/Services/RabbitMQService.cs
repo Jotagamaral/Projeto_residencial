@@ -7,8 +7,9 @@ namespace backend_novo.Services;
 
 public class RabbitMQService : IMessageBusService, IDisposable
 {
-    private readonly IConnection _connection;
+    private readonly IConnection? _connection;
     private IChannel? _channel;
+    private readonly bool _isRabbitMqAvailable;
 
     public RabbitMQService(IConfiguration configuration)
     {
@@ -26,14 +27,31 @@ public class RabbitMQService : IMessageBusService, IDisposable
             Password = pass
         };
         
-        _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
+        try
+        {
+            // Tenta estabelecer a conexão
+            _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
+            _isRabbitMqAvailable = true;
+        }
+        catch (Exception)
+        {
+            // Falhou
+            Console.WriteLine($"[AVISO] RabbitMQ indisponível no host {host}:{port}. O sistema funcionará em modo de degradação graciosa (Logs apenas no console).");
+            _isRabbitMqAvailable = false;
+        }
     }
 
     public void PublishLog(Log log)
     {
+        if (!_isRabbitMqAvailable)
+        {
+            Console.WriteLine($"[LOG BYPASS - RabbitMQ Offline] Ação: {log.Action} | Entidade: {log.EntityName} | Usuário: {log.UserId}");
+            return;
+        }
+
         if (_channel == null || _channel.IsClosed)
         {
-            _channel = _connection.CreateChannelAsync().GetAwaiter().GetResult();
+            _channel = _connection!.CreateChannelAsync().GetAwaiter().GetResult();
             
             // Declarar a fila
             _channel.QueueDeclareAsync(queue: "audit_logs", durable: true, 

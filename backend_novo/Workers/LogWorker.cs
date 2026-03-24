@@ -10,8 +10,9 @@ namespace backend_novo.Workers;
 public class LogWorker : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly IConnection _connection;
+    private readonly IConnection? _connection;
     private IChannel? _channel;
+    private readonly bool _isRabbitMqAvailable;
 
     public LogWorker(IServiceProvider serviceProvider, IConfiguration configuration)
     {
@@ -30,11 +31,24 @@ public class LogWorker : BackgroundService
             Password = pass
         };
         
-        _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
+        try
+        {
+            _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
+            _isRabbitMqAvailable = true;
+        }
+        catch (Exception)
+        {
+            _isRabbitMqAvailable = false;
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (!_isRabbitMqAvailable || _connection == null)
+        {
+            Console.WriteLine("[AVISO WORKER] RabbitMQ offline. O Worker de gravação de logs não foi iniciado nesta sessão.");
+            return;
+        }
         _channel = await _connection.CreateChannelAsync(cancellationToken: stoppingToken);
 
         await _channel.QueueDeclareAsync(
