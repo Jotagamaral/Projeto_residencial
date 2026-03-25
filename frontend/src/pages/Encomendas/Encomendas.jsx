@@ -1,8 +1,11 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
-import { buscarEncomendas } from '../../services/encomendasService';
-import { useNavigate } from 'react-router-dom';
+import {
+  buscarEncomendas,
+  buscarMoradores,
+  publicarEncomenda,
+} from '../../services/encomendasService';
 import {
   FaBox,
   FaPlus,
@@ -12,6 +15,7 @@ import {
   FaCalendarDay,
   FaTimes,
   FaFilter,
+  FaPaperPlane,
 } from 'react-icons/fa';
 
 function EncomendasList({ encomendas }) {
@@ -74,6 +78,195 @@ function EncomendasList({ encomendas }) {
   );
 }
 
+function NovaEncomendaModal({ isOpen, onClose, onSuccess }) {
+  const [remetente, setRemetente] = useState('');
+  const [moradorId, setMoradorId] = useState('');
+  const [listaMoradores, setListaMoradores] = useState([]);
+  const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      buscarMoradores()
+        .then((dados) => setListaMoradores(dados))
+        .catch(() => setListaMoradores([]));
+      setRemetente('');
+      setMoradorId('');
+      setErro('');
+    }
+  }, [isOpen]);
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setErro('');
+
+      if (!remetente.trim()) {
+        setErro('O remetente é obrigatório.');
+        return;
+      }
+      if (!moradorId) {
+        setErro('Selecione um destinatário.');
+        return;
+      }
+
+      setEnviando(true);
+      try {
+        await publicarEncomenda({
+          remetente: remetente.trim(),
+          moradorId: Number(moradorId),
+        });
+        onSuccess();
+        onClose();
+      } catch {
+        setErro('Erro ao cadastrar encomenda. Tente novamente.');
+      } finally {
+        setEnviando(false);
+      }
+    },
+    [remetente, moradorId, onClose, onSuccess]
+  );
+
+  const handleBackdropClick = useCallback(
+    (e) => {
+      if (e.target === e.currentTarget) onClose();
+    },
+    [onClose]
+  );
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const inputClass =
+    'w-full pl-10 pr-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 focus:bg-white transition-all duration-200';
+
+  return (
+    <div
+      className='fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'
+      onClick={handleBackdropClick}
+    >
+      <div className='bg-white rounded-2xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in duration-200'>
+        <div className='flex items-center justify-between px-6 py-5 border-b border-gray-100'>
+          <div className='flex items-center gap-3'>
+            <div className='flex size-10 items-center justify-center rounded-xl bg-blue-50'>
+              <FaBox className='text-base text-blue-500' />
+            </div>
+            <div>
+              <h2 className='text-base font-bold text-gray-900'>
+                Nova encomenda
+              </h2>
+              <p className='text-xs text-gray-500 mt-0.5'>
+                Registre a encomenda recebida
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className='flex size-8 items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200'
+          >
+            <FaTimes className='text-xs' />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className='px-6 py-5 space-y-4'>
+          <div>
+            <label
+              htmlFor='modal-remetente'
+              className='block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider'
+            >
+              Remetente
+            </label>
+            <div className='relative'>
+              <FaPaperPlane className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs' />
+              <input
+                id='modal-remetente'
+                type='text'
+                placeholder='Ex: Amazon, Mercado Livre, Correios...'
+                value={remetente}
+                onChange={(e) => setRemetente(e.target.value)}
+                autoFocus
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor='modal-morador'
+              className='block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider'
+            >
+              Destinatário (Morador)
+            </label>
+            <div className='relative'>
+              <FaUser className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none' />
+              <select
+                id='modal-morador'
+                value={moradorId}
+                onChange={(e) => setMoradorId(e.target.value)}
+                className={inputClass}
+              >
+                <option value='' disabled>
+                  Selecione um morador
+                </option>
+                {listaMoradores.map((morador) => (
+                  <option key={morador.id} value={morador.id}>
+                    {morador.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {erro && (
+            <div className='bg-red-50 border border-red-100 rounded-xl p-3'>
+              <p className='text-xs text-red-600 text-center font-medium'>
+                {erro}
+              </p>
+            </div>
+          )}
+
+          <div className='flex gap-3 pt-2'>
+            <button
+              type='button'
+              onClick={onClose}
+              className='flex-1 py-2.5 px-4 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all duration-200'
+            >
+              Cancelar
+            </button>
+            <button
+              type='submit'
+              disabled={enviando}
+              className='flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2'
+            >
+              {enviando ? (
+                <div className='size-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
+              ) : (
+                <>
+                  <FaPlus className='text-xs' />
+                  Cadastrar
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function Encomendas() {
   const [encomendas, setEncomendas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,9 +274,20 @@ function Encomendas() {
   const [tipoCargo, setTipoCargo] = useState('');
   const [busca, setBusca] = useState('');
   const [filtroData, setFiltroData] = useState('');
-  const navigate = useNavigate();
+  const [modalAberto, setModalAberto] = useState(false);
 
   const hoje = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  const carregarEncomendas = useCallback(async () => {
+    try {
+      const dados = await buscarEncomendas();
+      setEncomendas(dados);
+    } catch {
+      setErro('Erro ao carregar encomendas.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const userString = localStorage.getItem('user');
@@ -96,21 +300,11 @@ function Encomendas() {
       }
     }
 
-    async function carregarEncomendas() {
-      try {
-        const dados = await buscarEncomendas();
-        setEncomendas(dados);
-      } catch (error) {
-        setErro('Erro ao carregar encomendas.');
-      } finally {
-        setLoading(false);
-      }
-    }
     carregarEncomendas();
-  }, []);
+  }, [carregarEncomendas]);
 
   const dataReferencia = useMemo(
-    () => (filtroData || hoje),
+    () => filtroData || hoje,
     [filtroData, hoje]
   );
 
@@ -133,14 +327,17 @@ function Encomendas() {
     ).length;
   }, [encomendas, dataReferencia]);
 
-  const handleNovaEncomenda = useCallback(() => {
-    navigate('/cadastro_encomendas');
-  }, [navigate]);
-
   const handleLimparFiltros = useCallback(() => {
     setBusca('');
     setFiltroData('');
   }, []);
+
+  const handleAbrirModal = useCallback(() => setModalAberto(true), []);
+  const handleFecharModal = useCallback(() => setModalAberto(false), []);
+
+  const handleSucessoCadastro = useCallback(() => {
+    carregarEncomendas();
+  }, [carregarEncomendas]);
 
   const temFiltro = busca || filtroData;
 
@@ -278,13 +475,19 @@ function Encomendas() {
         {tipoCargo === 'FUNCIONARIO' && (
           <button
             className='fixed bottom-8 right-8 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3.5 px-6 rounded-2xl flex items-center gap-2.5 shadow-lg hover:shadow-xl transition-all duration-200 z-50 group'
-            onClick={handleNovaEncomenda}
+            onClick={handleAbrirModal}
           >
             <FaPlus className='text-sm group-hover:rotate-90 transition-transform duration-300' />
             <span className='text-sm'>Nova encomenda</span>
           </button>
         )}
       </div>
+
+      <NovaEncomendaModal
+        isOpen={modalAberto}
+        onClose={handleFecharModal}
+        onSuccess={handleSucessoCadastro}
+      />
     </div>
   );
 }
