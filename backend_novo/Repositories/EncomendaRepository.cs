@@ -32,4 +32,28 @@ public class EncomendaRepository : IEncomendaRepository
             .OrderByDescending(e => e.DataRecebido)
             .ToListAsync();
     }
+
+    public async Task<Encomenda?> ObterPorIdAsync(long id)
+    {
+        return await _context.Encomendas
+            .Include(e => e.Morador)
+                .ThenInclude(m => m!.Usuario)
+            .Include(e => e.Funcionario)
+                .ThenInclude(f => f!.Usuario)
+            .Include(e => e.Categoria)
+            .FirstOrDefaultAsync(e => e.Id == id && e.Ativo);
+    }
+
+    public async Task AtualizarAsync(Encomenda encomenda)
+    {
+        _context.Encomendas.Update(encomenda);
+        await Task.CompletedTask;
+    }
+
+    public async Task DeletarAsync(Encomenda encomenda)
+    {
+        encomenda.Ativo = false; // Deleção lógica
+        _context.Encomendas.Update(encomenda);
+        await Task.CompletedTask;
+    }
 }
