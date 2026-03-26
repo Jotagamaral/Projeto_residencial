@@ -6,4 +6,7 @@ public interface IEncomendaRepository
 {
     Task<Encomenda> AdicionarAsync(Encomenda encomenda);
     Task<IEnumerable<Encomenda>> ListarAtivasAsync();
+    Task<Encomenda?> ObterPorIdAsync(long id);
+    Task AtualizarAsync(Encomenda encomenda);
+    Task DeletarAsync(Encomenda encomenda);
 }

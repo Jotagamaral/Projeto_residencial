@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using backend_novo.Constants;
 using backend_novo.Data;
 using backend_novo.DTOs;
@@ -12,18 +11,15 @@ public class EncomendaService : IEncomendaService
 {
     private readonly IEncomendaRepository _encomendaRepository;
     private readonly IFuncionarioRepository _funcionarioRepository;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly AppDbContext _context;
 
     public EncomendaService(
         IEncomendaRepository encomendaRepository,
         IFuncionarioRepository funcionarioRepository,
-        IHttpContextAccessor httpContextAccessor,
         AppDbContext context)
     {
         _encomendaRepository = encomendaRepository;
         _funcionarioRepository = funcionarioRepository;
-        _httpContextAccessor = httpContextAccessor;
         _context = context;
     }
 
@@ -45,16 +41,11 @@ public class EncomendaService : IEncomendaService
         });
     }
 
-    public async Task<EncomendaResponseDto> CriarEncomendaAsync(EncomendaCreateDto dto)
+    public async Task<EncomendaResponseDto> CriarEncomendaAsync(EncomendaCreateDto dto, long operadorId)
     {
-        var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long idUser))
-            throw new UnauthorizedAccessException("Usuário não autenticado ou token inválido.");
-
-        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(idUser);
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
         if (funcionario == null)
-            throw new UnauthorizedAccessException("Apenas funcionários podem registrar encomendas.");
+            throw new UnauthorizedAccessException("Apenas operadores válidos podem registrar encomendas.");
 
         if (string.IsNullOrWhiteSpace(dto.Remetente))
             throw new ArgumentException("O remetente é obrigatório.");
@@ -78,12 +69,60 @@ public class EncomendaService : IEncomendaService
             Id = novaEncomenda.Id,
             Remetente = novaEncomenda.Remetente,
             MoradorId = novaEncomenda.IdMorador,
-            Morador = funcionario.Usuario?.Nome ?? string.Empty,
             FuncionarioId = novaEncomenda.IdFuncionario,
             Funcionario = funcionario.Usuario?.Nome ?? string.Empty,
             DataRecebido = novaEncomenda.DataRecebido,
-            DataRetirado = novaEncomenda.DataRetirado,
             Status = CategoriaEncomendaConstants.PENDENTE_STRING
         };
+    }
+
+    public async Task<EncomendaResponseDto> AtualizarEncomendaAsync(long id, EncomendaUpdateDto dto, long operadorId)
+    {
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
+        if (funcionario == null)
+            throw new UnauthorizedAccessException("Operador inválido.");
+
+        var encomenda = await _encomendaRepository.ObterPorIdAsync(id);
+        if (encomenda == null)
+            throw new KeyNotFoundException("Encomenda não encontrada.");
+
+        encomenda.IdCategoriaEncomenda = dto.IdCategoriaEncomenda;
+        
+        if (!string.IsNullOrWhiteSpace(dto.Remetente))
+            encomenda.Remetente = dto.Remetente.Trim();
+
+        if (dto.DataRetirado.HasValue)
+            encomenda.DataRetirado = dto.DataRetirado.Value.ToUniversalTime();
+
+        await _encomendaRepository.AtualizarAsync(encomenda);
+        await _context.SaveChangesAsync();
+
+        return new EncomendaResponseDto
+        {
+            Id = encomenda.Id,
+            Remetente = encomenda.Remetente,
+            MoradorId = encomenda.IdMorador,
+            Morador = encomenda.Morador?.Usuario?.Nome ?? string.Empty,
+            Apartamento = encomenda.Morador?.Apartamento,
+            FuncionarioId = encomenda.IdFuncionario,
+            Funcionario = encomenda.Funcionario?.Usuario?.Nome ?? string.Empty,
+            DataRecebido = encomenda.DataRecebido,
+            DataRetirado = encomenda.DataRetirado,
+            Status = encomenda.Categoria?.Nome ?? string.Empty
+        };
+    }
+
+    public async Task CancelarEncomendaAsync(long id, long operadorId)
+    {
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
+        if (funcionario == null)
+            throw new UnauthorizedAccessException("Operador inválido.");
+
+        var encomenda = await _encomendaRepository.ObterPorIdAsync(id);
+        if (encomenda == null)
+            throw new KeyNotFoundException("Encomenda não encontrada.");
+
+        await _encomendaRepository.DeletarAsync(encomenda);
+        await _context.SaveChangesAsync();
     }
 }
