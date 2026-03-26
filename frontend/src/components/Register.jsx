@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser } from '../services/userService';
+import axios from 'axios';
 import {
   FaBuilding,
   FaUser,
@@ -16,6 +17,8 @@ import {
   FaShieldAlt,
 } from 'react-icons/fa';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 function Register() {
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
@@ -25,13 +28,25 @@ function Register() {
   const [tipoUsuario, setTipoUsuario] = useState(2);
   const [apartamento, setApartamento] = useState('');
   const [bloco, setBloco] = useState('');
-  const [cargo, setCargo] = useState('');
+  const [cargoId, setCargoId] = useState('');
+  const [listaCargos, setListaCargos] = useState([]);
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
   const [rg, setRg] = useState('');
   const [carregando, setCarregando] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (tipoUsuario === 3) {
+      axios
+        .get(`${API_BASE_URL}/CategoriaCargo`)
+        .then((res) => setListaCargos(res.data))
+        .catch((err) =>
+          console.error('Erro ao buscar cargos:', err)
+        );
+    }
+  }, [tipoUsuario]);
 
   const handleCpfChange = useCallback((e) => {
     const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
@@ -62,8 +77,8 @@ function Register() {
           categoriaAcessoId: tipoUsuario,
           apartamento: apartamento ? Number(apartamento) : null,
           bloco: bloco ? bloco.charAt(0) : null,
-          cargo,
-          telefone,
+          cargoId: cargoId ? Number(cargoId) : null,
+          celular: telefone,
           email,
           rg,
         });
@@ -82,7 +97,7 @@ function Register() {
       tipoUsuario,
       apartamento,
       bloco,
-      cargo,
+      cargoId,
       telefone,
       email,
       rg,
@@ -422,16 +437,23 @@ function Register() {
                       Cargo <span className='text-red-400'>*</span>
                     </label>
                     <div className='relative'>
-                      <FaBriefcase className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs' />
-                      <input
+                      <FaBriefcase className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none' />
+                      <select
                         id='cargo'
-                        type='text'
-                        placeholder='Digite seu cargo'
-                        value={cargo}
-                        onChange={(e) => setCargo(e.target.value)}
+                        value={cargoId}
+                        onChange={(e) => setCargoId(e.target.value)}
                         required
                         className={inputClass}
-                      />
+                      >
+                        <option value='' disabled>
+                          Selecione um cargo
+                        </option>
+                        {listaCargos.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.nome}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
