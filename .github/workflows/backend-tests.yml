@@ -1,0 +1,99 @@
+name: Backend Tests
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'backend_novo/**'
+      - 'backend_novo.Tests/**'
+  pull_request:
+    paths:
+      - 'backend_novo/**'
+      - 'backend_novo.Tests/**'
+
+jobs:
+  backend-tests:
+    name: Backend Unit Tests
+    runs-on: ubuntu-latest
+
+    # Serviços necessários para testes de integração
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      rabbitmq:
+        image: rabbitmq:3-management
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 📦 Restore dependências
+        run: dotnet restore
+        working-directory: backend_novo
+
+      - name: 📦 Restore dependências dos testes
+        run: dotnet restore
+        working-directory: backend_novo.Tests
+
+      - name: 🏗️ Build backend
+        run: dotnet build --no-restore --configuration Release
+        working-directory: backend_novo
+
+      - name: 🏗️ Build testes
+        run: dotnet build --no-restore --configuration Release
+        working-directory: backend_novo.Tests
+
+      - name: 🧪 Executar testes unitários
+        run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+        working-directory: backend_novo.Tests
+        env:
+          DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          RABBITMQ_HOST: localhost
+          RABBITMQ_PORT: 5672
+          RABBITMQ_USER: guest
+          RABBITMQ_PASS: guest
+
+      - name: 📊 Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: backend_novo.Tests/TestResults/
+          retention-days: 7
+
+      - name: 📈 Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Backend Tests Results
+          path: 'backend_novo.Tests/TestResults/*.trx'
+          reporter: dotnet-trx
+          fail-on-error: true
