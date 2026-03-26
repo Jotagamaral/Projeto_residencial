@@ -1,0 +1,92 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    # Adicionar serviços necessários para testes
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      rabbitmq:
+        image: rabbitmq:3-management
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+
+      # ----------------------
+      # BACKEND (.NET)
+      # ----------------------
+      - name: ⚙️ Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 📦 Restore backend
+        run: dotnet restore
+        working-directory: backend_novo
+
+      - name: 🏗️ Build backend
+        run: dotnet build --no-restore --configuration Release
+        working-directory: backend_novo
+
+      - name: 🧪 Testes backend
+        run: dotnet test --no-build --verbosity normal
+        working-directory: backend_novo.Tests
+        env:
+          DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          RABBITMQ_HOST: localhost
+          RABBITMQ_PORT: 5672
+          RABBITMQ_USER: guest
+          RABBITMQ_PASS: guest
+
+      # ----------------------
+      # FRONTEND (Vite + React)
+      # ----------------------
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Instalar dependências frontend
+        run: npm ci
+        working-directory: frontend
+
+      - name: 🔍 Lint frontend
+        run: npm run lint
+        working-directory: frontend
+
+      - name: 🏗️ Build frontend
+        run: npm run build
+        working-directory: frontend
