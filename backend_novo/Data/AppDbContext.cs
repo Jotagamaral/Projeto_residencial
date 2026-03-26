@@ -1,5 +1,7 @@
 using backend_novo.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure; 
+
 
 namespace backend_novo.Data;
 
@@ -49,7 +51,15 @@ public class AppDbContext : DbContext
             entity.Property(l => l.EntityName).HasMaxLength(255);
             entity.Property(l => l.Action).HasMaxLength(255);
             entity.Property(l => l.Method).HasMaxLength(16);
-            entity.Property(l => l.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            if (Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
+            {
+                entity.Property(l => l.CreatedAt).HasDefaultValue(DateTimeOffset.UtcNow);
+            }
+            else
+            {
+                // Se for o PostgreSQL (produção), usa o comando nativo do banco
+                entity.Property(l => l.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            }
         });
 
         // Entidades
@@ -64,6 +74,19 @@ public class AppDbContext : DbContext
             entity.HasOne(u => u.Categoria)
                   .WithMany()
                   .HasForeignKey(u => u.CategoriaAcessoId);
+        });
+
+        modelBuilder.Entity<Reserva>(entity =>
+        {
+            entity.Property(e => e.DataInicio)
+                .HasConversion(
+                    v => v.ToUniversalTime(),
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+            entity.Property(e => e.DataFim)
+                .HasConversion(
+                    v => v.ToUniversalTime(),
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         });
     }
 }

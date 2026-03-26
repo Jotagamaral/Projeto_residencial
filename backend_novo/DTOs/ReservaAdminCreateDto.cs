@@ -2,8 +2,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace backend_novo.DTOs;
 
-public class ReservaCreateDto
+public class ReservaAdminCreateDto
 {
+    /// <summary>ID do usuário que reservará o local.</summary>
+    /// <example>8</example>
+    [Required(ErrorMessage = "O ID do usuário titular da reserva é obrigatório.")]
+    public long IdUsuario { get; set; }
+
     /// <summary>ID do espaço que será reservado (ex: Churrasqueira).</summary>
     /// <example>1</example>
     [Required(ErrorMessage = "O local da reserva é obrigatório.")]
