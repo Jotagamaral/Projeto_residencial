@@ -62,8 +62,11 @@ function ReclamacoesList({ reclamacoes }) {
             </div>
 
             <div className='px-5 pb-5'>
+              <p className='text-sm font-bold text-gray-900 mb-1 truncate'>
+                {rec.titulo}
+              </p>
               <p className='text-sm text-gray-600 leading-relaxed line-clamp-3'>
-                {rec.reclamacao}
+                {rec.descricao}
               </p>
             </div>
 
@@ -122,13 +125,14 @@ function Reclamacoes() {
 
   const reclamacoesFiltradas = useMemo(() => {
     if (!busca) return reclamacoes;
-    return reclamacoes.filter(
-      (rec) =>
-        rec.reclamacao.toLowerCase().includes(busca.toLowerCase()) ||
-        (rec.nome &&
-          rec.nome !== 'null' &&
-          rec.nome.toLowerCase().includes(busca.toLowerCase()))
-    );
+    return reclamacoes.filter((rec) => {
+      const termo = busca.toLowerCase();
+      return (
+        rec.titulo?.toLowerCase().includes(termo) ||
+        rec.descricao?.toLowerCase().includes(termo) ||
+        (rec.nome && rec.nome !== 'null' && rec.nome.toLowerCase().includes(termo))
+      );
+    });
   }, [reclamacoes, busca]);
 
   const handleNovaReclamacao = useCallback(() => {

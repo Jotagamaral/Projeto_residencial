@@ -41,16 +41,17 @@ function Home() {
     async function carregarDados() {
       try {
         const [dadosAvisos, dadosReclamacoes, dadosReservas, dadosEncomendas] =
-          await Promise.all([
+          await Promise.allSettled([
             buscarAvisos(),
             buscarReclamacoes(),
             buscarReservas(),
             buscarEncomendas(),
           ]);
-        setAvisos(dadosAvisos);
-        setReclamacoes(dadosReclamacoes);
-        setReservas(dadosReservas);
-        setEncomendas(dadosEncomendas);
+        
+        setAvisos(dadosAvisos.status === 'fulfilled' ? dadosAvisos.value : []);
+        setReclamacoes(dadosReclamacoes.status === 'fulfilled' ? dadosReclamacoes.value : []);
+        setReservas(dadosReservas.status === 'fulfilled' ? dadosReservas.value : []);
+        setEncomendas(dadosEncomendas.status === 'fulfilled' ? dadosEncomendas.value : []);
       } catch (error) {
         setErro('Erro ao carregar dados.');
         console.error(error);
@@ -62,7 +63,14 @@ function Home() {
     carregarDados();
   }, []);
 
-  const reclamacoesAbertas = useMemo(() => reclamacoes.length, [reclamacoes]);
+  const reclamacoesAbertas = useMemo(() => {
+    if (!reclamacoes) return 0;
+    
+    return reclamacoes.filter(rec => {
+      const statusFormatado = String(rec.status || '').trim().toUpperCase();
+      return statusFormatado === 'ABERTA';
+    }).length;
+  }, [reclamacoes]);
 
   const reservasDoMes = useMemo(() => {
     const hoje = new Date();
@@ -104,8 +112,8 @@ function Home() {
     reclamacoes.slice(0, 1).forEach((rec) => {
       atividades.push({
         tipo: 'reclamacao',
-        titulo: 'Reclamacao registrada',
-        descricao: rec.reclamacao.substring(0, 50),
+        titulo: 'Reclamação registrada',
+        descricao: (rec.titulo || rec.descricao || '').substring(0, 50), 
         timestamp: 'Recente',
       });
     });
@@ -253,7 +261,7 @@ function Home() {
                       <h3 className='text-sm font-semibold text-gray-900'>
                         {action.title}
                       </h3>
-                      <FaArrowRight className='text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-1 group-hover:translate-x-0 transition-transform duration-200' />
+                      <FaArrowRight className='text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-transform duration-200' />
                     </div>
                     <p className='text-xs text-gray-500 leading-relaxed'>
                       {action.description}
