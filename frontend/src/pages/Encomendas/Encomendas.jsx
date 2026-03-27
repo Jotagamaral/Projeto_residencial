@@ -5,6 +5,7 @@ import {
   buscarEncomendas,
   buscarMoradores,
   publicarEncomenda,
+  atualizarRetiradaEncomenda,
 } from '../../services/encomendasService';
 import {
   FaBox,
@@ -16,9 +17,16 @@ import {
   FaTimes,
   FaFilter,
   FaPaperPlane,
+  FaCheckCircle,
 } from 'react-icons/fa';
 
-function EncomendasList({ encomendas }) {
+function EncomendasList({
+  encomendas,
+  podeGerenciarRetirada,
+  atualizandoRetiradaIds,
+  onAtualizarRetirada,
+  onSolicitarConfirmacaoRetirada,
+}) {
   if (!encomendas || encomendas.length === 0) {
     return (
       <div className='flex flex-col items-center justify-center py-16 text-center'>
@@ -69,11 +77,151 @@ function EncomendasList({ encomendas }) {
             {item.apartamento && (
               <p className='text-sm text-gray-600'>Apt. {item.apartamento}</p>
             )}
+            <div className='flex items-center justify-between pt-1'>
+              <div className='flex items-center gap-2'>
+                <FaCheckCircle
+                  className={`text-xs ${
+                    item.dataRetirado ? 'text-emerald-500' : 'text-gray-300'
+                  }`}
+                />
+                <span className='text-xs text-gray-500'>
+                  {item.dataRetirado ? 'Retirada' : 'Pendente retirada'}
+                </span>
+              </div>
+              {podeGerenciarRetirada && (
+                <label className='inline-flex items-center gap-2 text-xs text-gray-600'>
+                  <input
+                    type='checkbox'
+                    checked={Boolean(item.dataRetirado)}
+                    disabled={atualizandoRetiradaIds.includes(item.id)}
+                    onChange={(e) => {
+                      const retirada = e.target.checked;
+                      if (retirada) {
+                        onSolicitarConfirmacaoRetirada(item.id);
+                        return;
+                      }
+                      onAtualizarRetirada(item.id, retirada);
+                    }}
+                    className='size-4 rounded border border-gray-300 accent-blue-600 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60'
+                  />
+                  Retirou
+                </label>
+              )}
+            </div>
           </div>
 
           <div className='h-1 w-full bg-blue-500/0 group-hover:bg-blue-500 transition-all duration-300' />
         </div>
       ))}
+    </div>
+  );
+}
+
+function formatApiError(error, fallback) {
+  if (error?.code === 'ECONNABORTED') {
+    return 'Tempo esgotado ao comunicar com o servidor. Tente novamente.';
+  }
+  const data = error?.response?.data;
+  if (typeof data === 'string' && data.trim()) return data;
+  if (data && typeof data === 'object' && data.message) return String(data.message);
+  return fallback;
+}
+
+function ConfirmarRetiradaModal({
+  isOpen,
+  onClose,
+  onConfirmar,
+  carregando,
+  mensagemErro,
+}) {
+  const handleBackdropClick = useCallback(
+    (e) => {
+      if (e.target === e.currentTarget && !carregando) onClose();
+    },
+    [onClose, carregando]
+  );
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape' && !carregando) onClose();
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, onClose, carregando]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className='fixed inset-0 z-[110] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'
+      onClick={handleBackdropClick}
+    >
+      <div className='bg-white rounded-2xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in duration-200'>
+        <div className='flex items-center justify-between px-6 py-5 border-b border-gray-100'>
+          <div className='flex items-center gap-3'>
+            <div className='flex size-10 items-center justify-center rounded-xl bg-blue-50'>
+              <FaCheckCircle className='text-base text-blue-500' />
+            </div>
+            <div>
+              <h2 className='text-base font-bold text-gray-900'>
+                Confirmar retirada
+              </h2>
+              <p className='text-xs text-gray-500 mt-0.5'>
+                Valide antes de concluir
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            disabled={carregando}
+            className='flex size-8 items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200 disabled:opacity-50'
+          >
+            <FaTimes className='text-xs' />
+          </button>
+        </div>
+
+        <div className='px-6 py-5 space-y-4'>
+          <p className='text-sm text-gray-700'>
+            Tem certeza que o morador retirou esta encomenda?
+          </p>
+          {mensagemErro && (
+            <div className='bg-red-50 border border-red-100 rounded-xl p-3'>
+              <p className='text-xs text-red-600 text-center font-medium'>
+                {mensagemErro}
+              </p>
+            </div>
+          )}
+
+          <div className='flex gap-3 pt-2'>
+            <button
+              type='button'
+              onClick={onClose}
+              disabled={carregando}
+              className='flex-1 py-2.5 px-4 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50'
+            >
+              Cancelar
+            </button>
+            <button
+              type='button'
+              onClick={onConfirmar}
+              disabled={carregando}
+              className='flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2'
+            >
+              {carregando ? (
+                <div className='size-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
+              ) : (
+                'Confirmar'
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -271,10 +419,14 @@ function Encomendas() {
   const [encomendas, setEncomendas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const [erroRetirada, setErroRetirada] = useState(null);
   const [tipoCargo, setTipoCargo] = useState('');
   const [busca, setBusca] = useState('');
   const [filtroData, setFiltroData] = useState('');
   const [modalAberto, setModalAberto] = useState(false);
+  const [atualizandoRetiradaIds, setAtualizandoRetiradaIds] = useState([]);
+  const [encomendaPendenteConfirmacao, setEncomendaPendenteConfirmacao] =
+    useState(null);
 
   const hoje = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
@@ -339,7 +491,67 @@ function Encomendas() {
     carregarEncomendas();
   }, [carregarEncomendas]);
 
+  const handleAtualizarRetirada = useCallback(async (encomendaId, retirada) => {
+    setAtualizandoRetiradaIds((prev) => [...prev, encomendaId]);
+    setErroRetirada(null);
+    try {
+      const encomendaAtualizada = await atualizarRetiradaEncomenda(
+        encomendaId,
+        retirada
+      );
+      setEncomendas((prev) =>
+        prev.map((item) =>
+          item.id === encomendaId
+            ? { ...item, ...encomendaAtualizada }
+            : item
+        )
+      );
+      return true;
+    } catch (error) {
+      setErroRetirada(
+        formatApiError(
+          error,
+          'Erro ao atualizar retirada da encomenda.'
+        )
+      );
+      return false;
+    } finally {
+      setAtualizandoRetiradaIds((prev) =>
+        prev.filter((idAtual) => idAtual !== encomendaId)
+      );
+    }
+  }, []);
+
+  const handleSolicitarConfirmacaoRetirada = useCallback((encomendaId) => {
+    setErroRetirada(null);
+    setEncomendaPendenteConfirmacao(encomendaId);
+  }, []);
+
+  const handleFecharConfirmacaoRetirada = useCallback(() => {
+    setEncomendaPendenteConfirmacao(null);
+    setErroRetirada(null);
+  }, []);
+
+  const handleConfirmarRetirada = useCallback(async () => {
+    if (!encomendaPendenteConfirmacao) return;
+    const ok = await handleAtualizarRetirada(
+      encomendaPendenteConfirmacao,
+      true
+    );
+    if (ok) setEncomendaPendenteConfirmacao(null);
+  }, [encomendaPendenteConfirmacao, handleAtualizarRetirada]);
+
+  const carregandoConfirmacao = useMemo(
+    () =>
+      encomendaPendenteConfirmacao
+        ? atualizandoRetiradaIds.includes(encomendaPendenteConfirmacao)
+        : false,
+    [encomendaPendenteConfirmacao, atualizandoRetiradaIds]
+  );
+
   const temFiltro = busca || filtroData;
+  const podeGerenciarRetirada =
+    tipoCargo === 'FUNCIONARIO' || tipoCargo === 'ADMIN';
 
   const labelData = useMemo(() => {
     if (!filtroData) return 'Recebidas hoje';
@@ -469,7 +681,29 @@ function Encomendas() {
             </div>
           )}
           {!loading && !erro && (
-            <EncomendasList encomendas={encomendasFiltradas} />
+            <>
+              {erroRetirada && (
+                <div className='bg-white rounded-2xl border border-red-100 shadow-sm p-4 mb-4 flex items-start justify-between gap-3'>
+                  <p className='text-sm text-red-600'>{erroRetirada}</p>
+                  <button
+                    type='button'
+                    onClick={() => setErroRetirada(null)}
+                    className='shrink-0 text-xs font-semibold text-gray-500 hover:text-gray-800'
+                  >
+                    Fechar
+                  </button>
+                </div>
+              )}
+              <EncomendasList
+                encomendas={encomendasFiltradas}
+                podeGerenciarRetirada={podeGerenciarRetirada}
+                atualizandoRetiradaIds={atualizandoRetiradaIds}
+                onAtualizarRetirada={handleAtualizarRetirada}
+                onSolicitarConfirmacaoRetirada={
+                  handleSolicitarConfirmacaoRetirada
+                }
+              />
+            </>
           )}
         </main>
         {tipoCargo === 'FUNCIONARIO' && (
@@ -487,6 +721,13 @@ function Encomendas() {
         isOpen={modalAberto}
         onClose={handleFecharModal}
         onSuccess={handleSucessoCadastro}
+      />
+      <ConfirmarRetiradaModal
+        isOpen={Boolean(encomendaPendenteConfirmacao)}
+        onClose={handleFecharConfirmacaoRetirada}
+        onConfirmar={handleConfirmarRetirada}
+        carregando={carregandoConfirmacao}
+        mensagemErro={erroRetirada}
       />
     </div>
   );
