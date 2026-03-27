@@ -1,9 +1,18 @@
-import axios from 'axios';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import api from './api';
 
 export async function buscarReservas() {
     try {
-        const response = await axios.get(`${API_BASE_URL}/Reserva`);
+        const response = await api.get(`/Reserva/todas-reservas`);
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar reservas:', error);
+        throw error;
+    }
+}
+
+export async function buscarMinhasReservas() {
+    try {
+        const response = await api.get(`/Reserva/minhas-reservas`);
         return response.data;
     } catch (error) {
         console.error('Erro ao buscar reservas:', error);
@@ -13,7 +22,7 @@ export async function buscarReservas() {
 
 export async function buscarLocais() {
     try {
-        const response = await axios.get(`${API_BASE_URL}/Local`);
+        const response = await api.get(`/Local`);
         return response.data;
     } catch (error) {
         console.error('Erro ao buscar locais:', error);
@@ -23,10 +32,11 @@ export async function buscarLocais() {
 
 export async function publicarReserva(reservaData) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/Reserva`, reservaData);
+        const response = await api.post(`/Reserva/criar-reservas`, reservaData);
         return response.data;
     } catch (error) {
-        console.error('Erro ao publicar reserva:', error);
+        // console.error('Erro ao publicar reserva:', error);
+        console.warn('Falha na reserva:', error.response?.data?.message || error.message);
         throw error;
     }
 }
