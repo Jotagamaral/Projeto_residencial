@@ -1,4 +1,6 @@
-graph TD
+### Visão Geral do Projeto
+```mermaid
+[graph TD
     %% ==================================================
     %% PROJETO CONDOSYNC (2026) - ESTRUTURA COMPLETA
     %% ==================================================
@@ -79,4 +81,4 @@ graph TD
     style A fill:#f9f,stroke:#333,stroke-width:2px
     style TechStack fill:#e1f5fe,stroke:#01579b
     style Database fill:#fff3e0,stroke:#e65100
-    style Regras fill:#f1f8e9,stroke:#33691e
+    style Regras fill:#f1f8e9,stroke:#33691e]
