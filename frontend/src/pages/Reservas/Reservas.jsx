@@ -67,6 +67,7 @@ function Reservas() {
         setErro(null);
       } catch (error) {
         setErro('Erro ao carregar dados de reservas ou locais.');
+        console.error(error); // O erro agora é registrado, resolvendo o alerta do linter
       } finally {
         setLoading(false);
       }
@@ -186,7 +187,7 @@ function Reservas() {
         error.response?.data?.message || 'Erro ao adicionar reserva!';
       alert(msg);
     }
-  }, [filtroLocal, diaSelecionado, anoAtual, mesAtual]);
+  }, [filtroLocal, diaSelecionado]); // Dependências corrigidas (anoAtual e mesAtual removidos)
 
   useEffect(() => {
     setDiaSelecionado(null);

@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
-import { publicarAviso } from '../../services/avisosService'; // ADICIONE ESTA LINHA
-import { useNavigate } from 'react-router-dom'; // ADICIONE ESTA LINHA
-
+import { publicarAviso } from '../../services/avisosService';
+import { useNavigate } from 'react-router-dom';
 
 function CadastroAvisos() {
   const [aviso, setAviso] = useState('');
   const [data, setData] = useState('');
-  const [erro, setErro] = useState(null); // Para feedback de erro
-  const navigate = useNavigate(); // Para redirecionar
+  const [erro, setErro] = useState(null); 
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -27,9 +26,9 @@ function CadastroAvisos() {
       await publicarAviso(avisoData);
       setAviso('');
       setData('');
-      navigate('/'); // Redireciona após sucesso
+      navigate('/'); 
     } catch (error) {
-      setErro('Erro ao cadastrar aviso.');
+      setErro('Erro ao cadastrar aviso. Verifique sua conexão e tente novamente.');
       console.error(error);
     }
   };
@@ -72,6 +71,13 @@ function CadastroAvisos() {
                   required
                 />
               </div>
+
+              {erro && (
+                <div className="mb-4">
+                  <p className="text-red-500 text-sm italic text-center">{erro}</p>
+                </div>
+              )}
+
               <div className="flex justify-center">
                 <button
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

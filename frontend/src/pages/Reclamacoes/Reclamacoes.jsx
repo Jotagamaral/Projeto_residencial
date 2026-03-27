@@ -95,6 +95,8 @@ function Reclamacoes() {
       setErro(null);
     } catch (error) {
       setErro('Erro ao carregar reclamações.');
+      // Correção: A variável 'error' agora é utilizada para registrar os detalhes técnicos da falha
+      console.error(error); 
     } finally {
       setLoading(false);
     }
