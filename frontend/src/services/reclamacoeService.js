@@ -1,11 +1,10 @@
 // services/reclamacoesService.js
-import axios from "axios";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import api from './api';
 
 
 export async function buscarReclamacoes() {
     try {
-        const response = await axios.get(`${API_BASE_URL}/reclamacoes`);
+        const response = await api.get(`/reclamacoes`);
         console.log("[reclamacoeService] Dados recebidos:", response.data);
         return response.data
     } catch (error) {
@@ -16,7 +15,7 @@ export async function buscarReclamacoes() {
 
 export async function publicarReclamacao(reclamacoesData) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/reclamacoes`, reclamacoesData);
+        const response = await api.post(`/reclamacoes`, reclamacoesData);
         console.log("[reclamacoeService] Reclamação publicada: ", response.status);
         console.log(response.data);
         return response.data;

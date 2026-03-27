@@ -1,11 +1,10 @@
 // services/avisosService.js
-import axios from "axios";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import api from './api';
 
 
 export async function buscarAvisos() {
     try {
-        const response = await axios.get(`${API_BASE_URL}/avisos`);
+        const response = await api.get(`/avisos`);
         console.log("Dados recebidos:", response.data); // Log dos dados recebidos
         return response.data
     } catch (error) {
@@ -16,7 +15,7 @@ export async function buscarAvisos() {
 
 export async function publicarAviso(avisoData) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/avisos`, avisoData);
+        const response = await api.post(`/avisos`, avisoData);
         console.log("[avisosService] Aviso publicado:", response.status);
         console.log(response.data);
         return response.data;

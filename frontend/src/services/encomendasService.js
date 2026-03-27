@@ -1,9 +1,8 @@
-import axios from 'axios';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import api from './api';
 
 export async function buscarEncomendas() {
   try {
-    const response = await axios.get(`${API_BASE_URL}/Encomenda`);
+    const response = await api.get(`/Encomenda`);
     return response.data;
   } catch (error) {
     console.error('[encomendasService.js] Erro ao buscar encomendas:', error);
@@ -13,8 +12,8 @@ export async function buscarEncomendas() {
 
 export async function publicarEncomenda(encomendaData) {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/Encomenda`,
+    const response = await api.post(
+      `/Encomenda`,
       encomendaData
     );
     return response.data;
@@ -26,7 +25,7 @@ export async function publicarEncomenda(encomendaData) {
 
 export async function buscarMoradores() {
   try {
-    const response = await axios.get(`${API_BASE_URL}/Morador`);
+    const response = await api.get(`/Morador`);
     return response.data;
   } catch (error) {
     console.error('[encomendasService.js] Erro ao buscar moradores:', error);

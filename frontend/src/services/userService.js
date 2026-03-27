@@ -1,11 +1,10 @@
 // src/services/userService.js
-import axios from 'axios';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import api from './api';
 
 // LOGIN
 export async function loginUser(cpf, senha) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/auth/login`, { cpf, senha });
+        const response = await api.post(`/auth/login`, { cpf, senha });
         return response.data;
     } catch (error) {
         console.error('Erro na requisição de login:', error);
@@ -17,7 +16,7 @@ export async function loginUser(cpf, senha) {
 // REGISTER
 export async function registerUser(userData) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/auth/register`, userData);
+        const response = await api.post(`/auth/register`, userData);
         return response.data;
     } catch (error) {
         console.error("Erro na requisição de cadastro:", error);
