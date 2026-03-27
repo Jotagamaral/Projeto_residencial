@@ -1,84 +1,60 @@
 ### Visão Geral do Projeto
 ```mermaid
-[graph TD
-    %% ==================================================
-    %% PROJETO CONDOSYNC (2026) - ESTRUTURA COMPLETA
-    %% ==================================================
-
-    subgraph Identificacao [0. Identificação do Projeto]
-        A[<b>CondoSync</b><br/>Sistema de Gestão de Condomínio] --> B[Projeto Integrador 2026]
-        B --> C[Ciência da Computação]
-        C --> D[Equipe: Daví, João, Henrique, Thales e Gabriel]
+flowchart TD
+    %% 1. IDENTIFICAÇÃO E INTRODUÇÃO
+    subgraph Introducao [1. Projeto CondoSync - 2026]
+        A(CondoSync: Sistema de Gestão de Condomínio) --- B(Objetivo: Centralizar gestão e melhorar comunicação)
+        B --- C(Escopo: Moradores, Funcionários, Visitantes, Avisos, Reservas e Encomendas)
     end
 
-    subgraph VisaoGeral [1. Introdução e Objetivos]
-        E[Centralizar Gestão Administrativa] --- F[Melhorar Comunicação]
-        F --- G[Organizar Reservas e Encomendas]
-        G --- H[Controle de Visitantes e Reclamações]
+    %% 2. TECNOLOGIAS
+    subgraph Tecnologias [2. Tecnologias Utilizadas]
+        T1(Frontend: React com Vite)
+        T2(Backend: .NET C#)
+        T3(Banco de Dados: PostgreSQL / Supabase)
     end
 
-    subgraph TechStack [2. Tecnologias Utilizadas]
-        I[Frontend: React + Vite]
-        J[Backend: .NET C#]
-        K[Banco: PostgreSQL Supabase]
-        L[Componentes: C# Auxiliares]
+    %% 3. PERFIS DE USUÁRIO
+    subgraph Perfis [3. Perfis e Permissões]
+        P1(Administrador: Gestão total e Avisos)
+        P2(Funcionário: Operacional, Encomendas e Visitantes)
+        P3(Morador: Reservas, Reclamações e Consultas)
     end
 
-    subgraph Atores [3. Perfis de Usuário]
-        M{Categorias de Acesso}
-        M -->|Gestão| N[Administrador/Síndico]
-        M -->|Operacional| O[Funcionário/Portaria]
-        M -->|Residente| P[Morador]
-    end
-
-    subgraph Database [4. Modelagem de Dados - Entidades]
+    %% 4. MODELAGEM DE DADOS (ENTIDADES)
+    subgraph DB [4. Modelagem do Banco de Dados]
         direction LR
-        subgraph Nucleo [Core]
-            U[Usuário - PK: ID_USER]
-            U --- M1[Morador - 1:1]
-            U --- F1[Funcionário - 1:1]
-        end
-        subgraph Operacional [Operações]
-            E1[Encomendas]
-            R1[Reservas]
-            REC[Reclamações]
-            V1[Visitantes]
-            AV[Avisos]
-            LO[Locais]
-        end
-        subgraph Auditoria [Segurança]
-            CSTBH[Tabelas de Histórico/Auditoria]
-        end
+        E1(Usuários / Moradores / Funcionários) --- E2(Visitantes / Controle de Acesso)
+        E2 --- E3(Encomendas / Reservas / Locais)
+        E3 --- E4(Reclamações / Avisos)
+        E4 --- E5(Auditoria: Tabelas CSTBH)
     end
 
-    subgraph Regras [5. Regras de Negócio Principais]
-        RN1[Morador: Apenas apartamentos/blocos válidos]
-        RN2[Visitantes: Sempre vinculados a um morador]
-        RN3[Reservas/Reclamações: Exclusivas para moradores]
-        RN4[Encomendas: Registro exclusivo por funcionários]
-        RN5[Avisos: Criação exclusiva por administradores]
+    %% 5. REGRAS DE NEGÓCIO
+    subgraph Regras [5. Regras de Negócio]
+        R1(Moradores: Devem ter bloco e apto)
+        R2(Visitantes: Vinculados a um morador)
+        R3(Reservas: Apenas para moradores)
+        R4(Encomendas: Registro apenas por funcionários)
     end
 
-    subgraph Requisitos [6. Requisitos Funcionais - RFs]
-        direction TB
-        RF1[RF01/02: Cadastrar Moradores e Funcionários]
-        RF2[RF03: Cadastrar Visitantes]
-        RF3[RF04/05: Registrar Avisos e Reclamações]
-        RF4[RF06/07: Registrar Reservas e Encomendas]
-        RF5[RF08/09/10: Consultar Dados]
+    %% 6. REQUISITOS FUNCIONAIS
+    subgraph RF [6. Requisitos Funcionais - RF01 a RF10]
+        F1(Cadastros: Morador, Funcionario, Visitante)
+        F2(Registros: Avisos, Reclamacoes, Reservas, Encomendas)
+        F3(Consultas: Moradores, Reservas, Encomendas)
     end
 
-    %% Conexões de Hierarquia
-    Identificacao --> VisaoGeral
-    VisaoGeral --> TechStack
-    TechStack --> Atores
-    Atores --> Database
-    Database --> Regras
-    Regras --> Requisitos
-    Requisitos --> FIM[Conclusão: Solução Tecnológica Integrada]
+    %% FLUXO PRINCIPAL
+    Introducao --> Tecnologias
+    Tecnologias --> Perfis
+    Perfis --> DB
+    DB --> Regras
+    Regras --> RF
+    RF --> FIM(Conclusão: Solução digital integrada para condomínios)
 
-    %% Estilização
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style TechStack fill:#e1f5fe,stroke:#01579b
-    style Database fill:#fff3e0,stroke:#e65100
-    style Regras fill:#f1f8e9,stroke:#33691e]
+    %% ESTILIZAÇÃO
+    style Introducao fill:#f5f5f5,stroke:#333
+    style Tecnologias fill:#e1f5fe,stroke:#01579b
+    style DB fill:#fff3e0,stroke:#e65100
+    style RF fill:#f1f8e9,stroke:#33691e
