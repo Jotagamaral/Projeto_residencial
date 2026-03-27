@@ -8,12 +8,11 @@ using backend_novo.Models;
 using backend_novo.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.InMemory;
-using System.Security.Claims;
 
 namespace backend_novo.Tests;
 
-public class ReservaServiceTests
+// Agora herdando de TestBase
+public class ReservaServiceTests : TestBase
 {
     private readonly IReservaRepository _reservaRepo;
     private readonly IMoradorRepository _moradorRepo;
@@ -23,10 +22,10 @@ public class ReservaServiceTests
 
     public ReservaServiceTests()
     {
-        // Mocks das interfaces
         _reservaRepo = Substitute.For<IReservaRepository>();
         _moradorRepo = Substitute.For<IMoradorRepository>();
-        _httpContext = Substitute.For<IHttpContextAccessor>();
+        
+        _httpContext = CriarHttpContextAccessorMock(27);
         
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -34,27 +33,17 @@ public class ReservaServiceTests
         
         _context = new AppDbContext(options);
         
-        // _context real (em memória)
         _service = new ReservaService(_reservaRepo, _moradorRepo, _httpContext, _context);
-    }
-
-    private void MockUsuarioAutenticado(long userId)
-    {
-        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userId.ToString()) };
-        var identity = new ClaimsIdentity(claims, "TestAuth");
-        var user = new ClaimsPrincipal(identity);
-
-        var context = new DefaultHttpContext { User = user };
-        _httpContext.HttpContext.Returns(context);
     }
 
     [Fact]
     public async Task CriarReserva_ComDadosValidos_DeveRetornarSucesso()
     {
         // Arrange
-        MockUsuarioAutenticado(27);
-        var moradorFake = new Morador { Id = 1, IdUser = 27 };
-        _moradorRepo.ObterPorIdUserAsync(27).Returns(moradorFake);
+        long userId = 27;
+
+        var moradorFake = new Morador { Id = 1, IdUser = userId };
+        _moradorRepo.ObterPorIdUserAsync(userId).Returns(moradorFake);
         
         var dto = new ReservaCreateDto {
             IdLocal = 1,
@@ -78,12 +67,11 @@ public class ReservaServiceTests
     public async Task CriarReserva_DataNoPassado_DeveLancarArgumentException()
     {
         // Arrange
-        MockUsuarioAutenticado(27);
         _moradorRepo.ObterPorIdUserAsync(27).Returns(new Morador { Id = 1 });
 
         var dtoInvalido = new ReservaCreateDto {
             IdLocal = 1,
-            DataInicio = DateTime.UtcNow.AddDays(-1), // Ontem
+            DataInicio = DateTime.UtcNow.AddDays(-1), 
             DataFim = DateTime.UtcNow.AddDays(-1).AddHours(2)
         };
 
@@ -99,7 +87,6 @@ public class ReservaServiceTests
     public async Task CriarReserva_ComConflitoDeHorario_DeveLancarArgumentException()
     {
         // Arrange
-        MockUsuarioAutenticado(27);
         _moradorRepo.ObterPorIdUserAsync(27).Returns(new Morador { Id = 1 });
 
         var dto = new ReservaCreateDto {
@@ -108,7 +95,6 @@ public class ReservaServiceTests
             DataFim = DateTime.UtcNow.AddDays(1).AddHours(2)
         };
 
-        // Repositório ENCONTROU um conflito
         _reservaRepo.ExisteConflitoDeHorarioAsync(dto.IdLocal, Arg.Any<DateTime>(), Arg.Any<DateTime>())
                     .Returns(true);
 
