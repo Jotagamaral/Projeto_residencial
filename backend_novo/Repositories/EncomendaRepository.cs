@@ -33,6 +33,19 @@ public class EncomendaRepository : IEncomendaRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Encomenda>> ListarPorMoradorAsync(long moradorId)
+    {
+        return await _context.Encomendas
+            .Where(e => e.Ativo && e.IdMorador == moradorId)
+            .Include(e => e.Morador)
+                .ThenInclude(m => m!.Usuario)
+            .Include(e => e.Funcionario)
+                .ThenInclude(f => f!.Usuario)
+            .Include(e => e.Categoria)
+            .OrderByDescending(e => e.DataRecebido)
+            .ToListAsync();
+    }
+
     public async Task<Encomenda?> ObterPorIdAsync(long id)
     {
         return await _context.Encomendas

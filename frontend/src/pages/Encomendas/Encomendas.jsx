@@ -3,6 +3,7 @@ import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
 import {
   buscarEncomendas,
+  buscarMinhasEncomendas,
   buscarMoradores,
   publicarEncomenda,
   atualizarRetiradaEncomenda,
@@ -430,9 +431,19 @@ function Encomendas() {
 
   const hoje = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
-  const carregarEncomendas = useCallback(async () => {
+  const carregarEncomendas = useCallback(async (cargo) => {
     try {
-      const dados = await buscarEncomendas();
+      setLoading(true);
+      let dados;
+      
+      // Verifica o cargo e chama o serviço correspondente
+      if (cargo === 'MORADOR') {
+        dados = await buscarMinhasEncomendas();
+      } else {
+
+        dados = await buscarEncomendas();
+      }
+      
       setEncomendas(dados);
     } catch {
       setErro('Erro ao carregar encomendas.');
@@ -443,16 +454,19 @@ function Encomendas() {
 
   useEffect(() => {
     const userString = localStorage.getItem('user');
+    let cargoAtual = '';
+    
     if (userString) {
       try {
         const userObject = JSON.parse(userString);
-        setTipoCargo(userObject.categoria);
+        cargoAtual = userObject.categoria;
+        setTipoCargo(cargoAtual);
       } catch (e) {
         console.error('Erro ao parsear dados do usuário do localStorage:', e);
       }
     }
 
-    carregarEncomendas();
+    carregarEncomendas(cargoAtual);
   }, [carregarEncomendas]);
 
   const dataReferencia = useMemo(

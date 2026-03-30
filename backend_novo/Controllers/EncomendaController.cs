@@ -19,33 +19,12 @@ public class EncomendaController : ControllerBase
         _encomendaService = encomendaService;
     }
 
-    // --------------------------- READ ---------------------------
-
-    /// <summary>
-    /// Lista todas as encomendas.
-    /// </summary>
-    [HttpGet]
-    [Authorize] // Qualquer usuário logado pode visualizar
-    [ProducesResponseType(typeof(IEnumerable<EncomendaResponseDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListarEncomendas()
-    {
-        try
-        {
-            var encomendas = await _encomendaService.ListarEncomendasAsync();
-            return Ok(encomendas);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
-    }
-
     // --------------------------- CREATE ---------------------------
 
     /// <summary>
     /// (Funcionário/Admin) Registra a chegada de uma nova encomenda.
     /// </summary>
-    [HttpPost]
+    [HttpPost("criar-encomenda")]
     [Authorize(Roles = $"{CategoriaAcessoConstants.FUNCIONARIO_ROLE},{CategoriaAcessoConstants.ADMIN_ROLE}")]
     [ProducesResponseType(typeof(EncomendaResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -77,12 +56,68 @@ public class EncomendaController : ControllerBase
         }
     }
 
+    // --------------------------- READ ---------------------------
+
+    /// <summary>
+    /// Lista apenas as encomendas destinadas ao morador autenticado.
+    /// </summary>
+    [HttpGet("minhas-encomendas")]
+    [Authorize(Roles = CategoriaAcessoConstants.MORADOR_ROLE)]
+    [ProducesResponseType(typeof(IEnumerable<EncomendaResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListarMinhasEncomendas()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+                return Unauthorized(new { message = "Usuário não autenticado." });
+
+            var resultado = await _encomendaService.ListarMinhasEncomendasAsync(userId);
+            return Ok(resultado);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// (Admin/Funcionário) Lista todas as encomendas.
+    /// </summary>
+    [HttpGet("todas-encomendas")]
+    [Authorize(Roles = $"{CategoriaAcessoConstants.FUNCIONARIO_ROLE},{CategoriaAcessoConstants.ADMIN_ROLE}")] 
+    [ProducesResponseType(typeof(IEnumerable<EncomendaResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListarEncomendas()
+    {
+        try
+        {
+            var encomendas = await _encomendaService.ListarEncomendasAsync();
+            return Ok(encomendas);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
+        }
+    }
+
     // --------------------------- UPDATE ---------------------------
 
     /// <summary>
     /// (Funcionário/Admin) Atualiza dados ou status de uma encomenda.
     /// </summary>
-    [HttpPut("{id}")]
+    [HttpPut("atualizar-encomenda/{id}")]
     [Authorize(Roles = $"{CategoriaAcessoConstants.FUNCIONARIO_ROLE},{CategoriaAcessoConstants.ADMIN_ROLE}")]
     [ProducesResponseType(typeof(EncomendaResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -115,7 +150,7 @@ public class EncomendaController : ControllerBase
         }
     }
 
-    [HttpPatch("{id}/retirada")]
+    [HttpPatch("atualizar-encomenda/{id}/retirada")]
     [Authorize(Roles = $"{CategoriaAcessoConstants.FUNCIONARIO_ROLE},{CategoriaAcessoConstants.ADMIN_ROLE}")]
     [ProducesResponseType(typeof(EncomendaResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -155,7 +190,7 @@ public class EncomendaController : ControllerBase
     /// <summary>
     /// (Funcionário/Admin) Deleta ou inativa um registro de encomenda em caso de erro.
     /// </summary>
-    [HttpDelete("{id}")]
+    [HttpDelete("delete-encomenda/{id}")]
     [Authorize(Roles = $"{CategoriaAcessoConstants.FUNCIONARIO_ROLE},{CategoriaAcessoConstants.ADMIN_ROLE}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
