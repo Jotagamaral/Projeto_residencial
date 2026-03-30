@@ -32,3 +32,20 @@ export async function buscarMoradores() {
     throw error;
   }
 }
+
+export async function atualizarRetiradaEncomenda(encomendaId, retirada) {
+  try {
+    const response = await api.patch(
+      `/Encomenda/${encomendaId}/retirada`,
+      { retirada },
+      { timeout: 30000 }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      '[encomendasService.js] Erro ao atualizar retirada da encomenda:',
+      error
+    );
+    throw error;
+  }
+}
