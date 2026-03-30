@@ -167,6 +167,19 @@ public class ReservaService : IReservaService
         });
     }
 
+    public async Task<IEnumerable<ReservaCalendarioDto>> ListarOcupacoesAsync()
+    {
+        var reservas = await _reservaRepository.ListarAtivasAsync();
+        
+        return reservas.Select(r => new ReservaCalendarioDto
+        {
+            IdLocal = r.IdLocal,
+            NomeLocal = r.Local?.Nome ?? "Local Desconhecido",
+            DataInicio = r.DataInicio,
+            DataFim = r.DataFim
+        });
+    }
+
     // --------------------------- UPDATE ---------------------------
     public async Task<ReservaResponseDto> AtualizarReservaAsync(long reservaId, long userIdLogado, ReservaUpdateDto dto)
     {

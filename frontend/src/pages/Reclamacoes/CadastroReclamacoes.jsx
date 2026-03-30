@@ -15,6 +15,7 @@ import {
 
 function CadastroReclamacoes() {
   const [textoReclamacao, setTextoReclamacao] = useState('');
+  const [titulo, setTitulo] = useState('');
   const [nomeMorador, setNomeMorador] = useState('');
   const [moradorId, setMoradorId] = useState(null);
   const [anonimo, setAnonimo] = useState(false);
@@ -43,8 +44,8 @@ function CadastroReclamacoes() {
     async (e) => {
       e.preventDefault();
 
-      if (!textoReclamacao.trim()) {
-        alert('A descrição da reclamação é obrigatória!');
+      if (!titulo.trim() || !textoReclamacao.trim()) {
+        alert('O título e a descrição são obrigatórios!');
         return;
       }
 
@@ -53,14 +54,15 @@ function CadastroReclamacoes() {
         return;
       }
 
+      // O objeto agora reflete EXATAMENTE o que o backend espera
       const reclamacaoData = {
-        reclamacao: textoReclamacao,
-        moradorId: moradorId,
-        nome: anonimo ? null : nomeMorador,
+        titulo: titulo,
+        descricao: textoReclamacao,
       };
 
       try {
         await publicarReclamacao(reclamacaoData);
+        setTitulo('');
         setTextoReclamacao('');
         navigate('/reclamacoes', { state: { reload: true } });
       } catch (error) {
@@ -117,6 +119,20 @@ function CadastroReclamacoes() {
                   </div>
 
                   <div className='p-6 space-y-6'>
+                    <div>
+                      <label htmlFor='tituloReclamacao' className='block text-sm font-medium text-gray-700 mb-2'>
+                        Título da reclamação
+                      </label>
+                      <input
+                        id='tituloReclamacao'
+                        type='text'
+                        placeholder='Ex: Vaga de garagem ocupada'
+                        value={titulo}
+                        onChange={(e) => setTitulo(e.target.value)}
+                        required
+                        className='w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 focus:bg-white transition-all duration-200'
+                      />
+                    </div>
                     <div>
                       <label
                         htmlFor='textoReclamacao'

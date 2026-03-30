@@ -67,6 +67,7 @@ function Reservas() {
         setErro(null);
       } catch (error) {
         setErro('Erro ao carregar dados de reservas ou locais.');
+        console.error(error); // O erro agora é registrado, resolvendo o alerta do linter
       } finally {
         setLoading(false);
       }
@@ -88,7 +89,10 @@ function Reservas() {
     () =>
       reservasFiltradas.map((r) => {
         const d = new Date(r.dataInicio);
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const ano = d.getUTCFullYear();
+        const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const dia = String(d.getUTCDate()).padStart(2, '0');
+        return `${ano}-${mes}-${dia}`;
       }),
     [reservasFiltradas]
   );
@@ -183,7 +187,7 @@ function Reservas() {
         error.response?.data?.message || 'Erro ao adicionar reserva!';
       alert(msg);
     }
-  }, [filtroLocal, diaSelecionado, anoAtual, mesAtual]);
+  }, [filtroLocal, diaSelecionado]); // Dependências corrigidas (anoAtual e mesAtual removidos)
 
   useEffect(() => {
     setDiaSelecionado(null);

@@ -19,6 +19,10 @@ public class AppDbContext : DbContext
     public DbSet<Funcionario> Funcionarios { get; set; } = null!;
     public DbSet<Log> Logs { get; set; } = null!;
 
+    //* Reclamações
+    public DbSet<CategoriaReclamacao> CategoriasReclamacao { get; set; } = null!;
+    public DbSet<Reclamacao> Reclamacoes { get; set; } = null!;
+
     //* Reservas
     public DbSet<Local> Locais { get; set; } = null!;
     public DbSet<CategoriaReserva> CategoriasReserva { get; set; } = null!;

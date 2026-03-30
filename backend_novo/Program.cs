@@ -164,22 +164,30 @@ builder.Services.AddAuthentication(x =>
 builder.Services.AddAuthorization();
 
 
-// Adição dos Serviços
+//? Adição dos Serviços
 
+//*  Moradores - Funcionários
 builder.Services.AddScoped<IMoradorRepository, MoradorRepository>();
 builder.Services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
 
+//*  Usuários
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+//*  Reservas
 builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
 builder.Services.AddScoped<IReservaService, ReservaService>();
 
+//*  Reclamações
+builder.Services.AddScoped<IReclamacaoRepository, ReclamacaoRepository>();
+builder.Services.AddScoped<IReclamacaoService, ReclamacaoService>();
+
+//*  Encomendas
 builder.Services.AddScoped<IEncomendaRepository, EncomendaRepository>();
 builder.Services.AddScoped<IEncomendaService, EncomendaService>();
 
-// RabbitMQ
+//* RabbitMQ
 builder.Services.AddSingleton<IMessageBusService, RabbitMQService>();
 builder.Services.AddHostedService<LogWorker>();
 builder.Services.AddScoped<AuditLogActionFilter>();

@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/userService';
@@ -10,6 +10,15 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
     const [isAuthenticated, setIsAuthenticated] = useState(!!token);
     const navigate = useNavigate();
+
+    const logout = useCallback(() => {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('user');
+        setToken(null);
+        setUser(null);
+        setIsAuthenticated(false);
+        navigate('/login');
+    }, [navigate]);
 
     useEffect(() => {
         const requestInterceptor = axios.interceptors.request.use(
@@ -32,33 +41,20 @@ export const AuthProvider = ({ children }) => {
             axios.interceptors.request.eject(requestInterceptor);
             axios.interceptors.response.eject(responseInterceptor);
         };
-    }, [token]);
+    }, [token, logout]);
 
     const login = async (cpf, senha) => {
-        try {
-            const data = await loginUser(cpf, senha);
-            const { token: jwt, user: userData } = data;
+        const data = await loginUser(cpf, senha);
+        const { token: jwt, user: userData } = data;
 
-            localStorage.setItem('jwtToken', jwt);
-            localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('jwtToken', jwt);
+        localStorage.setItem('user', JSON.stringify(userData));
 
-            setToken(jwt);
-            setUser(userData);
-            setIsAuthenticated(true);
-            
-            navigate('/home');
-        } catch (error) {
-            throw error;
-        }
-    };
-
-    const logout = () => {
-        localStorage.removeItem('jwtToken');
-        localStorage.removeItem('user');
-        setToken(null);
-        setUser(null);
-        setIsAuthenticated(false);
-        navigate('/login');
+        setToken(jwt);
+        setUser(userData);
+        setIsAuthenticated(true);
+        
+        navigate('/home');
     };
 
     return (
@@ -68,4 +64,5 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

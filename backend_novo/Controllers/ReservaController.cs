@@ -19,51 +19,6 @@ public class ReservaController : ControllerBase
         _reservaService = reservaService;
     }
 
-    // --------------------------- READ ---------------------------
-    
-    /// <summary>
-    /// Lista apenas as reservas do morador autenticado.
-    /// </summary>
-    [HttpGet("minhas-reservas")]
-    [Authorize(Roles = CategoriaAcessoConstants.MORADOR_ROLE)]
-    [ProducesResponseType(typeof(IEnumerable<ReservaResponseDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListarMinhasReservas()
-    {
-        try
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
-                return Unauthorized(new { message = "Usuário não autenticado." });
-
-            // O Service busca apenas onde UsuarioId == userId
-            var reservas = await _reservaService.ListarMinhasReservasAsync(userId);
-            return Ok(reservas);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// (Admin) Lista todas as reservas do condomínio.
-    /// </summary>
-    [HttpGet("admin-reservas")]
-    [Authorize(Roles = CategoriaAcessoConstants.ADMIN_ROLE)]
-    [ProducesResponseType(typeof(IEnumerable<ReservaResponseDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListarTodasReservasAdmin()
-    {
-        try
-        {
-            var reservas = await _reservaService.ListarReservasAsync();
-            return Ok(reservas);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
-    }
-
     // --------------------------- CREATE ---------------------------
 
     /// <summary>
@@ -139,6 +94,70 @@ public class ReservaController : ControllerBase
         catch (ArgumentException ex)
         {
             return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
+        }
+    }
+
+    // --------------------------- READ ---------------------------
+    
+    /// <summary>
+    /// Lista apenas as reservas do morador autenticado.
+    /// </summary>
+    [HttpGet("minhas-reservas")]
+    [Authorize(Roles = CategoriaAcessoConstants.MORADOR_ROLE)]
+    [ProducesResponseType(typeof(IEnumerable<ReservaResponseDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListarMinhasReservas()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+                return Unauthorized(new { message = "Usuário não autenticado." });
+
+            // O Service busca apenas onde UsuarioId == userId
+            var reservas = await _reservaService.ListarMinhasReservasAsync(userId);
+            return Ok(reservas);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// (Admin) Lista todas as reservas do condomínio.
+    /// </summary>
+    [HttpGet("admin-reservas")]
+    [Authorize(Roles = CategoriaAcessoConstants.ADMIN_ROLE)]
+    [ProducesResponseType(typeof(IEnumerable<ReservaResponseDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListarTodasReservasAdmin()
+    {
+        try
+        {
+            var reservas = await _reservaService.ListarReservasAsync();
+            return Ok(reservas);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Retorna as datas e horários ocupados em todos os locais.
+    /// </summary>
+    [HttpGet("todas-reservas")]
+    [Authorize] // Qualquer usuário logado pode ver o calendário
+    [ProducesResponseType(typeof(IEnumerable<ReservaCalendarioDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListarCalendarioOcupacao()
+    {
+        try
+        {
+            var ocupacoes = await _reservaService.ListarOcupacoesAsync();
+            return Ok(ocupacoes);
         }
         catch (Exception ex)
         {
