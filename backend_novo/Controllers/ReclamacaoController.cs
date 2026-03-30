@@ -82,7 +82,7 @@ public class ReclamacaoController : ControllerBase
     /// (Admin) Lista todas as reclamações do condomínio.
     /// </summary>
     [HttpGet("admin-reclamacoes")]
-    [Authorize(Roles = CategoriaAcessoConstants.ADMIN_ROLE)]
+    [Authorize(Roles = $"{CategoriaAcessoConstants.FUNCIONARIO_ROLE},{CategoriaAcessoConstants.ADMIN_ROLE}")]
     [ProducesResponseType(typeof(IEnumerable<ReclamacaoResponseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarTodasReclamacoesAdmin()
     {
@@ -101,7 +101,7 @@ public class ReclamacaoController : ControllerBase
     /// Lista todas as reclamações do condomínio de forma anônima.
     /// </summary>
     [HttpGet("todas-reclamacoes")]
-    [Authorize(Roles = CategoriaAcessoConstants.MORADOR_ROLE)]
+    [Authorize(Roles = $"{CategoriaAcessoConstants.MORADOR_ROLE},{CategoriaAcessoConstants.FUNCIONARIO_ROLE},{CategoriaAcessoConstants.ADMIN_ROLE}")]
     [ProducesResponseType(typeof(IEnumerable<ReclamacaoPublicaDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarTodasReclamacoesPublicas()
     {

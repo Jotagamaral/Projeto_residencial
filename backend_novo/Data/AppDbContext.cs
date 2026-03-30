@@ -92,5 +92,20 @@ public class AppDbContext : DbContext
                     v => v.ToUniversalTime(),
                     v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         });
+
+        modelBuilder.Entity<Encomenda>(entity =>
+        {
+            entity.Property(e => e.DataRecebido)
+                .HasConversion(
+                    v => v.ToUniversalTime(),
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+            entity.Property(e => e.DataRetirado)
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToUniversalTime() : v,
+                    v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+        });
+
+        
     }
 }

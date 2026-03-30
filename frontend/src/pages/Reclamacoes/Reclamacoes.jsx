@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
-import { buscarReclamacoes } from '../../services/reclamacoeService';
+import { buscarReclamacoes, buscarReclamacoesFuncionario } from '../../services/reclamacoeService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   FaComments,
@@ -87,15 +87,22 @@ function Reclamacoes() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const carregarReclamacoes = useCallback(async () => {
+  const carregarReclamacoes = useCallback(async (cargo) => {
     setLoading(true);
     try {
-      const dados = await buscarReclamacoes();
+      let dados;
+      
+      if (cargo === 'MORADOR') {
+        dados = await buscarReclamacoes();
+      } else {
+        // FUNCIONARIO ou ADMIN
+        dados = await buscarReclamacoesFuncionario();
+      }
+      
       setReclamacoes(dados);
       setErro(null);
     } catch (error) {
       setErro('Erro ao carregar reclamações.');
-      // Correção: A variável 'error' agora é utilizada para registrar os detalhes técnicos da falha
       console.error(error); 
     } finally {
       setLoading(false);
@@ -104,26 +111,27 @@ function Reclamacoes() {
 
   useEffect(() => {
     const userString = localStorage.getItem('user');
+    let cargoAtual = '';
+    
     if (userString) {
       try {
         const userObject = JSON.parse(userString);
-        setTipoCargo(userObject.categoria);
+        cargoAtual = userObject.categoria;
+        setTipoCargo(cargoAtual);
       } catch (e) {
         console.error('Erro ao parsear dados do usuário do localStorage:', e);
       }
     }
-  }, []);
 
-  useEffect(() => {
-    carregarReclamacoes();
+    carregarReclamacoes(cargoAtual);
   }, [carregarReclamacoes]);
 
   useEffect(() => {
     if (location.state?.reload) {
-      carregarReclamacoes();
+      carregarReclamacoes(tipoCargo);
       window.history.replaceState({}, document.title);
     }
-  }, [location, carregarReclamacoes]);
+  }, [location, carregarReclamacoes, tipoCargo]); // Adicionado tipoCargo nas dependências
 
   const reclamacoesFiltradas = useMemo(() => {
     if (!busca) return reclamacoes;

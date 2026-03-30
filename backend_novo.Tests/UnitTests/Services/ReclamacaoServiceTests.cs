@@ -8,7 +8,8 @@ using backend_novo.Models;
 using backend_novo.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend_novo.Tests;
+
+namespace backend_novo.Tests.UnitTests.Services;
 
 public class ReclamacaoServiceTests : TestBase
 {

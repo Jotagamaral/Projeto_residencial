@@ -2,7 +2,17 @@ import api from './api';
 
 export async function buscarEncomendas() {
   try {
-    const response = await api.get(`/Encomenda`);
+    const response = await api.get(`/Encomenda/todas-encomendas`);
+    return response.data;
+  } catch (error) {
+    console.error('[encomendasService.js] Erro ao buscar encomendas:', error);
+    throw error;
+  }
+}
+
+export async function buscarMinhasEncomendas() {
+  try {
+    const response = await api.get(`/Encomenda/minhas-encomendas`);
     return response.data;
   } catch (error) {
     console.error('[encomendasService.js] Erro ao buscar encomendas:', error);
@@ -12,10 +22,7 @@ export async function buscarEncomendas() {
 
 export async function publicarEncomenda(encomendaData) {
   try {
-    const response = await api.post(
-      `/Encomenda`,
-      encomendaData
-    );
+    const response = await api.post(`/Encomenda/criar-encomenda`, encomendaData);
     return response.data;
   } catch (error) {
     console.error('[encomendasService.js] Erro ao cadastrar encomenda:', error);
@@ -36,7 +43,7 @@ export async function buscarMoradores() {
 export async function atualizarRetiradaEncomenda(encomendaId, retirada) {
   try {
     const response = await api.patch(
-      `/Encomenda/${encomendaId}/retirada`,
+      `/Encomenda/atualizar-encomenda/${encomendaId}/retirada`,
       { retirada },
       { timeout: 30000 }
     );
