@@ -9,7 +9,7 @@ using backend_novo.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend_novo.Tests;
+namespace backend_novo.Tests.UnitTests.Services;
 
 // Agora herdando de TestBase
 public class ReservaServiceTests : TestBase
