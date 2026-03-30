@@ -115,6 +115,41 @@ public class EncomendaController : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/retirada")]
+    [Authorize(Roles = $"{CategoriaAcessoConstants.FUNCIONARIO_ROLE},{CategoriaAcessoConstants.ADMIN_ROLE}")]
+    [ProducesResponseType(typeof(EncomendaResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AtualizarRetirada(long id, [FromBody] EncomendaRetiradaDto dto)
+    {
+        try
+        {
+            if (!dto.Retirada.HasValue)
+                return BadRequest(new { message = "O campo retirada é obrigatório." });
+
+            var operadorIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(operadorIdClaim) || !long.TryParse(operadorIdClaim, out long operadorId))
+                return Unauthorized(new { message = "Operador não autenticado." });
+
+            var resultado = await _encomendaService.AtualizarRetiradaAsync(id, dto.Retirada.Value, operadorId);
+            return Ok(resultado);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
+        }
+    }
+
     // --------------------------- DELETE ---------------------------
 
     /// <summary>

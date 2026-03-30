@@ -18,8 +18,53 @@ using Microsoft.OpenApi.Models;
 
 // Environment
 using dotenv.net;
+using Npgsql;
+using System.Net;
+using System.Net.Sockets;
 
 DotEnv.Load();
+
+static string BuildDatabaseConnectionString(string rawConnectionString)
+{
+    var csb = new NpgsqlConnectionStringBuilder(rawConnectionString);
+
+    if (!string.IsNullOrWhiteSpace(csb.Host) && Uri.CheckHostName(csb.Host) == UriHostNameType.Dns)
+    {
+        try
+        {
+            var addresses = Dns.GetHostAddresses(csb.Host);
+            var ipv4 = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
+            var ipv6 = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetworkV6);
+            var chosenAddress = ipv4 ?? ipv6;
+            if (chosenAddress is not null)
+            {
+                csb.Host = chosenAddress.AddressFamily == AddressFamily.InterNetworkV6
+                    ? $"[{chosenAddress}]"
+                    : chosenAddress.ToString();
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    if (csb.CommandTimeout <= 0)
+    {
+        csb.CommandTimeout = 90;
+    }
+
+    if (csb.Timeout <= 0)
+    {
+        csb.Timeout = 15;
+    }
+
+    if (csb.KeepAlive <= 0)
+    {
+        csb.KeepAlive = 30;
+    }
+
+    return csb.ConnectionString;
+}
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,8 +123,12 @@ if (string.IsNullOrWhiteSpace(connectionString))
     throw new InvalidOperationException("ERRO CRÍTICO: A string de conexão com o banco de dados (DB_CONNECTION) não foi encontrada.");
 }
 
+connectionString = BuildDatabaseConnectionString(connectionString);
+
 // Autenticação e Autorização
-var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? builder.Configuration["Jwt:Key"];
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
+    ?? builder.Configuration["Jwt:Key"]
+    ?? builder.Configuration["JwtSettings:Secret"];
 
 if (string.IsNullOrWhiteSpace(jwtKey))
 {
@@ -87,7 +136,10 @@ if (string.IsNullOrWhiteSpace(jwtKey))
 }
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+        npgsqlOptions
+            .CommandTimeout(90)
+            .EnableRetryOnFailure(5, TimeSpan.FromSeconds(5), null)));
 
 var key = Encoding.ASCII.GetBytes(jwtKey);
 

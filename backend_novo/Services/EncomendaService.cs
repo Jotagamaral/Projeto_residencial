@@ -112,6 +112,44 @@ public class EncomendaService : IEncomendaService
         };
     }
 
+    public async Task<EncomendaResponseDto> AtualizarRetiradaAsync(long id, bool retirada, long operadorId)
+    {
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
+        if (funcionario == null)
+            throw new UnauthorizedAccessException("Operador inválido.");
+
+        var encomenda = await _encomendaRepository.ObterPorIdAsync(id);
+        if (encomenda == null)
+            throw new KeyNotFoundException("Encomenda não encontrada.");
+
+        encomenda.IdCategoriaEncomenda = retirada
+            ? CategoriaEncomendaConstants.ENTREGUE_ID
+            : CategoriaEncomendaConstants.PENDENTE_ID;
+
+        encomenda.DataRetirado = retirada
+            ? DateTime.UtcNow
+            : null;
+
+        await _encomendaRepository.AtualizarAsync(encomenda);
+        await _context.SaveChangesAsync();
+
+        return new EncomendaResponseDto
+        {
+            Id = encomenda.Id,
+            Remetente = encomenda.Remetente,
+            MoradorId = encomenda.IdMorador,
+            Morador = encomenda.Morador?.Usuario?.Nome ?? string.Empty,
+            Apartamento = encomenda.Morador?.Apartamento,
+            FuncionarioId = encomenda.IdFuncionario,
+            Funcionario = encomenda.Funcionario?.Usuario?.Nome ?? string.Empty,
+            DataRecebido = encomenda.DataRecebido,
+            DataRetirado = encomenda.DataRetirado,
+            Status = retirada
+                ? CategoriaEncomendaConstants.ENTREGUE_STRING
+                : CategoriaEncomendaConstants.PENDENTE_STRING
+        };
+    }
+
     public async Task CancelarEncomendaAsync(long id, long operadorId)
     {
         var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
