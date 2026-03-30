@@ -16,6 +16,13 @@ jobs:
     name: Backend Unit Tests
     runs-on: ubuntu-latest
 
+    # Criação do relatório
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+
     # Serviços necessários para testes de integração
     services:
       postgres:
