@@ -35,8 +35,8 @@ export async function buscarMoradores() {
 
 export async function atualizarRetiradaEncomenda(encomendaId, retirada) {
   try {
-    const response = await axios.patch(
-      `${API_BASE_URL}/Encomenda/${encomendaId}/retirada`,
+    const response = await api.patch(
+      `/Encomenda/${encomendaId}/retirada`,
       { retirada },
       { timeout: 30000 }
     );
