@@ -4,12 +4,12 @@ on:
   push:
     branches: [ "main", "NovoBackend" ]
     paths:
-      - 'backend_novo/**'
-      - 'backend_novo.Tests/**'
+      - 'backend/**'
+      - 'backend.Tests/**'
   pull_request:
     paths:
-      - 'backend_novo/**'
-      - 'backend_novo.Tests/**'
+      - 'backend/**'
+      - 'backend.Tests/**'
 
 jobs:
   backend-tests:
@@ -63,23 +63,23 @@ jobs:
 
       - name: 📦 Restore dependências
         run: dotnet restore
-        working-directory: backend_novo
+        working-directory: backend
 
       - name: 📦 Restore dependências dos testes
         run: dotnet restore
-        working-directory: backend_novo.Tests
+        working-directory: backend.Tests
 
       - name: 🏗️ Build backend
         run: dotnet build --no-restore --configuration Release
-        working-directory: backend_novo
+        working-directory: backend
 
       - name: 🏗️ Build testes
         run: dotnet build --no-restore --configuration Release
-        working-directory: backend_novo.Tests
+        working-directory: backend.Tests
 
       - name: 🧪 Executar testes unitários
         run: dotnet test --no-build --configuration Release --verbosity normal --logger trx --results-directory ./TestResults
-        working-directory: backend_novo.Tests
+        working-directory: backend.Tests
         env:
           DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
@@ -93,7 +93,7 @@ jobs:
         if: always()
         with:
           name: test-results
-          path: backend_novo.Tests/TestResults/
+          path: backend.Tests/TestResults/
           retention-days: 7
 
       - name: 📈 Publish test results
@@ -101,6 +101,6 @@ jobs:
         if: always()
         with:
           name: Backend Tests Results
-          path: 'backend_novo.Tests/TestResults/*.trx'
+          path: 'backend.Tests/TestResults/*.trx'
           reporter: dotnet-trx
           fail-on-error: true

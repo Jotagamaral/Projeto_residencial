@@ -11,7 +11,7 @@ services:
 
   backend:
     build:
-      context: ./backend_novo  # Caminho para sua pasta .NET
+      context: ./backend  # Caminho para sua pasta .NET
       dockerfile: Dockerfile   # Certifique-se de ter um Dockerfile para .NET
     container_name: condosync_api
     ports:
