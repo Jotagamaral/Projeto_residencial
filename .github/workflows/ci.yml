@@ -52,15 +52,15 @@ jobs:
 
       - name: 📦 Restore backend
         run: dotnet restore
-        working-directory: backend_novo
+        working-directory: backend
 
       - name: 🏗️ Build backend
         run: dotnet build --no-restore --configuration Release
-        working-directory: backend_novo
+        working-directory: backend
 
       - name: 🧪 Testes backend
         run: dotnet test --no-build --verbosity normal
-        working-directory: backend_novo.Tests
+        working-directory: backend.Tests
         env:
           DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
