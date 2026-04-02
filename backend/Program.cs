@@ -11,6 +11,7 @@ using backend.Repositories.Interfaces;
 using backend.Services;
 using backend.Services.Interfaces;
 using backend.Workers;
+using backend.Middlewares;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -80,6 +81,10 @@ builder.Services.AddControllers(options =>
     options.Filters.AddService<AuditLogActionFilter>();
 });
 builder.Services.AddEndpointsApiExplorer();
+
+// Handler Exceptions
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>(); // <-- ADICIONE AQUI
+builder.Services.AddProblemDetails(); // <-- ADICIONE AQUI (necessário para formatar a resposta)
 
 // Leitura de dados das requisões
 builder.Services.AddHttpContextAccessor();
@@ -211,6 +216,9 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors("CondoSyncPolicy");
+
+// Exceptions
+app.UseExceptionHandler();
 
 app.UseAuthentication();
 app.UseAuthorization();

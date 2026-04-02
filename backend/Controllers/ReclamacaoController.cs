@@ -34,23 +34,12 @@ public class ReclamacaoController : ControllerBase
     [ProducesResponseType(typeof(ReclamacaoResponseDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> CriarReclamacao([FromBody] ReclamacaoCreateDto dto)
     {
-        try
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
-                return Unauthorized(new { message = "Usuário não autenticado." });
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+            return Unauthorized(new { message = "Usuário não autenticado." });
 
-            var resultado = await _reclamacaoService.CriarReclamacaoAsync(dto, userId);
-            return StatusCode(StatusCodes.Status201Created, resultado);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var resultado = await _reclamacaoService.CriarReclamacaoAsync(dto, userId);
+        return StatusCode(StatusCodes.Status201Created, resultado);
     }
 
     // ---------------- READ ----------------
@@ -63,19 +52,12 @@ public class ReclamacaoController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<ReclamacaoResponseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarMinhasReclamacoes()
     {
-        try
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
-                return Unauthorized(new { message = "Usuário não autenticado." });
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+            return Unauthorized(new { message = "Usuário não autenticado." });
 
-            var reclamacoes = await _reclamacaoService.ListarMinhasReclamacoesAsync(userId);
-            return Ok(reclamacoes);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var reclamacoes = await _reclamacaoService.ListarMinhasReclamacoesAsync(userId);
+        return Ok(reclamacoes);
     }
 
     /// <summary>
@@ -86,15 +68,8 @@ public class ReclamacaoController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<ReclamacaoResponseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarTodasReclamacoesAdmin()
     {
-        try
-        {
-            var reclamacoes = await _reclamacaoService.ListarTodasReclamacoesAsync();
-            return Ok(reclamacoes);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var reclamacoes = await _reclamacaoService.ListarTodasReclamacoesAsync();
+        return Ok(reclamacoes);
     }
 
     /// <summary>
@@ -105,15 +80,8 @@ public class ReclamacaoController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<ReclamacaoPublicaDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarTodasReclamacoesPublicas()
     {
-        try
-        {
-            var reclamacoes = await _reclamacaoService.ListarTodasReclamacoesPublicasAsync();
-            return Ok(reclamacoes);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var reclamacoes = await _reclamacaoService.ListarTodasReclamacoesPublicasAsync();
+        return Ok(reclamacoes);
     }
 
     // ---------------- UPDATE ----------------
@@ -126,27 +94,12 @@ public class ReclamacaoController : ControllerBase
     [ProducesResponseType(typeof(ReclamacaoResponseDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> AtualizarReclamacao(long id, [FromBody] ReclamacaoUpdateDto dto)
     {
-        try
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
-                return Unauthorized(new { message = "Usuário não autenticado." });
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+            return Unauthorized(new { message = "Usuário não autenticado." });
 
-            var resultado = await _reclamacaoService.AtualizarReclamacaoAsync(id, userId, dto);
-            return Ok(resultado);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var resultado = await _reclamacaoService.AtualizarReclamacaoAsync(id, userId, dto);
+        return Ok(resultado);
     }
 
     /// <summary>
@@ -157,23 +110,12 @@ public class ReclamacaoController : ControllerBase
     [ProducesResponseType(typeof(ReclamacaoResponseDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> AtualizarReclamacaoAdmin(long id, [FromBody] ReclamacaoAdminUpdateDto dto)
     {
-        try
-        {
-            var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(adminIdClaim) || !long.TryParse(adminIdClaim, out long adminId))
-                return Unauthorized(new { message = "Administrador não autenticado." });
+        var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(adminIdClaim) || !long.TryParse(adminIdClaim, out long adminId))
+            return Unauthorized(new { message = "Administrador não autenticado." });
 
-            var resultado = await _reclamacaoService.AtualizarReclamacaoAdminAsync(id, adminId, dto);
-            return Ok(resultado);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var resultado = await _reclamacaoService.AtualizarReclamacaoAdminAsync(id, adminId, dto);
+        return Ok(resultado);
     }
 
     // ---------------- DELETE ----------------
@@ -186,27 +128,12 @@ public class ReclamacaoController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeletarReclamacao(long id)
     {
-        try
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
-                return Unauthorized(new { message = "Usuário não autenticado." });
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+            return Unauthorized(new { message = "Usuário não autenticado." });
 
-            await _reclamacaoService.CancelarReclamacaoAsync(id, userId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        await _reclamacaoService.CancelarReclamacaoAsync(id, userId);
+        return NoContent();
     }
 
     /// <summary>
@@ -217,22 +144,11 @@ public class ReclamacaoController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeletarReclamacaoAdmin(long id)
     {
-        try
-        {
-            var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(adminIdClaim) || !long.TryParse(adminIdClaim, out long adminId))
-                return Unauthorized(new { message = "Administrador não autenticado." });
+        var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(adminIdClaim) || !long.TryParse(adminIdClaim, out long adminId))
+            return Unauthorized(new { message = "Administrador não autenticado." });
 
-            await _reclamacaoService.CancelarReclamacaoAdminAsync(id, adminId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        await _reclamacaoService.CancelarReclamacaoAdminAsync(id, adminId);
+        return NoContent();
     }
 }

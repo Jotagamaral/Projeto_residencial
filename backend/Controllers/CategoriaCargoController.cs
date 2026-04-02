@@ -1,3 +1,4 @@
+// CategoriaCargoController.cs
 using Microsoft.AspNetCore.Mvc;
 using backend.Data;
 using Microsoft.EntityFrameworkCore;
@@ -20,17 +21,10 @@ public class CategoriaCargoController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarCargos()
     {
-        try
-        {
-            var cargos = await _context.CategoriaCargo
-                .Select(c => new { c.Id, c.Nome })
-                .ToListAsync();
+        var cargos = await _context.CategoriaCargo
+            .Select(c => new { c.Id, c.Nome })
+            .ToListAsync();
 
-            return Ok(cargos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        return Ok(cargos);
     }
 }

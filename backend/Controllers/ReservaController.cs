@@ -5,7 +5,6 @@ using backend.Constants;
 using backend.DTOs;
 using backend.Services.Interfaces;
 
-
 namespace backend.Controllers;
 
 [ApiController]
@@ -38,28 +37,13 @@ public class ReservaController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CriarReserva([FromBody] ReservaCreateDto dto)
     {
-        try
-        {
-            var resultado = await _reservaService.CriarReservaAsync(dto);
-            
-            // Retorna 201 Created indicando que o recurso foi criado no banco
-            return StatusCode(StatusCodes.Status201Created, resultado);
-        }
-        catch (ArgumentException ex)
-        {
-            // Erros de regra de negócio: Horário conflitante, data no passado, etc.
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            // Erros de segurança: Token inválido ou usuário tentando burlar o sistema
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            // Erro genérico de servidor (banco fora do ar, etc.)
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+            return Unauthorized(new { message = "Usuário não autenticado." });
+
+        var resultado = await _reservaService.CriarReservaAsync(dto);
+        
+        return StatusCode(StatusCodes.Status201Created, resultado);
     }
 
     /// <summary>
@@ -73,33 +57,13 @@ public class ReservaController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CriarReservaAdmin([FromBody] ReservaAdminCreateDto dto)
     {
-        try
-        {
-            // Extrair o ID do Administrador
-            var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
-            if (string.IsNullOrEmpty(adminIdClaim) || !long.TryParse(adminIdClaim, out long adminIdLogado))
-            {
-                return Unauthorized(new { message = "Não foi possível identificar o administrador logado." });
-            }
+        var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(adminIdClaim) || !long.TryParse(adminIdClaim, out long adminIdLogado))
+            return Unauthorized(new { message = "Não foi possível identificar o administrador logado." });
 
-            var resultado = await _reservaService.CriarReservaAdminAsync(dto, adminIdLogado);
-            
-            return StatusCode(StatusCodes.Status201Created, resultado);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            // Erros de segurança: Token inválido ou usuário tentando burlar o sistema
-            return Unauthorized(new { message = $"Erro: {ex.Message}" });
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var resultado = await _reservaService.CriarReservaAdminAsync(dto, adminIdLogado);
+        
+        return StatusCode(StatusCodes.Status201Created, resultado);
     }
 
     // --------------------------- READ ---------------------------
@@ -112,20 +76,12 @@ public class ReservaController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<ReservaResponseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarMinhasReservas()
     {
-        try
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
-                return Unauthorized(new { message = "Usuário não autenticado." });
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+            return Unauthorized(new { message = "Usuário não autenticado." });
 
-            // O Service busca apenas onde UsuarioId == userId
-            var reservas = await _reservaService.ListarMinhasReservasAsync(userId);
-            return Ok(reservas);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var reservas = await _reservaService.ListarMinhasReservasAsync(userId);
+        return Ok(reservas);
     }
 
     /// <summary>
@@ -136,15 +92,8 @@ public class ReservaController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<ReservaResponseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarTodasReservasAdmin()
     {
-        try
-        {
-            var reservas = await _reservaService.ListarReservasAsync();
-            return Ok(reservas);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var reservas = await _reservaService.ListarReservasAsync();
+        return Ok(reservas);
     }
 
     /// <summary>
@@ -155,15 +104,8 @@ public class ReservaController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<ReservaCalendarioDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarCalendarioOcupacao()
     {
-        try
-        {
-            var ocupacoes = await _reservaService.ListarOcupacoesAsync();
-            return Ok(ocupacoes);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var ocupacoes = await _reservaService.ListarOcupacoesAsync();
+        return Ok(ocupacoes);
     }
 
     // --------------------------- UPDATE ---------------------------
@@ -180,28 +122,13 @@ public class ReservaController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AtualizarReserva(long id, [FromBody] ReservaUpdateDto dto)
     {
-        try
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
-                return Unauthorized(new { message = "Usuário não autenticado." });
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+            return Unauthorized(new { message = "Usuário não autenticado." });
 
-            var resultado = await _reservaService.AtualizarReservaAsync(id, userId, dto);
-            
-            return Ok(resultado);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var resultado = await _reservaService.AtualizarReservaAsync(id, userId, dto);
+        
+        return Ok(resultado);
     }
 
     /// <summary>
@@ -214,24 +141,13 @@ public class ReservaController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AtualizarReservaAdmin(long id, [FromBody] ReservaAdminUpdateDto dto)
     {
-        try
-        {
-            var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(adminIdClaim) || !long.TryParse(adminIdClaim, out long adminIdLogado))
-                return Unauthorized(new { message = "Administrador não autenticado." });
+        var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(adminIdClaim) || !long.TryParse(adminIdClaim, out long adminIdLogado))
+            return Unauthorized(new { message = "Administrador não autenticado." });
 
-            var resultado = await _reservaService.AtualizarReservaAdminAsync(id, adminIdLogado, dto);
-            
-            return Ok(resultado);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        var resultado = await _reservaService.AtualizarReservaAdminAsync(id, adminIdLogado, dto);
+        
+        return Ok(resultado);
     }
 
     // --------------------------- DELETE ---------------------------
@@ -247,29 +163,13 @@ public class ReservaController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CancelarReserva(long id)
     {
-        try
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
-                return Unauthorized(new { message = "Usuário não autenticado." });
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+            return Unauthorized(new { message = "Usuário não autenticado." });
 
-            // O Service deve garantir que a reserva pertence a este userId antes de cancelar
-            await _reservaService.CancelarReservaAsync(id, userId);
-            
-            return NoContent(); // 204 é o padrão REST para exclusão com sucesso
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        await _reservaService.CancelarReservaAsync(id, userId);
+        
+        return NoContent(); // 204 é o padrão REST para exclusão com sucesso
     }
 
     /// <summary>
@@ -282,25 +182,12 @@ public class ReservaController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CancelarReservaAdmin(long id)
     {
-        try
-        {
-            var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(adminIdClaim) || !long.TryParse(adminIdClaim, out long adminId))
-                return Unauthorized(new { message = "Administrador não autenticado." });
+        var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(adminIdClaim) || !long.TryParse(adminIdClaim, out long adminId))
+            return Unauthorized(new { message = "Administrador não autenticado." });
 
-            // O Service cancela direto e registra qual Admin fez a ação
-            await _reservaService.CancelarReservaAdminAsync(id, adminId);
-            
-            return NoContent();
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        await _reservaService.CancelarReservaAdminAsync(id, adminId);
+        
+        return NoContent();
     }
-
 }

@@ -22,19 +22,13 @@ public class MoradorController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarMoradores()
     {
-        try
-        {
-            var moradores = await _context.Moradores
-                .Where(m => m.Ativo)
-                .Include(m => m.Usuario)
-                .Select(m => new { m.Id, Nome = m.Usuario!.Nome })
-                .ToListAsync();
+        var moradores = await _context.Moradores
+            .Where(m => m.Ativo)
+            .Include(m => m.Usuario)
+            .Select(m => new { m.Id, Nome = m.Usuario!.Nome })
+            .ToListAsync();
 
-            return Ok(moradores);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        return Ok(moradores);
+      
     }
 }

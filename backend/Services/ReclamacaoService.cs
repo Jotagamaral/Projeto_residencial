@@ -4,6 +4,7 @@ using backend.Models;
 using backend.Repositories.Interfaces;
 using backend.Services.Interfaces;
 using backend.Constants;
+using backend.Exceptions;
 
 namespace backend.Services;
 
@@ -83,8 +84,9 @@ public class ReclamacaoService : IReclamacaoService
     public async Task<ReclamacaoResponseDto> AtualizarReclamacaoAsync(long id, long userId, ReclamacaoUpdateDto dto)
     {
         var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id);
+
         if (reclamacao == null)
-            throw new KeyNotFoundException("Reclamação não encontrada.");
+            throw new NotFoundException("Reclamação não encontrada.");
 
         if (reclamacao.Morador?.IdUser != userId)
             throw new UnauthorizedAccessException("Você só pode alterar suas próprias reclamações.");
@@ -101,8 +103,9 @@ public class ReclamacaoService : IReclamacaoService
     public async Task CancelarReclamacaoAsync(long id, long userId)
     {
         var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id);
+
         if (reclamacao == null)
-            throw new KeyNotFoundException("Reclamação não encontrada.");
+            throw new NotFoundException("Reclamação não encontrada.");
 
         if (reclamacao.Morador?.IdUser != userId)
             throw new UnauthorizedAccessException("Você só pode deletar suas próprias reclamações.");
@@ -116,8 +119,9 @@ public class ReclamacaoService : IReclamacaoService
     public async Task<ReclamacaoResponseDto> AtualizarReclamacaoAdminAsync(long id, long adminId, ReclamacaoAdminUpdateDto dto)
     {
         var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id);
+
         if (reclamacao == null)
-            throw new KeyNotFoundException("Reclamação não encontrada.");
+            throw new NotFoundException("Reclamação não encontrada.");
 
         reclamacao.Titulo = dto.Titulo.Trim();
         reclamacao.Descricao = dto.Descricao.Trim();
@@ -132,8 +136,9 @@ public class ReclamacaoService : IReclamacaoService
     public async Task CancelarReclamacaoAdminAsync(long id, long adminId)
     {
         var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id);
+        
         if (reclamacao == null)
-            throw new KeyNotFoundException("Reclamação não encontrada.");
+            throw new NotFoundException("Reclamação não encontrada.");
 
         await _reclamacaoRepository.DeletarAsync(reclamacao);
         await _context.SaveChangesAsync();

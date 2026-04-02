@@ -4,6 +4,7 @@ using backend.DTOs;
 using backend.Models;
 using backend.Repositories.Interfaces;
 using backend.Services.Interfaces;
+using backend.Exceptions;
 
 namespace backend.Services;
 
@@ -33,8 +34,8 @@ public class EncomendaService : IEncomendaService
         if (funcionario == null)
             throw new UnauthorizedAccessException("Apenas operadores válidos podem registrar encomendas.");
 
-        if (string.IsNullOrWhiteSpace(dto.Remetente))
-            throw new ArgumentException("O remetente é obrigatório.");
+       if (string.IsNullOrWhiteSpace(dto.Remetente))
+            throw new BusinessRuleException("O remetente é obrigatório para registrar a encomenda.");
 
         var novaEncomenda = new Encomenda
         {
@@ -113,8 +114,9 @@ public class EncomendaService : IEncomendaService
             throw new UnauthorizedAccessException("Operador inválido.");
 
         var encomenda = await _encomendaRepository.ObterPorIdAsync(id);
+
         if (encomenda == null)
-            throw new KeyNotFoundException("Encomenda não encontrada.");
+            throw new NotFoundException("A encomenda solicitada não foi encontrada.");
 
         encomenda.IdCategoriaEncomenda = dto.IdCategoriaEncomenda;
         
@@ -150,8 +152,9 @@ public class EncomendaService : IEncomendaService
             throw new UnauthorizedAccessException("Operador inválido.");
 
         var encomenda = await _encomendaRepository.ObterPorIdAsync(id);
+
         if (encomenda == null)
-            throw new KeyNotFoundException("Encomenda não encontrada.");
+            throw new NotFoundException("A encomenda solicitada não foi encontrada.");
 
         encomenda.IdCategoriaEncomenda = retirada
             ? CategoriaEncomendaConstants.ENTREGUE_ID
@@ -189,8 +192,9 @@ public class EncomendaService : IEncomendaService
             throw new UnauthorizedAccessException("Operador inválido.");
 
         var encomenda = await _encomendaRepository.ObterPorIdAsync(id);
+        
         if (encomenda == null)
-            throw new KeyNotFoundException("Encomenda não encontrada.");
+            throw new NotFoundException("A encomenda que você tentou cancelar não existe.");
 
         await _encomendaRepository.DeletarAsync(encomenda);
         await _context.SaveChangesAsync();

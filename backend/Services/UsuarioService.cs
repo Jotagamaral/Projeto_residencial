@@ -5,6 +5,7 @@ using backend.Repositories.Interfaces;
 using backend.Services.Interfaces;
 using backend.Data;
 using backend.Constants;
+using backend.Exceptions;
 
 namespace backend.Services;
 
@@ -37,7 +38,7 @@ public class UsuarioService : IUsuarioService
             // Verificar se o CPF já está cadastrado
             var usuarioExistente = await _usuarioRepository.getByCpfAsync(dto.Cpf);
             if (usuarioExistente != null)
-                throw new Exception("Este CPF já está em uso.");
+                throw new BusinessRuleException("Este CPF já está em uso."); 
 
             // Impede criar Admin
             if (dto.CategoriaAcessoId == CategoriaAcessoConstants.ADMIN_ID)
@@ -49,7 +50,7 @@ public class UsuarioService : IUsuarioService
             if (dto.CategoriaAcessoId != CategoriaAcessoConstants.MORADOR_ID && 
                 dto.CategoriaAcessoId != CategoriaAcessoConstants.FUNCIONARIO_ID)
             {
-                throw new ArgumentException("Categoria de acesso inválida.");
+                throw new BusinessRuleException("Categoria de acesso inválida."); 
             }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -78,7 +79,7 @@ public class UsuarioService : IUsuarioService
                 if (dto.CategoriaAcessoId == CategoriaAcessoConstants.MORADOR_ID)
                 {
                     if (dto.Apartamento == null || string.IsNullOrEmpty(dto.Bloco))
-                        throw new ArgumentException("Apartamento e Bloco são obrigatórios para moradores.");
+                        throw new BusinessRuleException("Apartamento e Bloco são obrigatórios para moradores."); 
 
                     var novoMorador = new Morador
                     {
@@ -94,7 +95,7 @@ public class UsuarioService : IUsuarioService
                 else if (dto.CategoriaAcessoId == CategoriaAcessoConstants.FUNCIONARIO_ID)
                 {
                     if (dto.CargoId == null)
-                        throw new ArgumentException("A Categoria do Cargo (ID) é obrigatória para funcionários.");
+                        throw new BusinessRuleException("A Categoria do Cargo (ID) é obrigatória para funcionários."); 
 
                     var novoFuncionario = new Funcionario
                     {
@@ -123,10 +124,11 @@ public class UsuarioService : IUsuarioService
             catch (Exception)
             {
                 await transaction.RollbackAsync();
-                throw;
+                throw; // O bloco catch continua genérico para conseguir reverter o banco e repassar o erro customizado para o middleware
             }
         });
     }
+    
     public async Task<IEnumerable<UsuarioResponseDto>> ListarAtivosAsync()
     {
         // Por enquanto, apenas para compilar, vamos retornar uma lista vazia ou erro
@@ -139,6 +141,4 @@ public class UsuarioService : IUsuarioService
             Email = u.Email
         });
     }
-
-    
 }

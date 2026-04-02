@@ -6,6 +6,7 @@ using backend.Repositories.Interfaces;
 using backend.DTOs;
 using backend.Models;
 using backend.Data;
+using backend.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -64,7 +65,7 @@ public class ReservaServiceTests : TestBase
     }
 
     [Fact]
-    public async Task CriarReserva_DataNoPassado_DeveLancarArgumentException()
+    public async Task CriarReserva_DataNoPassado_DeveLancarBusinessRuleException()
     {
         // Arrange
         _moradorRepo.ObterPorIdUserAsync(27).Returns(new Morador { Id = 1 });
@@ -79,12 +80,12 @@ public class ReservaServiceTests : TestBase
         var acao = async () => await _service.CriarReservaAsync(dtoInvalido);
 
         // Assert
-        await acao.Should().ThrowAsync<ArgumentException>()
+        await acao.Should().ThrowAsync<BusinessRuleException>()
             .WithMessage("Não é possível fazer reservas no passado.");
     }
 
     [Fact]
-    public async Task CriarReserva_ComConflitoDeHorario_DeveLancarArgumentException()
+    public async Task CriarReserva_ComConflitoDeHorario_DeveLancarBusinessRuleException()
     {
         // Arrange
         _moradorRepo.ObterPorIdUserAsync(27).Returns(new Morador { Id = 1 });
@@ -102,7 +103,7 @@ public class ReservaServiceTests : TestBase
         var acao = async () => await _service.CriarReservaAsync(dto);
 
         // Assert
-        await acao.Should().ThrowAsync<ArgumentException>()
+        await acao.Should().ThrowAsync<BusinessRuleException>()
             .WithMessage("Este local já possui uma reserva confirmada para o horário selecionado.");
     }
 }

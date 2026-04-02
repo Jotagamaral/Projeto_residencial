@@ -22,18 +22,11 @@ public class LocalController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> ListarLocais()
     {
-        try
-        {
-            var locais = await _context.Locais
-                .Where(l => l.Ativo)
-                .Select(l => new { l.Id, l.Nome, l.Capacidade })
-                .ToListAsync();
+        var locais = await _context.Locais
+            .Where(l => l.Ativo)
+            .Select(l => new { l.Id, l.Nome, l.Capacidade })
+            .ToListAsync();
 
-            return Ok(locais);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex.Message}");
-        }
+        return Ok(locais);
     }
 }

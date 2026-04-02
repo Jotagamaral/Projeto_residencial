@@ -6,6 +6,7 @@ using backend.Repositories.Interfaces;
 using backend.Services.Interfaces;
 using backend.Data;
 using backend.Constants;
+using backend.Exceptions;
 
 namespace backend.Services;
 
@@ -27,57 +28,59 @@ public class ReservaService : IReservaService
         _httpContextAccessor = httpContextAccessor;
         _context = context;
     }
+
     // --------------------------- CREATE ---------------------------
-   public async Task<ReservaResponseDto> CriarReservaAdminAsync(ReservaAdminCreateDto dto, long adminIdLogado)
-{
-    // Datas em UTC
-    var dataInicioUtc = dto.DataInicio.ToUniversalTime();
-    var dataFimUtc = dto.DataFim.ToUniversalTime();
-
-    if (dto.DataInicio <= DateTime.Now)
-        throw new ArgumentException("Não é possível fazer reservas no passado.");
-        
-    if (dto.DataFim <= dto.DataInicio)
-        throw new ArgumentException("A data de término deve ser posterior à data de início.");
-
-    // Validação de Integridade
-    var morador = await _moradorRepository.ObterPorIdUserAsync(dto.IdUsuario);
-    if (morador == null)
+    public async Task<ReservaResponseDto> CriarReservaAdminAsync(ReservaAdminCreateDto dto, long adminIdLogado)
     {
-        throw new ArgumentException($"O usuário com ID {dto.IdUsuario} não foi encontrado ou não possui um perfil de morador.");
+        // Datas em UTC
+        var dataInicioUtc = dto.DataInicio.ToUniversalTime();
+        var dataFimUtc = dto.DataFim.ToUniversalTime();
+
+        if (dataInicioUtc <= DateTime.UtcNow)
+            throw new BusinessRuleException("Não é possível fazer reservas no passado.");
+            
+        if (dataFimUtc <= dataInicioUtc)
+            throw new BusinessRuleException("A data de término deve ser posterior à data de início.");
+
+        // Validação de Integridade
+        var morador = await _moradorRepository.ObterPorIdUserAsync(dto.IdUsuario);
+        if (morador == null)
+        {
+            throw new NotFoundException($"O usuário com ID {dto.IdUsuario} não foi encontrado ou não possui um perfil de morador.");
+        }
+
+        // Validação de Conflito de Horário
+        var conflito = await _reservaRepository.ExisteConflitoDeHorarioAsync(dto.IdLocal, dataInicioUtc, dataFimUtc);
+        if (conflito)
+        {
+            throw new BusinessRuleException("Este local já possui uma reserva confirmada para o horário selecionado.");
+        }
+
+        // Criação da Entidade
+        var novaReserva = new Reserva
+        {
+            IdMorador = morador.Id,
+            IdLocal = dto.IdLocal,
+            DataInicio = dataInicioUtc,
+            DataFim = dataFimUtc,
+            IdCategoriaReserva = CategoriaReservaConstants.CONFIRMADA_ID,
+            Ativo = true
+        };
+
+        await _reservaRepository.AdicionarAsync(novaReserva);
+        await _context.SaveChangesAsync();
+
+        // Retorno mapeado
+        return new ReservaResponseDto
+        {
+            Id = novaReserva.Id,
+            IdLocal = novaReserva.IdLocal,
+            DataInicio = novaReserva.DataInicio,
+            DataFim = novaReserva.DataFim,
+            Status = CategoriaReservaConstants.CONFIRMADA_STRING
+        };
     }
 
-    // Validação de Conflito de Horário
-    var conflito = await _reservaRepository.ExisteConflitoDeHorarioAsync(dto.IdLocal, dataInicioUtc, dataFimUtc);
-    if (conflito)
-    {
-        throw new ArgumentException("Este local já possui uma reserva confirmada para o horário selecionado.");
-    }
-
-    // Criação da Entidade
-    var novaReserva = new Reserva
-    {
-        IdMorador = morador.Id,
-        IdLocal = dto.IdLocal,
-        DataInicio = dataInicioUtc,
-        DataFim = dataFimUtc,
-        IdCategoriaReserva = CategoriaReservaConstants.CONFIRMADA_ID,
-        Ativo = true
-    };
-
-    await _reservaRepository.AdicionarAsync(novaReserva);
-    await _context.SaveChangesAsync();
-
-    // Retorno mapeado
-    return new ReservaResponseDto
-    {
-        Id = novaReserva.Id,
-        IdLocal = novaReserva.IdLocal,
-        DataInicio = novaReserva.DataInicio,
-        DataFim = novaReserva.DataFim,
-        Status = CategoriaReservaConstants.CONFIRMADA_STRING
-    };
-}
     public async Task<ReservaResponseDto> CriarReservaAsync(ReservaCreateDto dto)
     {
         // Extrair o ID_USER do Token JWT
@@ -96,16 +99,16 @@ public class ReservaService : IReservaService
             throw new UnauthorizedAccessException("Apenas moradores têm permissão para criar reservas.");
 
         // Regra de Negócio
-        if (dto.DataInicio <= DateTime.Now)
-            throw new ArgumentException("Não é possível fazer reservas no passado.");
+        if (dataInicioUtc <= DateTime.UtcNow)
+            throw new BusinessRuleException("Não é possível fazer reservas no passado.");
             
-        if (dto.DataFim <= dto.DataInicio)
-            throw new ArgumentException("A data de término deve ser posterior à data de início.");
+        if (dataFimUtc <= dataInicioUtc)
+            throw new BusinessRuleException("A data de término deve ser posterior à data de início.");
 
         // Validação de Conflito de Horário
         var conflito = await _reservaRepository.ExisteConflitoDeHorarioAsync(dto.IdLocal, dataInicioUtc, dataFimUtc);
         if (conflito)
-            throw new ArgumentException("Este local já possui uma reserva confirmada para o horário selecionado.");
+            throw new BusinessRuleException("Este local já possui uma reserva confirmada para o horário selecionado.");
 
         // Salvar no banco
         var novaReserva = new Reserva
@@ -121,7 +124,7 @@ public class ReservaService : IReservaService
         await _reservaRepository.AdicionarAsync(novaReserva);
         await _context.SaveChangesAsync();
 
-        // 6. Retornar os dados confirmados
+        // Retornar os dados confirmados
         return new ReservaResponseDto
         {
             Id = novaReserva.Id,
@@ -145,6 +148,7 @@ public class ReservaService : IReservaService
             Status = CategoriaReservaConstants.CONFIRMADA_STRING
         });
     }
+
     public async Task<IEnumerable<ReservaResponseDto>> ListarMinhasReservasAsync(long userIdLogado)
     {
         // Descobre quem é o morador a partir do ID do usuário logado
@@ -190,8 +194,9 @@ public class ReservaService : IReservaService
 
         // Busca a reserva no banco
         var reserva = await _context.Reservas.FirstOrDefaultAsync(r => r.Id == reservaId);
+
         if (reserva == null || !reserva.Ativo)
-            throw new ArgumentException("Reserva não encontrada ou já cancelada.");
+            throw new NotFoundException("Reserva não encontrada ou já cancelada.");
 
         // Trava IDOR
         if (reserva.IdMorador != morador.Id)
@@ -199,22 +204,22 @@ public class ReservaService : IReservaService
 
         // Trava de Passado (Não pode alterar evento que já passou)
         if (reserva.DataInicio <= DateTime.UtcNow)
-            throw new ArgumentException("Não é possível alterar uma reserva que já iniciou ou passou.");
+            throw new BusinessRuleException("Não é possível alterar uma reserva que já iniciou ou passou.");
 
         // Ajuste de fuso horário das novas datas
         var novaDataInicioUtc = dto.DataInicio.ToUniversalTime();
         var novaDataFimUtc = dto.DataFim.ToUniversalTime();
 
         if (novaDataInicioUtc <= DateTime.UtcNow)
-            throw new ArgumentException("A nova data de início não pode estar no passado.");
+            throw new BusinessRuleException("A nova data de início não pode estar no passado.");
             
         if (novaDataFimUtc <= novaDataInicioUtc)
-            throw new ArgumentException("A data de término deve ser posterior à data de início.");
+            throw new BusinessRuleException("A data de término deve ser posterior à data de início.");
 
         // Checagem de Colisão (Passando o ID atual para ser ignorado)
         var conflito = await _reservaRepository.ExisteConflitoDeHorarioAsync(dto.IdLocal, novaDataInicioUtc, novaDataFimUtc, reservaId);
         if (conflito)
-            throw new ArgumentException("Este local já possui uma reserva confirmada para o novo horário selecionado.");
+            throw new BusinessRuleException("Este local já possui uma reserva confirmada para o novo horário selecionado.");
 
         // Efetiva a alteração
         reserva.IdLocal = dto.IdLocal;
@@ -233,22 +238,24 @@ public class ReservaService : IReservaService
             Status = CategoriaReservaConstants.CONFIRMADA_STRING
         };
     }
+
     public async Task<ReservaResponseDto> AtualizarReservaAdminAsync(long reservaId, long adminIdLogado, ReservaAdminUpdateDto dto)
     {
         var reserva = await _context.Reservas.FirstOrDefaultAsync(r => r.Id == reservaId);
+        
         if (reserva == null || !reserva.Ativo)
-            throw new ArgumentException("Reserva não encontrada ou já cancelada.");
+            throw new NotFoundException("Reserva não encontrada ou já cancelada.");
 
         var novaDataInicioUtc = dto.DataInicio.ToUniversalTime();
         var novaDataFimUtc = dto.DataFim.ToUniversalTime();
 
         if (novaDataFimUtc <= novaDataInicioUtc)
-            throw new ArgumentException("A data de término deve ser posterior à data de início.");
+            throw new BusinessRuleException("A data de término deve ser posterior à data de início.");
 
         // Sistema de colisão
         var conflito = await _reservaRepository.ExisteConflitoDeHorarioAsync(dto.IdLocal, novaDataInicioUtc, novaDataFimUtc, reservaId);
         if (conflito)
-            throw new ArgumentException("Este local já possui uma reserva confirmada para o novo horário selecionado.");
+            throw new BusinessRuleException("Este local já possui uma reserva confirmada para o novo horário selecionado.");
 
         reserva.IdLocal = dto.IdLocal;
         reserva.DataInicio = novaDataInicioUtc;
@@ -277,7 +284,7 @@ public class ReservaService : IReservaService
         var reserva = await _context.Reservas.FirstOrDefaultAsync(r => r.Id == reservaId);
         
         if (reserva == null || !reserva.Ativo)
-            throw new ArgumentException("Reserva não encontrada ou já cancelada.");
+            throw new NotFoundException("Reserva não encontrada ou já cancelada.");
 
         // Garante que o morador não está apagando a reserva do vizinho
         if (reserva.IdMorador != morador.Id)
@@ -285,7 +292,7 @@ public class ReservaService : IReservaService
 
         // Não pode cancelar reserva que já passou
         if (reserva.DataInicio <= DateTime.UtcNow)
-            throw new ArgumentException("Não é possível cancelar uma reserva que já iniciou ou já passou.");
+            throw new BusinessRuleException("Não é possível cancelar uma reserva que já iniciou ou já passou.");
 
         // Exclusão Lógica
         reserva.Ativo = false;
@@ -293,12 +300,13 @@ public class ReservaService : IReservaService
         _context.Reservas.Update(reserva);
         await _context.SaveChangesAsync();
     }
+
     public async Task CancelarReservaAdminAsync(long reservaId, long adminIdLogado)
     {
         var reserva = await _context.Reservas.FirstOrDefaultAsync(r => r.Id == reservaId);
         
         if (reserva == null || !reserva.Ativo)
-            throw new ArgumentException("Reserva não encontrada ou já cancelada.");
+            throw new NotFoundException("Reserva não encontrada ou já cancelada.");
 
         reserva.Ativo = false;
 

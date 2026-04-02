@@ -44,23 +44,21 @@ public class AuthServiceTests : TestBase
     }
 
     [Fact]
-    public async Task Autenticar_ComCpfInexistente_DeveRetornarFalha()
+    public async Task Autenticar_ComCpfInexistente_DeveLancarUnauthorizedAccessException()
     {
         // Arrange
         var dto = new LoginDto { Cpf = "11122233344", Senha = "Senha123" };
 
         // Act
-        var resultado = await _service.AutenticarAsync(dto);
+        Func<Task> acao = async () => await _service.AutenticarAsync(dto);
 
         // Assert
-        resultado.Should().NotBeNull();
-        resultado.Token.Should().BeNull();
-        resultado.User.Should().BeNull();
-        resultado.Message.Should().Be("CPF ou senha inválidos.");
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("CPF ou senha inválidos.");
     }
 
     [Fact]
-    public async Task Autenticar_ComUsuarioInativo_DeveRetornarFalha()
+    public async Task Autenticar_ComUsuarioInativo_DeveLancarUnauthorizedAccessException()
     {
         // Arrange
         var usuarioInativo = new Usuario 
@@ -76,15 +74,15 @@ public class AuthServiceTests : TestBase
         var dto = new LoginDto { Cpf = "11122233344", Senha = "Senha123" };
 
         // Act
-        var resultado = await _service.AutenticarAsync(dto);
+        Func<Task> acao = async () => await _service.AutenticarAsync(dto);
 
         // Assert
-        resultado.Token.Should().BeNull();
-        resultado.Message.Should().Be("CPF ou senha inválidos.");
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("CPF ou senha inválidos.");
     }
 
     [Fact]
-    public async Task Autenticar_ComSenhaIncorreta_DeveRetornarFalha()
+    public async Task Autenticar_ComSenhaIncorreta_DeveLancarUnauthorizedAccessException()
     {
         // Arrange
         var senhaCorretaHash = BCrypt.Net.BCrypt.HashPassword("SenhaCerta123");
@@ -101,11 +99,11 @@ public class AuthServiceTests : TestBase
         var dto = new LoginDto { Cpf = "99988877766", Senha = "SenhaErrada321" }; // Senha incorreta
 
         // Act
-        var resultado = await _service.AutenticarAsync(dto);
+        Func<Task> acao = async () => await _service.AutenticarAsync(dto);
 
         // Assert
-        resultado.Token.Should().BeNull();
-        resultado.Message.Should().Be("CPF ou senha inválidos.");
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("CPF ou senha inválidos.");
     }
 
     [Fact]
@@ -150,7 +148,6 @@ public class AuthServiceTests : TestBase
     public async Task Autenticar_SemSecretConfigurada_DeveLancarExcecao()
     {
         // Arrange
-        // Criamos um IConfiguration sem a chave 'Secret'
         var badConfiguration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>()) 
             .Build();

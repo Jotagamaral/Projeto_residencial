@@ -6,6 +6,7 @@ using backend.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
+using backend.Exceptions; 
 
 namespace backend.Services
 {
@@ -30,12 +31,7 @@ namespace backend.Services
 
             if (usuario == null || !BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.Senha))
             {
-                return new LoginResponseDTO
-                {
-                    Message = "CPF ou senha inválidos.",
-                    Token = null,
-                    User = null
-                };
+                throw new UnauthorizedAccessException("CPF ou senha inválidos.");
             }
 
             // Dados retornados do Banco
@@ -45,7 +41,7 @@ namespace backend.Services
             var cpfUsuario = usuario.Cpf;
             
             // Role de Categoria Acesso
-            var roleDoUsuario = usuario.Categoria?.CategoriaAcessoNome ?? "Teste Null"; 
+            var roleDoUsuario = usuario.Categoria?.CategoriaAcessoNome ?? "Null"; 
 
             // Criar as Claims (Dados embutidos no token)
             var claims = new List<Claim>
@@ -57,6 +53,7 @@ namespace backend.Services
 
             // Gerar a chave e o token
             var jwtSettings = _configuration.GetSection("JwtSettings");
+            
             var secret = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret não configurada.");
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
@@ -76,7 +73,7 @@ namespace backend.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            // Retornar o DTO preenchido com sucesso
+            // Retornar o DTO
             return new LoginResponseDTO
             {
                 Message = "Login realizado com sucesso.",

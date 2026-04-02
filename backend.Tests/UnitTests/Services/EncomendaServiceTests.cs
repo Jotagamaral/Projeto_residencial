@@ -7,6 +7,7 @@ using backend.DTOs;
 using backend.Models;
 using backend.Data;
 using backend.Constants;
+using backend.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
@@ -59,7 +60,7 @@ public class EncomendaServiceTests : TestBase
     }
 
     [Fact]
-    public async Task CriarEncomenda_ComRemetenteVazio_DeveLancarArgumentException()
+    public async Task CriarEncomenda_ComRemetenteVazio_DeveLancarBusinessRuleException()
     {
         // Arrange
         long operadorId = 10;
@@ -72,8 +73,8 @@ public class EncomendaServiceTests : TestBase
         Func<Task> acao = async () => await _service.CriarEncomendaAsync(dto, operadorId);
 
         // Assert
-        await acao.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("O remetente é obrigatório.");
+        await acao.Should().ThrowAsync<BusinessRuleException>()
+            .WithMessage("O remetente é obrigatório para registrar a encomenda.");
     }
 
     [Fact]
@@ -215,7 +216,7 @@ public class EncomendaServiceTests : TestBase
     }
 
     [Fact]
-    public async Task CancelarEncomenda_ComEncomendaInexistente_DeveLancarKeyNotFoundException()
+    public async Task CancelarEncomenda_ComEncomendaInexistente_DeveLancarNotFoundException()
     {
         // Arrange
         long operadorId = 10;
@@ -229,8 +230,8 @@ public class EncomendaServiceTests : TestBase
         Func<Task> acao = async () => await _service.CancelarEncomendaAsync(encomendaId, operadorId);
 
         // Assert
-        await acao.Should().ThrowAsync<KeyNotFoundException>()
-            .WithMessage("Encomenda não encontrada.");
+        await acao.Should().ThrowAsync<NotFoundException>()
+            .WithMessage("A encomenda que você tentou cancelar não existe.");
     }
 
     [Fact]
