@@ -15,7 +15,7 @@ const testCommits = () => {
 
     cases.forEach(({ msg, expected }) => {
         try {
-            execSync(`echo "${msg}" | npx commitlint --config commitlint.config.mjs`);
+            execSync(`echo "${msg}" | npx commitlint --config ./commitlint.config.mjs`);
             if (expected) {
                 console.log(`Sucesso esperado: "${msg}"`);
             } else {
