@@ -1,3 +1,16 @@
+# [1.1.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.0.0...v1.1.0) (2026-04-09)
+
+
+### Bug Fixes
+
+* corrige erro commitlint ([3ee416e](https://github.com/Jotagamaral/Projeto_residencial/commit/3ee416e57954942fbf56e6851ecea07bd6f4d0b1))
+* test versionamento ([8f9f862](https://github.com/Jotagamaral/Projeto_residencial/commit/8f9f8623f9952143af5b1f7fb765c7053f3a85da))
+
+
+### Features
+
+* implementa normalizacao do pipeline obrigatorio com teste e validacoes ([409d93d](https://github.com/Jotagamaral/Projeto_residencial/commit/409d93d4c9f0dcc8b1e38bf1d548cd1f4198b747))
+
 # 1.0.0 (2026-04-09)
 
 
