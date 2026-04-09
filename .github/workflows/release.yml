@@ -28,6 +28,17 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
+      - name: Validar Integridade do Pipeline
+        working-directory: ./frontend/tests
+        run: npm run test:pipeline
+
+      - name: Validar Commits
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: frontend/commitlint.config.js
+          failOnWarnings: false
+          helpURL: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
+
       - name: Rodar Semantic Release
         working-directory: ./frontend
         env:
