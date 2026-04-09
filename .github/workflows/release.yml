@@ -35,7 +35,7 @@ jobs:
       - name: Validar Commits
         uses: wagoid/commitlint-github-action@v6
         with:
-          configFile: frontend/commitlint.config.js
+          configFile: frontend/commitlint.config.mjs
           failOnWarnings: false
           helpURL: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
 
