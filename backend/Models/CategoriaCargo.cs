@@ -14,4 +14,8 @@ public class CategoriaCargo
     [Column("NO_CATEGORIA_CARGO")]
     [Required]
     public string Nome { get; set; } = string.Empty;
+    
+    [Column("LG_ATIVO")]
+    [Required]
+    public bool Ativo { get; set; } = true;
 }

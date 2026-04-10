@@ -1,8 +1,13 @@
 using backend.Models;
+
 namespace backend.Repositories.Interfaces;
+
 public interface IMoradorRepository
 {
-    Task<Morador> AdicionarAsync(Morador morador);
-    Task<Morador?> ObterPorIdUserAsync(long idUser);
+    Task<Morador?> ObterPorIdUserAsync(long userId);
+    Task<Morador?> ObterPorIdAsync(long id);
+    Task<IEnumerable<Morador>> ListarAtivosAsync();
+    Task AdicionarAsync(Morador morador);
+    Task AtualizarAsync(Morador morador);
+    Task SalvarAlteracoesAsync();
 }
-
