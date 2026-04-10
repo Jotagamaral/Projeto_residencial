@@ -1,11 +1,11 @@
 using Xunit;
 using NSubstitute;
 using FluentAssertions;
-using backend.Services;
-using backend.Repositories.Interfaces;
-using backend.DTOs;
-using backend.Models;
-using backend.Data;
+using backend.src.services;
+using backend.src.repositories.interfaces;
+using backend.src.dtos.Reclamacao;
+using backend.src.models;
+using backend.src.context;
 using Microsoft.EntityFrameworkCore;
 
 

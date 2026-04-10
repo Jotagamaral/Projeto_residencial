@@ -1,14 +1,11 @@
-using Xunit;
 using FluentAssertions;
-using backend.Services;
-using backend.DTOs;
-using backend.Models;
-using backend.Data;
+using backend.src.services;
+using backend.src.dtos.Login;
+using backend.src.models;
+using backend.src.context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace backend.Tests.Services;
 

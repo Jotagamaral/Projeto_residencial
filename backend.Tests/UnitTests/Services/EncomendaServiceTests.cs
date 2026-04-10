@@ -1,19 +1,13 @@
-using Xunit;
 using NSubstitute;
 using FluentAssertions;
-using backend.Services;
-using backend.Repositories.Interfaces;
-using backend.DTOs;
-using backend.Models;
-using backend.Data;
-using backend.Constants;
-using backend.Exceptions;
+using backend.src.services;
+using backend.src.repositories.interfaces;
+using backend.src.dtos.Encomenda;
+using backend.src.models;
+using backend.src.context;
+using backend.src.constants;
+using backend.src.exceptions;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
-
 
 namespace backend.Tests.UnitTests.Services;
 
