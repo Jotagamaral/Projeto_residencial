@@ -1,60 +1,58 @@
-### Visão Geral do Projeto
-```mermaid
-flowchart TD
-    %% 1. IDENTIFICAÇÃO E INTRODUÇÃO
-    subgraph Introducao [1. Projeto CondoSync - 2026]
-        A(CondoSync: Sistema de Gestão de Condomínio) --- B(Objetivo: Centralizar gestão e melhorar comunicação)
-        B --- C(Escopo: Moradores, Funcionários, Visitantes, Avisos, Reservas e Encomendas)
-    end
+ CondoSync – Sistema de Gestão de Condomínio
 
-    %% 2. TECNOLOGIAS
-    subgraph Tecnologias [2. Tecnologias Utilizadas]
-        T1(Frontend: React com Vite)
-        T2(Backend: .NET C#)
-        T3(Banco de Dados: PostgreSQL / Supabase)
-    end
+O CondoSync é um sistema desenvolvido para otimizar a gestão de condomínios residenciais, centralizando informações administrativas e melhorando a comunicação entre moradores, funcionários e administradores.
 
-    %% 3. PERFIS DE USUÁRIO
-    subgraph Perfis [3. Perfis e Permissões]
-        P1(Administrador: Gestão total e Avisos)
-        P2(Funcionário: Operacional, Encomendas e Visitantes)
-        P3(Morador: Reservas, Reclamações e Consultas)
-    end
+# Objetivo
 
-    %% 4. MODELAGEM DE DADOS (ENTIDADES)
-    subgraph DB [4. Modelagem do Banco de Dados]
-        direction LR
-        E1(Usuários / Moradores / Funcionários) --- E2(Visitantes / Controle de Acesso)
-        E2 --- E3(Encomendas / Reservas / Locais)
-        E3 --- E4(Reclamações / Avisos)
-        E4 --- E5(Auditoria: Tabelas CSTBH)
-    end
+Facilitar a administração do condomínio por meio de uma solução digital que permite:
 
-    %% 5. REGRAS DE NEGÓCIO
-    subgraph Regras [5. Regras de Negócio]
-        R1(Moradores: Devem ter bloco e apto)
-        R2(Visitantes: Vinculados a um morador)
-        R3(Reservas: Apenas para moradores)
-        R4(Encomendas: Registro apenas por funcionários)
-    end
+Gerenciar moradores, funcionários e visitantes
+Controlar reservas de áreas comuns
+Registrar avisos e reclamações
+Monitorar encomendas
 
-    %% 6. REQUISITOS FUNCIONAIS
-    subgraph RF [6. Requisitos Funcionais - RF01 a RF10]
-        F1(Cadastros: Morador, Funcionario, Visitante)
-        F2(Registros: Avisos, Reclamacoes, Reservas, Encomendas)
-        F3(Consultas: Moradores, Reservas, Encomendas)
-    end
 
-    %% FLUXO PRINCIPAL
-    Introducao --> Tecnologias
-    Tecnologias --> Perfis
-    Perfis --> DB
-    DB --> Regras
-    Regras --> RF
-    RF --> FIM(Conclusão: Solução digital integrada para condomínios)
+ # Funcionalidades Principais
+Cadastro de moradores, funcionários e visitantes
+Gestão de avisos e comunicação interna
+Registro e acompanhamento de reclamações
+Reserva de áreas comuns (salão, churrasqueira, etc.)
+Controle de encomendas
+Controle de acesso de visitantes
 
-    %% ESTILIZAÇÃO
-    style Introducao fill:#f5f5f5,stroke:#333
-    style Tecnologias fill:#e1f5fe,stroke:#01579b
-    style DB fill:#fff3e0,stroke:#e65100
-    style RF fill:#f1f8e9,stroke:#33691e
+# Perfis de Usuário
+Administrador/Síndico: gerencia o sistema e cria avisos
+Funcionário/Portaria: controla visitantes e encomendas
+Morador: realiza reservas, registra reclamações e acompanha avisos
+
+#  Tecnologias Utilizadas
+Frontend: React + Vite
+Backend: .NET (C#)
+Banco de Dados: PostgreSQL (Supabase)
+
+# Banco de Dados (Resumo)
+Modelo relacional com foco em integridade e organização
+Principais entidades:
+Usuários, Moradores, Funcionários
+Visitantes, Encomendas
+Reservas, Locais
+Avisos, Reclamações
+Suporte a:
+Auditoria de alterações
+Controle de permissões por tipo de usuário
+
+# Regras de Negócio (Principais)
+Apenas moradores podem fazer reservas e registrar reclamações
+Visitantes devem estar vinculados a um morador
+Funcionários registram encomendas
+Administradores criam avisos
+Reservas exigem data, horário e local
+
+# Requisitos Funcionais
+Cadastro e consulta de usuários
+Registro de reservas, avisos, reclamações e encomendas
+Consulta de dados do sistema
+
+# Conclusão
+
+O CondoSync centraliza e organiza os principais processos de um condomínio, trazendo mais eficiência, controle e comunicação para a gestão.
