@@ -32,6 +32,8 @@ public class AppDbContext : DbContext
     public DbSet<Encomenda> Encomendas { get; set; } = null!;
     public DbSet<CategoriaEncomenda> CategoriasEncomenda { get; set; } = null!;
 
+    public DbSet<Aviso> Avisos { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -106,6 +108,17 @@ public class AppDbContext : DbContext
                     v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
         });
 
-        
+        modelBuilder.Entity<Aviso>(entity =>
+        {
+            entity.Property(e => e.DataInicio)
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToUniversalTime() : v,
+                    v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+
+            entity.Property(e => e.DataExpiracao)
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToUniversalTime() : v,
+                    v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+        });
     }
 }

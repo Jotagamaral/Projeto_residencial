@@ -48,7 +48,9 @@ function Home() {
             buscarEncomendas(),
           ]);
         
-        setAvisos(dadosAvisos.status === 'fulfilled' ? dadosAvisos.value : []);
+        const listaAvisos =
+          dadosAvisos.status === 'fulfilled' ? dadosAvisos.value : [];
+        setAvisos(Array.isArray(listaAvisos) ? listaAvisos : []);
         setReclamacoes(dadosReclamacoes.status === 'fulfilled' ? dadosReclamacoes.value : []);
         setReservas(dadosReservas.status === 'fulfilled' ? dadosReservas.value : []);
         setEncomendas(dadosEncomendas.status === 'fulfilled' ? dadosEncomendas.value : []);

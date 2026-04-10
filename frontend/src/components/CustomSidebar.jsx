@@ -90,7 +90,7 @@ function CustomSidebar() {
               </li>
             );
           })}
-          {tipoCargo === "FUNCIONARIO" && (
+          {(tipoCargo === 'FUNCIONARIO' || tipoCargo === 'ADMIN') && (
             <li>
               <Link
                 to="/cadastro_aviso"

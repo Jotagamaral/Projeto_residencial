@@ -1,0 +1,46 @@
+name: Release Automatica
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Instalar Dependencias
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Validar Integridade do Pipeline
+        working-directory: ./frontend/tests
+        run: npm run test:pipeline
+
+      - name: Validar Commits
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: frontend/commitlint.config.mjs
+          failOnWarnings: false
+          helpURL: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
+
+      - name: Rodar Semantic Release
+        working-directory: ./frontend
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
