@@ -197,6 +197,10 @@ builder.Services.AddScoped<IReclamacaoService, ReclamacaoService>();
 builder.Services.AddScoped<IEncomendaRepository, EncomendaRepository>();
 builder.Services.AddScoped<IEncomendaService, EncomendaService>();
 
+//*  Avisos
+builder.Services.AddScoped<IAvisoRepository, AvisoRepository>();
+builder.Services.AddScoped<IAvisoService, AvisoService>();
+
 //* RabbitMQ
 builder.Services.AddSingleton<IMessageBusService, RabbitMQService>();
 builder.Services.AddHostedService<LogWorker>();
