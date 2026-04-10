@@ -1,11 +1,11 @@
 using System.Text;
 using System.Text.Json;
-using backend.Data;
-using backend.Models;
+using backend.src.context;
+using backend.src.models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace backend.Workers;
+namespace backend.workers;
 
 public class LogWorker : BackgroundService
 {

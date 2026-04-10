@@ -4,14 +4,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 // Sistema
-using backend.Data;
-using backend.Filters;
-using backend.Repositories;
-using backend.Repositories.Interfaces;
-using backend.Services;
-using backend.Services.Interfaces;
-using backend.Workers;
-using backend.Middlewares;
+using backend.src.context;
+using backend.src.filters;
+using backend.src.repositories;
+using backend.src.repositories.interfaces;
+using backend.src.services;
+using backend.src.services.interfaces;
+using backend.src.middlewares;
+using backend.workers;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -83,8 +83,8 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 
 // Handler Exceptions
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>(); // <-- ADICIONE AQUI
-builder.Services.AddProblemDetails(); // <-- ADICIONE AQUI (necessário para formatar a resposta)
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Leitura de dados das requisões
 builder.Services.AddHttpContextAccessor();
