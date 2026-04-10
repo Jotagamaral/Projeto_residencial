@@ -29,6 +29,7 @@ const testCommits = () => {
                 console.log(`Erro: O commit "${msg}" é válido mas foi bloqueado.`);
                 passedAll = false;
             }
+            throw error;
         }
     });
 

@@ -70,7 +70,7 @@ function CadastroReclamacoes() {
         alert('Erro ao enviar reclamação. Tente novamente.');
       }
     },
-    [textoReclamacao, moradorId, anonimo, nomeMorador, navigate]
+    [titulo, textoReclamacao, moradorId, navigate]
   );
 
   const handleVoltar = useCallback(() => {
