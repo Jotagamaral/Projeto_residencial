@@ -25,7 +25,7 @@ Administrador/Síndico: gerencia o sistema e cria avisos
 Funcionário/Portaria: controla visitantes e encomendas
 Morador: realiza reservas, registra reclamações e acompanha avisos
 
-# Tecnologias Utilizadas
+#  Tecnologias Utilizadas
 Frontend: React + Vite
 Backend: .NET (C#)
 Banco de Dados: PostgreSQL (Supabase)
