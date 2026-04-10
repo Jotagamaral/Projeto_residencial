@@ -2,10 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
 import { useNavigate } from 'react-router-dom';
-import {
-  publicarEncomenda,
-  buscarMoradores,
-} from '../../services/encomendasService';
+import { criarEncomenda } from '../../services/encomendasService';
+import { buscarMoradores } from '../../services/moradoresService';
 
 function CadastroEncomenda() {
   const [remetente, setRemetente] = useState('');
@@ -45,7 +43,7 @@ function CadastroEncomenda() {
       };
 
       try {
-        await publicarEncomenda(encomendaData);
+        await criarEncomenda(encomendaData);
         setRemetente('');
         navigate('/encomendas');
       } catch (error) {

@@ -3,18 +3,16 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import CustomSidebar from '../components/CustomSidebar';
 import AvisoList from '../components/AvisoList';
-import { buscarAvisos } from '../services/avisosService';
-import { buscarReclamacoes } from '../services/reclamacoeService';
-import { buscarReservas } from '../services/reservasService';
-import { buscarEncomendas } from '../services/encomendasService';
+import { buscarAvisosAtivos } from '../services/avisosService';
+import { buscarReclamacoesPublicas } from '../services/reclamacoesService';
+import { buscarReservasCalendario } from '../services/reservasService';
+import { buscarTodasEncomendas, buscarMinhasEncomendas } from '../services/encomendasService';
 import {
   FaBox,
   FaCalendarAlt,
   FaComments,
   FaBell,
   FaClock,
-  FaUsers,
-  FaArrowUp,
   FaArrowRight,
 } from 'react-icons/fa';
 
@@ -29,10 +27,13 @@ function Home() {
 
   useEffect(() => {
     const userString = localStorage.getItem('user');
+    let cargoUsuario = '';
+
     if (userString) {
       try {
         const userObject = JSON.parse(userString);
         setUser(userObject);
+        cargoUsuario = userObject.categoria;
       } catch (e) {
         console.error('Erro ao parsear dados do usuario:', e);
       }
@@ -42,10 +43,10 @@ function Home() {
       try {
         const [dadosAvisos, dadosReclamacoes, dadosReservas, dadosEncomendas] =
           await Promise.allSettled([
-            buscarAvisos(),
-            buscarReclamacoes(),
-            buscarReservas(),
-            buscarEncomendas(),
+            buscarAvisosAtivos(),
+            buscarReclamacoesPublicas(),
+            buscarReservasCalendario(),
+            cargoUsuario == 'FUNCIONARIO' ? buscarTodasEncomendas() : buscarMinhasEncomendas(),
           ]);
         
         const listaAvisos =

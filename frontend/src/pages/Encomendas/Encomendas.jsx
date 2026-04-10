@@ -2,12 +2,12 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
 import {
-  buscarEncomendas,
+  buscarTodasEncomendas,
   buscarMinhasEncomendas,
-  buscarMoradores,
-  publicarEncomenda,
+  criarEncomenda,
   atualizarRetiradaEncomenda,
 } from '../../services/encomendasService';
+import{ buscarMoradores } from '../../services/moradoresService';
 import {
   FaBox,
   FaPlus,
@@ -261,7 +261,7 @@ function NovaEncomendaModal({ isOpen, onClose, onSuccess }) {
 
       setEnviando(true);
       try {
-        await publicarEncomenda({
+        await criarEncomenda({
           remetente: remetente.trim(),
           moradorId: Number(moradorId),
         });
@@ -441,7 +441,7 @@ function Encomendas() {
         dados = await buscarMinhasEncomendas();
       } else {
 
-        dados = await buscarEncomendas();
+        dados = await buscarTodasEncomendas();
       }
       
       setEncomendas(dados);

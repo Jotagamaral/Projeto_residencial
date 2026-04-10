@@ -1,18 +1,14 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
-import { buscarReclamacoes, buscarReclamacoesFuncionario } from '../../services/reclamacoeService';
+import { buscarReclamacoesPublicas, buscarReclamacoesAdmin } from '../../services/reclamacoesService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   FaComments,
   FaPlus,
   FaSearch,
-  FaFilter,
   FaUser,
   FaUserSecret,
-  FaClock,
-  FaChevronDown,
-  FaExclamationCircle,
 } from 'react-icons/fa';
 
 function ReclamacoesList({ reclamacoes }) {
@@ -93,10 +89,10 @@ function Reclamacoes() {
       let dados;
       
       if (cargo === 'MORADOR') {
-        dados = await buscarReclamacoes();
+        dados = await buscarReclamacoesPublicas();
       } else {
         // FUNCIONARIO ou ADMIN
-        dados = await buscarReclamacoesFuncionario();
+        dados = await buscarReclamacoesAdmin();
       }
       
       setReclamacoes(dados);

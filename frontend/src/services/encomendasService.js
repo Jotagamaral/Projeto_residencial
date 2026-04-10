@@ -1,58 +1,77 @@
 import api from './api';
 
-export async function buscarEncomendas() {
+const urlEncomendas = '/encomendas';
+
+// ---------------- READ ----------------
+
+export async function buscarTodasEncomendas() {
   try {
-    const response = await api.get(`/Encomenda/todas-encomendas`);
+    const response = await api.get(urlEncomendas);
     return response.data;
   } catch (error) {
-    console.error('[encomendasService.js] Erro ao buscar encomendas:', error);
-    throw error;
+    const mensagemErro = error.response?.data?.message || 'Erro desconhecido ao buscar todas as encomendas.';
+    console.error(`[encomendasService.js] Erro: ${mensagemErro}`);
+    throw new Error(mensagemErro);
   }
 }
 
 export async function buscarMinhasEncomendas() {
   try {
-    const response = await api.get(`/Encomenda/minhas-encomendas`);
+    const response = await api.get(`${urlEncomendas}/minhas`);
     return response.data;
   } catch (error) {
-    console.error('[encomendasService.js] Erro ao buscar encomendas:', error);
-    throw error;
+    const mensagemErro = error.response?.data?.message || 'Erro ao buscar suas encomendas.';
+    console.error(`[encomendasService.js] Erro: ${mensagemErro}`);
+    throw new Error(mensagemErro);
   }
 }
 
-export async function publicarEncomenda(encomendaData) {
+// ---------------- CREATE ----------------
+
+export async function criarEncomenda(encomendaData) {
   try {
-    const response = await api.post(`/Encomenda/criar-encomenda`, encomendaData);
+    const response = await api.post(urlEncomendas, encomendaData);
     return response.data;
   } catch (error) {
-    console.error('[encomendasService.js] Erro ao cadastrar encomenda:', error);
-    throw error;
+    const mensagemErro = error.response?.data?.message || 'Erro ao cadastrar encomenda.';
+    console.error(`[encomendasService.js] Erro: ${mensagemErro}`);
+    throw new Error(mensagemErro);
   }
 }
 
-export async function buscarMoradores() {
+// ---------------- UPDATE ----------------
+
+export async function atualizarEncomenda(id, encomendaData) {
   try {
-    const response = await api.get(`/Morador`);
+    const response = await api.put(`${urlEncomendas}/${id}`, encomendaData);
     return response.data;
   } catch (error) {
-    console.error('[encomendasService.js] Erro ao buscar moradores:', error);
-    throw error;
+    const mensagemErro = error.response?.data?.message || 'Erro ao atualizar dados da encomenda.';
+    console.error(`[encomendasService.js] Erro: ${mensagemErro}`);
+    throw new Error(mensagemErro);
   }
 }
 
-export async function atualizarRetiradaEncomenda(encomendaId, retirada) {
+export async function atualizarRetiradaEncomenda(id, retiradaData) {
   try {
-    const response = await api.patch(
-      `/Encomenda/atualizar-encomenda/${encomendaId}/retirada`,
-      { retirada },
-      { timeout: 30000 }
-    );
+    const response = await api.patch(`${urlEncomendas}/${id}/retirada`, retiradaData, { timeout: 30000 });
     return response.data;
   } catch (error) {
-    console.error(
-      '[encomendasService.js] Erro ao atualizar retirada da encomenda:',
-      error
-    );
-    throw error;
+    const mensagemErro = error.response?.data?.message || 'Erro ao registrar retirada da encomenda.';
+    console.error(`[encomendasService.js] Erro: ${mensagemErro}`);
+    throw new Error(mensagemErro);
+  }
+}
+
+// ---------------- DELETE ----------------
+
+export async function deletarEncomenda(id) {
+  try {
+    const response = await api.delete(`${urlEncomendas}/${id}`);
+    return response.data;
+  } catch (error) {
+    const mensagemErro = error.response?.data?.message || 'Erro ao excluir/inativar encomenda.';
+    console.error(`[encomendasService.js] Erro: ${mensagemErro}`);
+    throw new Error(mensagemErro);
   }
 }

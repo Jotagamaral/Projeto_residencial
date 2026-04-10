@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
 import {
-  buscarLocais,
-  buscarReservas,
-  publicarReserva,
+  buscarReservasCalendario,
+  criarReserva,
 } from '../../services/reservasService';
+import { buscarLocais } from '../../services/locaisService'
 import {
   FaCalendarAlt,
   FaChevronLeft,
@@ -60,7 +60,7 @@ function Reservas() {
       try {
         const [dadosLocais, dadosReservas] = await Promise.all([
           buscarLocais(),
-          buscarReservas(),
+          buscarReservasCalendario(),
         ]);
         setLocais(dadosLocais);
         setReservas(dadosReservas);
@@ -177,8 +177,8 @@ function Reservas() {
       dataFim: dataFim.toISOString(),
     };
     try {
-      await publicarReserva(reservaData);
-      const novasReservas = await buscarReservas();
+      await criarReserva(reservaData);
+      const novasReservas = await buscarReservasCalendario();
       setReservas(novasReservas);
       setDiaSelecionado(null);
       alert('Reserva adicionada!');
