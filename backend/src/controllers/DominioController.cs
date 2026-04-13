@@ -24,6 +24,7 @@ public class DominioController : ControllerBase
     [HttpGet("status/encomendas")]
     [Authorize] // Qualquer logado pode ver para montar filtros no front
     [ProducesResponseType(typeof(IEnumerable<CategoriaStatusDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ListarStatusEncomendas()
     {
         var resultados = await _dominioService.ListarStatusEncomendaAsync();
@@ -36,6 +37,7 @@ public class DominioController : ControllerBase
     [HttpGet("status/reclamacoes")]
     [Authorize]
     [ProducesResponseType(typeof(IEnumerable<CategoriaStatusDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ListarStatusReclamacoes()
     {
         var resultados = await _dominioService.ListarStatusReclamacaoAsync();
@@ -48,6 +50,7 @@ public class DominioController : ControllerBase
     [HttpGet("status/reservas")]
     [Authorize]
     [ProducesResponseType(typeof(IEnumerable<CategoriaStatusDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ListarStatusReservas()
     {
         var resultados = await _dominioService.ListarStatusReservaAsync();

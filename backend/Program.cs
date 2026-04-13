@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
+using StackExchange.Redis;
+
 // Sistema
 using backend.src.context;
 using backend.src.filters;
@@ -154,25 +156,63 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var key = Encoding.ASCII.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false; // Em produção, mude para true
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
-    };
-});
+        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(x =>
+    {
+        x.RequireHttpsMetadata = false; // Em produção, mude para true
+        x.SaveToken = true;
+        x.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddMemoryCache();
+
+// Cache Configs
+var cacheSettings = builder.Configuration.GetSection("CacheSettings");
+bool preferRedis = cacheSettings.GetValue<bool>("PreferRedis");
+
+if (preferRedis)
+{
+    try 
+    {
+        var redisConnString = cacheSettings.GetValue<string>("RedisConnectionString") ?? "localhost:6379";
+
+        var options = ConfigurationOptions.Parse(redisConnString);
+        options.ConnectTimeout = 2000;
+        options.AbortOnConnectFail = true;
+
+        using var connection = ConnectionMultiplexer.Connect(options);
+
+        builder.Services.AddStackExchangeRedisCache(redisOptions =>
+        {
+            redisOptions.Configuration = redisConnString;
+            redisOptions.InstanceName = "CondoSync_";
+        });
+        
+        builder.Services.AddScoped<ICacheService, backend.src.services.DistributedCacheService>();
+        Console.WriteLine("--> [SUCESSO] Cache L2 (Redis) Detectado, Testado e Ativo.");
+    }
+    catch (Exception)
+    {
+        Console.WriteLine("--> [AVISO] Redis Offline. Fazendo fallback seguro para Cache L1 (Memória).");
+        builder.Services.AddScoped<ICacheService, backend.src.services.InMemoryCacheService>();
+    }
+}
+else
+{
+    builder.Services.AddScoped<ICacheService, backend.src.services.InMemoryCacheService>();
+    Console.WriteLine("--> [INFO] Uso do Redis desativado via AppSettings. Cache L1 (Memória) Ativo.");
+}
 
 //? Adição dos Serviços
 
@@ -200,6 +240,10 @@ builder.Services.AddScoped<IEncomendaService, EncomendaService>();
 //*  Avisos
 builder.Services.AddScoped<IAvisoRepository, AvisoRepository>();
 builder.Services.AddScoped<IAvisoService, AvisoService>();
+
+//* Categoria Cargo
+builder.Services.AddScoped<ICategoriaCargoRepository, CategoriaCargoRepository>();
+builder.Services.AddScoped<ICategoriaCargoService, CategoriaCargoService>();
 
 //* RabbitMQ
 builder.Services.AddSingleton<IMessageBusService, RabbitMQService>();
