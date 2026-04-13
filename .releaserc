@@ -5,11 +5,21 @@
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
     "@semantic-release/npm",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "sed -i 's|<Version>.*</Version>|<Version>${nextRelease.version}</Version>|g' backend/backend.csproj"
+      }
+    ],
     "@semantic-release/github",
     [
       "@semantic-release/git",
       {
-        "assets": ["package.json", "CHANGELOG.md"],
+        "assets": [
+          "package.json",
+          "CHANGELOG.md",
+          "backend/backend.csproj"
+        ],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ]

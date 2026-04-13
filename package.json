@@ -1,0 +1,27 @@
+{
+  "name": "projeto_residencial",
+  "version": "1.0.0",
+  "description": "CondoSync – Sistema de Gestão de Condomínio",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jotagamaral/Projeto_residencial.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jotagamaral/Projeto_residencial/issues"
+  },
+  "homepage": "https://github.com/Jotagamaral/Projeto_residencial#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@semantic-release/exec": "^7.1.0",
+    "husky": "^9.1.7"
+  }
+}
