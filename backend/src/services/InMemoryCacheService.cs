@@ -3,14 +3,8 @@ using backend.src.services.interfaces;
 
 namespace backend.src.services;
 
-public class InMemoryCacheService : ICacheService
+public class InMemoryCacheService (IMemoryCache _memoryCache) : ICacheService
 {
-    private readonly IMemoryCache _memoryCache;
-
-    public InMemoryCacheService(IMemoryCache memoryCache)
-    {
-        _memoryCache = memoryCache;
-    }
 
     public Task<T?> GetAsync<T>(string key)
     {

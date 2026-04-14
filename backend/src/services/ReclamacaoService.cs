@@ -8,29 +8,17 @@ using backend.src.exceptions;
 
 namespace backend.src.services;
 
-public class ReclamacaoService : IReclamacaoService
+public class ReclamacaoService(
+    IReclamacaoRepository _reclamacaoRepository,
+    IMoradorRepository  _moradorRepository,
+    AppDbContext _context,
+    ICacheService _cacheService) : IReclamacaoService
 {
-    private readonly IReclamacaoRepository _reclamacaoRepository;
-    private readonly IMoradorRepository _moradorRepository;
-    private readonly AppDbContext _context;
-    private readonly ICacheService _cacheService;
-
     // Chaves de identificação para o armazenamento
     private const string CACHE_KEY_TODAS_RECLAMACOES = "reclamacoes:admin:todas";
     private const string CACHE_KEY_RECLAMACOES_PUBLICAS = "reclamacoes:publicas:todas";
     private static string ObterChaveCacheUsuario(long userId) => $"reclamacoes:usuario:{userId}";
 
-    public ReclamacaoService(
-        IReclamacaoRepository reclamacaoRepository,
-        IMoradorRepository moradorRepository,
-        AppDbContext context,
-        ICacheService cacheService)
-    {
-        _reclamacaoRepository = reclamacaoRepository;
-        _moradorRepository = moradorRepository;
-        _context = context;
-        _cacheService = cacheService;
-    }
 
     // ---------------- Lógica de Invalidação ----------------
 
@@ -53,9 +41,8 @@ public class ReclamacaoService : IReclamacaoService
         var cachedData = await _cacheService.GetAsync<IEnumerable<ReclamacaoResponseDto>>(cacheKey);
         if (cachedData != null) return cachedData;
 
-        var morador = await _moradorRepository.ObterPorIdUserAsync(userId);
-        if (morador == null)
-            throw new UnauthorizedAccessException("Morador não encontrado.");
+        var morador = await _moradorRepository.ObterPorIdUserAsync(userId)
+            ?? throw new UnauthorizedAccessException("Morador não encontrado.");
 
         var reclamacoes = await _reclamacaoRepository.ListarAtivasPorMoradorAsync(morador.Id);
         var resultado = reclamacoes.Select(r => MapearParaDto(r)).ToList();
@@ -96,14 +83,13 @@ public class ReclamacaoService : IReclamacaoService
 
         return resultado;
     }
-    
+
     // ---------------- Lógica do Morador (Com Invalidação) ----------------
 
     public async Task<ReclamacaoResponseDto> CriarReclamacaoAsync(ReclamacaoCreateDto dto, long userId)
     {
-        var morador = await _moradorRepository.ObterPorIdUserAsync(userId);
-        if (morador == null)
-            throw new UnauthorizedAccessException("Apenas moradores podem criar reclamações.");
+        var morador = await _moradorRepository.ObterPorIdUserAsync(userId)
+            ?? throw new UnauthorizedAccessException("Apenas moradores podem criar reclamações.");
 
         var novaReclamacao = new Reclamacao
         {
@@ -125,10 +111,8 @@ public class ReclamacaoService : IReclamacaoService
 
     public async Task<ReclamacaoResponseDto> AtualizarReclamacaoAsync(long id, long userId, ReclamacaoUpdateDto dto)
     {
-        var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id);
-
-        if (reclamacao == null)
-            throw new NotFoundException("Reclamação não encontrada.");
+        var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Reclamação não encontrada.");
 
         if (reclamacao.Morador?.IdUser != userId)
             throw new UnauthorizedAccessException("Você só pode alterar suas próprias reclamações.");
@@ -146,10 +130,8 @@ public class ReclamacaoService : IReclamacaoService
 
     public async Task CancelarReclamacaoAsync(long id, long userId)
     {
-        var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id);
-
-        if (reclamacao == null)
-            throw new NotFoundException("Reclamação não encontrada.");
+        var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Reclamação não encontrada.");
 
         if (reclamacao.Morador?.IdUser != userId)
             throw new UnauthorizedAccessException("Você só pode deletar suas próprias reclamações.");
@@ -164,10 +146,8 @@ public class ReclamacaoService : IReclamacaoService
 
     public async Task<ReclamacaoResponseDto> AtualizarReclamacaoAdminAsync(long id, long adminId, ReclamacaoAdminUpdateDto dto)
     {
-        var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id);
-
-        if (reclamacao == null)
-            throw new NotFoundException("Reclamação não encontrada.");
+        var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Reclamação não encontrada.");
 
         reclamacao.Titulo = dto.Titulo.Trim();
         reclamacao.Descricao = dto.Descricao.Trim();
@@ -183,10 +163,8 @@ public class ReclamacaoService : IReclamacaoService
 
     public async Task CancelarReclamacaoAdminAsync(long id, long adminId)
     {
-        var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id);
-        
-        if (reclamacao == null)
-            throw new NotFoundException("Reclamação não encontrada.");
+        var reclamacao = await _reclamacaoRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Reclamação não encontrada.");
 
         await _reclamacaoRepository.DeletarAsync(reclamacao);
         await _context.SaveChangesAsync();

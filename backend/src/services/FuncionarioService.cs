@@ -5,25 +5,14 @@ using backend.src.services.interfaces;
 
 namespace backend.src.services;
 
-public class FuncionarioService : IFuncionarioService
+public class FuncionarioService(
+    IFuncionarioRepository _funcionarioRepository,
+    ICategoriaCargoRepository _categoriaCargoRepository,
+    ICacheService _cacheService) : IFuncionarioService
 {
-    private readonly IFuncionarioRepository _funcionarioRepository;
-    private readonly ICategoriaCargoRepository _categoriaCargoRepository;
-    private readonly ICacheService _cacheService;
-
     // Chaves de identificação para o armazenamento
     private const string CACHE_KEY_TODOS_FUNCIONARIOS = "funcionarios:ativos:todos";
     private static string ObterChaveCacheFuncionario(long id) => $"funcionarios:detalhe:{id}";
-
-    public FuncionarioService(
-        IFuncionarioRepository funcionarioRepository,
-        ICategoriaCargoRepository categoriaCargoRepository,
-        ICacheService cacheService)
-    {
-        _funcionarioRepository = funcionarioRepository;
-        _categoriaCargoRepository = categoriaCargoRepository;
-        _cacheService = cacheService;
-    }
 
     // ---------------- Lógica de Invalidação ----------------
 
@@ -68,9 +57,8 @@ public class FuncionarioService : IFuncionarioService
         var cachedData = await _cacheService.GetAsync<FuncionarioResponseDto>(cacheKey);
         if (cachedData != null) return cachedData;
 
-        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id);
-        if (funcionario == null)
-            throw new NotFoundException("Funcionário não encontrado.");
+        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Funcionário não encontrado.");
 
         var resultado = new FuncionarioResponseDto
         {
@@ -91,13 +79,11 @@ public class FuncionarioService : IFuncionarioService
 
     public async Task<FuncionarioResponseDto> AtualizarFuncionarioAsync(long id, FuncionarioUpdateDto dto)
     {
-        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id);
-        if (funcionario == null)
-            throw new NotFoundException("Funcionário não encontrado.");
+        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Funcionário não encontrado.");
 
-        var novoCargo = await _categoriaCargoRepository.ObterPorIdAsync(dto.CargoId);
-        if (novoCargo == null)
-            throw new BusinessRuleException("A categoria de cargo informada não existe ou está inativa.");
+        var novoCargo = await _categoriaCargoRepository.ObterPorIdAsync(dto.CargoId)
+            ?? throw new BusinessRuleException("A categoria de cargo informada não existe ou está inativa.");
 
         // Atualiza a FK
         funcionario.IdCategoriaCargo = dto.CargoId;
@@ -121,9 +107,8 @@ public class FuncionarioService : IFuncionarioService
 
     public async Task DeletarFuncionarioAsync(long id)
     {
-        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id);
-        if (funcionario == null)
-            throw new NotFoundException("Funcionário não encontrado.");
+        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Funcionário não encontrado.");
 
         funcionario.Ativo = false;
         

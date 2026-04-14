@@ -7,84 +7,73 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using backend.src.context;
 
-namespace backend.src.services
+namespace backend.src.services;
+public class AuthService(IConfiguration _configuration, AppDbContext _context) : IAuthService
 {
-    public class AuthService : IAuthService
+
+    public async Task<LoginResponseDTO> AutenticarAsync(LoginDto dto)
     {
-        private readonly IConfiguration _configuration;
-        private readonly AppDbContext _context; 
+        var cpfLimpo = dto.Cpf.Trim();
 
-        public AuthService(IConfiguration configuration, AppDbContext context)
+        var usuario = await _context.Usuario
+            .Include(u => u.Categoria) 
+            .FirstOrDefaultAsync(u => u.Cpf == cpfLimpo && u.Ativo);
+
+        if (usuario == null || !BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.Senha))
         {
-            _configuration = configuration;
-            _context = context;
+            throw new UnauthorizedAccessException("CPF ou senha inválidos.");
         }
 
-        public async Task<LoginResponseDTO> AutenticarAsync(LoginDto dto)
+        // Dados retornados do Banco
+        var idUsuario = usuario.Id;
+        var emailUsuario = usuario.Email;
+        var nomeUsuario = usuario.Nome; 
+        var cpfUsuario = usuario.Cpf;
+        
+        // Role de Categoria Acesso
+        var roleDoUsuario = usuario.Categoria?.CategoriaAcessoNome ?? "Null"; 
+
+        // Criar as Claims (Dados embutidos no token)
+        List<Claim> claims = [
+            new(ClaimTypes.NameIdentifier, idUsuario.ToString()),
+            new(ClaimTypes.Email, emailUsuario),
+            new(ClaimTypes.Role, roleDoUsuario)
+        ];
+
+        // Gerar a chave e o token
+        var jwtSettings = _configuration.GetSection("JwtSettings");
+        
+        var secret = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret não configurada.");
+        var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+        var expirationMinutes = double.TryParse(jwtSettings["ExpirationInMinutes"], out var exp) ? exp : 60;
+
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            var cpfLimpo = dto.Cpf.Trim();
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
+            Issuer = jwtSettings["Issuer"],
+            Audience = jwtSettings["Audience"],
+            SigningCredentials = creds
+        };
 
-            var usuario = await _context.Usuario
-                .Include(u => u.Categoria) 
-                .FirstOrDefaultAsync(u => u.Cpf == cpfLimpo && u.Ativo);
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var tokenString = tokenHandler.WriteToken(token);
 
-            if (usuario == null || !BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.Senha))
+        // Retornar o DTO
+        return new LoginResponseDTO
+        {
+            Message = "Login realizado com sucesso.",
+            Token = tokenString,
+            User = new UserResponseDTO
             {
-                throw new UnauthorizedAccessException("CPF ou senha inválidos.");
+                Id = usuario.Id,
+                Nome = usuario.Nome,
+                Cpf = usuario.Cpf,
+                Categoria = roleDoUsuario
             }
-
-            // Dados retornados do Banco
-            var idUsuario = usuario.Id;
-            var emailUsuario = usuario.Email;
-            var nomeUsuario = usuario.Nome; 
-            var cpfUsuario = usuario.Cpf;
-            
-            // Role de Categoria Acesso
-            var roleDoUsuario = usuario.Categoria?.CategoriaAcessoNome ?? "Null"; 
-
-            // Criar as Claims (Dados embutidos no token)
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, idUsuario.ToString()),
-                new Claim(ClaimTypes.Email, emailUsuario),
-                new Claim(ClaimTypes.Role, roleDoUsuario) 
-            };
-
-            // Gerar a chave e o token
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            
-            var secret = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret não configurada.");
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-
-            var expirationMinutes = double.TryParse(jwtSettings["ExpirationInMinutes"], out var exp) ? exp : 60;
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
-                Issuer = jwtSettings["Issuer"],
-                Audience = jwtSettings["Audience"],
-                SigningCredentials = creds
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-
-            // Retornar o DTO
-            return new LoginResponseDTO
-            {
-                Message = "Login realizado com sucesso.",
-                Token = tokenString,
-                User = new UserResponseDTO
-                {
-                    Id = idUsuario,
-                    Nome = nomeUsuario,
-                    Cpf = cpfUsuario,
-                    Categoria = roleDoUsuario
-                }
-            };
-        }
+        };
     }
 }

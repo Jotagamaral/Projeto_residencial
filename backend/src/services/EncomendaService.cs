@@ -8,32 +8,17 @@ using backend.src.exceptions;
 
 namespace backend.src.services;
 
-public class EncomendaService : IEncomendaService
+public class EncomendaService(
+    IEncomendaRepository _encomendaRepository,
+    IMoradorRepository _moradorRepository,
+    IFuncionarioRepository _funcionarioRepository,
+    AppDbContext _context,
+    ICacheService _cacheService) : IEncomendaService
 {
-    private readonly IEncomendaRepository _encomendaRepository;
-    private readonly IMoradorRepository _moradorRepository;
-    private readonly IFuncionarioRepository _funcionarioRepository;
-    private readonly AppDbContext _context;
-    private readonly ICacheService _cacheService;
-
     // Chaves de identificação estruturadas para o cache
     private const string CACHE_KEY_TODAS_ENCOMENDAS = "encomendas:ativas:todas";
     private static string ObterChaveCacheMorador(long idMorador) => $"encomendas:morador:{idMorador}";
-
-    public EncomendaService(
-        IEncomendaRepository encomendaRepository,
-        IMoradorRepository moradorRepository,
-        IFuncionarioRepository funcionarioRepository,
-        AppDbContext context,
-        ICacheService cacheService)
-    {
-        _encomendaRepository = encomendaRepository;
-        _moradorRepository = moradorRepository;
-        _funcionarioRepository = funcionarioRepository;
-        _context = context;
-        _cacheService = cacheService;
-    }
-
+    
     // ---------------- Lógica de Invalidação ----------------
 
     private async Task InvalidarCachesAfetadosAsync(long? idMorador = null)
@@ -50,9 +35,8 @@ public class EncomendaService : IEncomendaService
     
     public async Task<EncomendaResponseDto> CriarEncomendaAsync(EncomendaCreateDto dto, long operadorId)
     {
-        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
-        if (funcionario == null)
-            throw new UnauthorizedAccessException("Apenas operadores válidos podem registrar encomendas.");
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId)
+            ?? throw new UnauthorizedAccessException("Apenas operadores válidos podem registrar encomendas.");
 
         if (string.IsNullOrWhiteSpace(dto.Remetente))
             throw new BusinessRuleException("O remetente é obrigatório para registrar a encomenda.");
@@ -115,9 +99,8 @@ public class EncomendaService : IEncomendaService
 
     public async Task<IEnumerable<EncomendaResponseDto>> ListarMinhasEncomendasAsync(long userId)
     {
-        var morador = await _moradorRepository.ObterPorIdUserAsync(userId);
-        if (morador == null)
-            throw new UnauthorizedAccessException("Perfil de morador não encontrado.");
+        var morador = await _moradorRepository.ObterPorIdUserAsync(userId)
+            ?? throw new UnauthorizedAccessException("Perfil de morador não encontrado.");
 
         string cacheKey = ObterChaveCacheMorador(morador.Id);
         var cachedData = await _cacheService.GetAsync<IEnumerable<EncomendaResponseDto>>(cacheKey);
@@ -148,14 +131,11 @@ public class EncomendaService : IEncomendaService
     
     public async Task<EncomendaResponseDto> AtualizarEncomendaAsync(long id, EncomendaUpdateDto dto, long operadorId)
     {
-        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
-        if (funcionario == null)
-            throw new UnauthorizedAccessException("Operador inválido.");
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId)
+            ?? throw new UnauthorizedAccessException("Operador inválido.");
 
-        var encomenda = await _encomendaRepository.ObterPorIdAsync(id);
-
-        if (encomenda == null)
-            throw new NotFoundException("A encomenda solicitada não foi encontrada.");
+        var encomenda = await _encomendaRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("A encomenda solicitada não foi encontrada.");
 
         encomenda.IdCategoriaEncomenda = dto.IdCategoriaEncomenda;
         
@@ -187,14 +167,11 @@ public class EncomendaService : IEncomendaService
 
     public async Task<EncomendaResponseDto> AtualizarRetiradaAsync(long id, bool retirada, long operadorId)
     {
-        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
-        if (funcionario == null)
-            throw new UnauthorizedAccessException("Operador inválido.");
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId)
+            ?? throw new UnauthorizedAccessException("Operador inválido.");
 
-        var encomenda = await _encomendaRepository.ObterPorIdAsync(id);
-
-        if (encomenda == null)
-            throw new NotFoundException("A encomenda solicitada não foi encontrada.");
+        var encomenda = await _encomendaRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("A encomenda solicitada não foi encontrada.");
 
         encomenda.IdCategoriaEncomenda = retirada
             ? CategoriaEncomendaConstants.ENTREGUE_ID
@@ -230,14 +207,11 @@ public class EncomendaService : IEncomendaService
     
     public async Task CancelarEncomendaAsync(long id, long operadorId)
     {
-        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
-        if (funcionario == null)
-            throw new UnauthorizedAccessException("Operador inválido.");
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId)
+            ?? throw new UnauthorizedAccessException("Operador inválido.");
 
-        var encomenda = await _encomendaRepository.ObterPorIdAsync(id);
-        
-        if (encomenda == null)
-            throw new NotFoundException("A encomenda que você tentou cancelar não existe.");
+        var encomenda = await _encomendaRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("A encomenda que você tentou cancelar não existe.");
 
         await _encomendaRepository.DeletarAsync(encomenda);
         await _context.SaveChangesAsync();

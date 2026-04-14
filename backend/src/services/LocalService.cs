@@ -7,22 +7,14 @@ using backend.src.services.interfaces;
 
 namespace backend.src.services;
 
-public class LocalService : ILocalService
+public class LocalService(
+    ILocalRepository _localRepository,
+    ICacheService _cacheService): ILocalService
 {
-    private readonly ILocalRepository _localRepository;
-    private readonly ICacheService _cacheService;
 
     // Chaves de identificação estruturadas
     private const string CACHE_KEY_TODOS_LOCAIS = "locais:ativos:todos";
     private static string ObterChaveCacheLocal(long id) => $"locais:detalhe:{id}";
-
-    public LocalService(
-        ILocalRepository localRepository,
-        ICacheService cacheService)
-    {
-        _localRepository = localRepository;
-        _cacheService = cacheService;
-    }
 
     // ---------------- Lógica de Invalidação ----------------
 
@@ -89,10 +81,8 @@ public class LocalService : ILocalService
         var cachedData = await _cacheService.GetAsync<LocalResponseDto>(cacheKey);
         if (cachedData != null) return cachedData;
 
-        var local = await _localRepository.ObterPorIdAsync(id);
-        
-        if (local == null)
-            throw new NotFoundException("Local não encontrado.");
+        var local = await _localRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Local não encontrado.");
 
         var resultado = new LocalResponseDto 
         { 
@@ -110,9 +100,8 @@ public class LocalService : ILocalService
 
     public async Task<LocalResponseDto> AtualizarLocalAsync(long id, LocalUpdateDto dto)
     {
-        var local = await _localRepository.ObterPorIdAsync(id);
-        if (local == null)
-            throw new NotFoundException("Local não encontrado.");
+        var local = await _localRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Local não encontrado.");
 
         var nomeFormatado = dto.Nome.Trim();
         var nomeEmUso = await _localRepository.VerificarNomeEmUsoAsync(nomeFormatado, id);
@@ -134,9 +123,8 @@ public class LocalService : ILocalService
 
     public async Task DeletarLocalAsync(long id)
     {
-        var local = await _localRepository.ObterPorIdAsync(id);
-        if (local == null)
-            throw new NotFoundException("Local não encontrado.");
+        var local = await _localRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Local não encontrado.");
 
         var possuiReservas = await _localRepository.PossuiReservasFuturasAsync(id);
         if (possuiReservas)
