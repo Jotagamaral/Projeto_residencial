@@ -11,30 +11,50 @@ namespace backend.src.services;
 public class EncomendaService : IEncomendaService
 {
     private readonly IEncomendaRepository _encomendaRepository;
-     private readonly IMoradorRepository _moradorRepository;
+    private readonly IMoradorRepository _moradorRepository;
     private readonly IFuncionarioRepository _funcionarioRepository;
     private readonly AppDbContext _context;
+    private readonly ICacheService _cacheService;
+
+    // Chaves de identificação estruturadas para o cache
+    private const string CACHE_KEY_TODAS_ENCOMENDAS = "encomendas:ativas:todas";
+    private static string ObterChaveCacheMorador(long idMorador) => $"encomendas:morador:{idMorador}";
 
     public EncomendaService(
         IEncomendaRepository encomendaRepository,
         IMoradorRepository moradorRepository,
         IFuncionarioRepository funcionarioRepository,
-        AppDbContext context)
+        AppDbContext context,
+        ICacheService cacheService)
     {
         _encomendaRepository = encomendaRepository;
         _moradorRepository = moradorRepository;
         _funcionarioRepository = funcionarioRepository;
         _context = context;
+        _cacheService = cacheService;
+    }
+
+    // ---------------- Lógica de Invalidação ----------------
+
+    private async Task InvalidarCachesAfetadosAsync(long? idMorador = null)
+    {
+        await _cacheService.RemoveAsync(CACHE_KEY_TODAS_ENCOMENDAS);
+        
+        if (idMorador.HasValue)
+        {
+            await _cacheService.RemoveAsync(ObterChaveCacheMorador(idMorador.Value));
+        }
     }
 
     // --------------------------- CREATE ---------------------------
+    
     public async Task<EncomendaResponseDto> CriarEncomendaAsync(EncomendaCreateDto dto, long operadorId)
     {
         var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
         if (funcionario == null)
             throw new UnauthorizedAccessException("Apenas operadores válidos podem registrar encomendas.");
 
-       if (string.IsNullOrWhiteSpace(dto.Remetente))
+        if (string.IsNullOrWhiteSpace(dto.Remetente))
             throw new BusinessRuleException("O remetente é obrigatório para registrar a encomenda.");
 
         var novaEncomenda = new Encomenda
@@ -51,6 +71,8 @@ public class EncomendaService : IEncomendaService
         await _encomendaRepository.AdicionarAsync(novaEncomenda);
         await _context.SaveChangesAsync();
 
+        await InvalidarCachesAfetadosAsync(novaEncomenda.IdMorador);
+
         return new EncomendaResponseDto
         {
             Id = novaEncomenda.Id,
@@ -64,10 +86,15 @@ public class EncomendaService : IEncomendaService
     }
 
     // --------------------------- READ ---------------------------
+    
     public async Task<IEnumerable<EncomendaResponseDto>> ListarEncomendasAsync()
     {
+        var cachedData = await _cacheService.GetAsync<IEnumerable<EncomendaResponseDto>>(CACHE_KEY_TODAS_ENCOMENDAS);
+        if (cachedData != null) return cachedData;
+
         var encomendas = await _encomendaRepository.ListarAtivasAsync();
-        return encomendas.Select(e => new EncomendaResponseDto
+        
+        var resultado = encomendas.Select(e => new EncomendaResponseDto
         {
             Id = e.Id,
             Remetente = e.Remetente,
@@ -79,7 +106,11 @@ public class EncomendaService : IEncomendaService
             DataRecebido = e.DataRecebido,
             DataRetirado = e.DataRetirado,
             Status = e.Categoria?.Nome ?? CategoriaEncomendaConstants.PENDENTE_STRING
-        });
+        }).ToList();
+
+        await _cacheService.SetAsync(CACHE_KEY_TODAS_ENCOMENDAS, resultado, TimeSpan.FromHours(8));
+
+        return resultado;
     }
 
     public async Task<IEnumerable<EncomendaResponseDto>> ListarMinhasEncomendasAsync(long userId)
@@ -88,10 +119,13 @@ public class EncomendaService : IEncomendaService
         if (morador == null)
             throw new UnauthorizedAccessException("Perfil de morador não encontrado.");
 
-        // Buscar as encomendas 
+        string cacheKey = ObterChaveCacheMorador(morador.Id);
+        var cachedData = await _cacheService.GetAsync<IEnumerable<EncomendaResponseDto>>(cacheKey);
+        if (cachedData != null) return cachedData;
+
         var encomendas = await _encomendaRepository.ListarPorMoradorAsync(morador.Id);
 
-        return encomendas.Select(e => new EncomendaResponseDto
+        var resultado = encomendas.Select(e => new EncomendaResponseDto
         {
             Id = e.Id,
             Remetente = e.Remetente,
@@ -103,10 +137,15 @@ public class EncomendaService : IEncomendaService
             DataRecebido = e.DataRecebido,
             DataRetirado = e.DataRetirado,
             Status = e.Categoria?.Nome ?? "Pendente"
-        });
+        }).ToList();
+
+        await _cacheService.SetAsync(cacheKey, resultado, TimeSpan.FromHours(8));
+
+        return resultado;
     }
 
     // --------------------------- UPDATE ---------------------------
+    
     public async Task<EncomendaResponseDto> AtualizarEncomendaAsync(long id, EncomendaUpdateDto dto, long operadorId)
     {
         var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
@@ -126,9 +165,10 @@ public class EncomendaService : IEncomendaService
         if (dto.DataRetirado.HasValue)
             encomenda.DataRetirado = dto.DataRetirado.Value.ToUniversalTime();
 
-
         await _encomendaRepository.AtualizarAsync(encomenda);
         await _context.SaveChangesAsync();
+
+        await InvalidarCachesAfetadosAsync(encomenda.IdMorador);
 
         return new EncomendaResponseDto
         {
@@ -167,6 +207,8 @@ public class EncomendaService : IEncomendaService
         await _encomendaRepository.AtualizarAsync(encomenda);
         await _context.SaveChangesAsync();
 
+        await InvalidarCachesAfetadosAsync(encomenda.IdMorador);
+
         return new EncomendaResponseDto
         {
             Id = encomenda.Id,
@@ -185,6 +227,7 @@ public class EncomendaService : IEncomendaService
     }
 
     // --------------------------- DELETE ---------------------------
+    
     public async Task CancelarEncomendaAsync(long id, long operadorId)
     {
         var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(operadorId);
@@ -198,5 +241,7 @@ public class EncomendaService : IEncomendaService
 
         await _encomendaRepository.DeletarAsync(encomenda);
         await _context.SaveChangesAsync();
+
+        await InvalidarCachesAfetadosAsync(encomenda.IdMorador);
     }
 }
