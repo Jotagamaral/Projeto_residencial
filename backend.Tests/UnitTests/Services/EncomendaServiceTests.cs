@@ -1,6 +1,7 @@
 using NSubstitute;
 using FluentAssertions;
 using backend.src.services;
+using backend.src.services.interfaces;
 using backend.src.repositories.interfaces;
 using backend.src.dtos.Encomenda;
 using backend.src.models;
@@ -16,6 +17,7 @@ public class EncomendaServiceTests : TestBase
     private readonly IEncomendaRepository _encomendaRepo;
     private readonly IMoradorRepository _moradorRepo;
     private readonly IFuncionarioRepository _funcionarioRepo;
+    private readonly ICacheService _cacheService;
     private readonly AppDbContext _context;
     private readonly EncomendaService _service;
 
@@ -24,6 +26,7 @@ public class EncomendaServiceTests : TestBase
         _encomendaRepo = Substitute.For<IEncomendaRepository>();
         _moradorRepo = Substitute.For<IMoradorRepository>();
         _funcionarioRepo = Substitute.For<IFuncionarioRepository>();
+        _cacheService = Substitute.For<ICacheService>();
 
         // Configuração do Banco em Memória
         var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -31,7 +34,7 @@ public class EncomendaServiceTests : TestBase
             .Options;
         _context = new AppDbContext(options);
 
-        _service = new EncomendaService(_encomendaRepo, _moradorRepo, _funcionarioRepo, _context);
+        _service = new EncomendaService(_encomendaRepo, _moradorRepo, _funcionarioRepo, _context, _cacheService);
     }
 
     // --------------------------- CREATE TESTS ---------------------------
@@ -137,6 +140,9 @@ public class EncomendaServiceTests : TestBase
         {
             new Encomenda { Id = 1, Remetente = "Amazon", IdMorador = 5, Morador = moradorFake }
         };
+
+        _cacheService.GetAsync<IEnumerable<EncomendaResponseDto>>(Arg.Any<string>())
+        .Returns((IEnumerable<EncomendaResponseDto>)null!);
 
         _moradorRepo.ObterPorIdUserAsync(userId).Returns(moradorFake);
         _encomendaRepo.ListarPorMoradorAsync(moradorFake.Id).Returns(encomendasFakes);
