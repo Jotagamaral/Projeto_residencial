@@ -7,34 +7,21 @@ using backend.src.services.interfaces;
 
 namespace backend.src.services;
 
-public class CategoriaCargoService : ICategoriaCargoService
+public class CategoriaCargoService(
+    ICategoriaCargoRepository _categoriaCargoRepository,
+    IFuncionarioRepository _funcionarioRepository,
+    ICacheService _cacheService) : ICategoriaCargoService
 {
-    private readonly ICategoriaCargoRepository _categoriaCargoRepository;
-    private readonly IFuncionarioRepository _funcionarioRepository;
-    private readonly ICacheService _cacheService;
-
     // Chaves de identificação estruturadas para o cache
     private const string CACHE_KEY_TODOS_CARGOS = "categoria_cargo:ativas:todas";
     private string ObterChaveCacheCargo(long id) => $"categoria_cargo:detalhe:{id}";
-
-    public CategoriaCargoService(
-        ICategoriaCargoRepository categoriaCargoRepository,
-        IFuncionarioRepository funcionarioRepository,
-        ICacheService cacheService)
-    {
-        _categoriaCargoRepository = categoriaCargoRepository;
-        _funcionarioRepository = funcionarioRepository;
-        _cacheService = cacheService;
-    }
 
     // ---------------- Lógica de Invalidação ----------------
 
     private async Task InvalidarCachesAfetadosAsync(long? idCargo = null)
     {
-        // Remove a lista global sempre que um cargo for criado, editado ou excluído
         await _cacheService.RemoveAsync(CACHE_KEY_TODOS_CARGOS);
 
-        // Remove o cache individual daquele cargo específico
         if (idCargo.HasValue)
         {
             await _cacheService.RemoveAsync(ObterChaveCacheCargo(idCargo.Value));
@@ -63,7 +50,7 @@ public class CategoriaCargoService : ICategoriaCargoService
 
         await _categoriaCargoRepository.AdicionarAsync(novoCargo);
 
-        // Invalida apenas a lista global (o ID individual ainda não estava em cache)
+        // Invalida apenas a lista global
         await InvalidarCachesAfetadosAsync();
 
         return new CategoriaCargoResponseDto { Id = novoCargo.Id, Nome = novoCargo.Nome };
@@ -82,7 +69,7 @@ public class CategoriaCargoService : ICategoriaCargoService
         { 
             Id = c.Id, 
             Nome = c.Nome 
-        }).ToList(); // Materialização para serialização
+        }).ToList();
 
         await _cacheService.SetAsync(CACHE_KEY_TODOS_CARGOS, resultado, TimeSpan.FromHours(24));
 
@@ -95,10 +82,8 @@ public class CategoriaCargoService : ICategoriaCargoService
         var cachedData = await _cacheService.GetAsync<CategoriaCargoResponseDto>(cacheKey);
         if (cachedData != null) return cachedData;
 
-        var cargo = await _categoriaCargoRepository.ObterPorIdAsync(id);
-
-        if (cargo == null)
-            throw new NotFoundException("Categoria de cargo não encontrada.");
+        var cargo = await _categoriaCargoRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Categoria de cargo não encontrada.");
 
         var resultado = new CategoriaCargoResponseDto { Id = cargo.Id, Nome = cargo.Nome };
 
@@ -116,10 +101,8 @@ public class CategoriaCargoService : ICategoriaCargoService
 
         var nomeFormatado = dto.Nome.Trim();
 
-        var cargo = await _categoriaCargoRepository.ObterPorIdAsync(id);
-        
-        if (cargo == null)
-            throw new NotFoundException("Categoria de cargo não encontrada.");
+        var cargo = await _categoriaCargoRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Categoria de cargo não encontrada.");
 
         var nomeEmUso = await _categoriaCargoRepository.VerificarNomeEmUsoAsync(nomeFormatado, id);
 
@@ -140,10 +123,8 @@ public class CategoriaCargoService : ICategoriaCargoService
 
     public async Task<bool> DeletarCargoAsync(long id)
     {
-        var cargo = await _categoriaCargoRepository.ObterPorIdAsync(id);
-        
-        if (cargo == null)
-            throw new NotFoundException("Categoria de cargo não encontrada.");
+        var cargo = await _categoriaCargoRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Categoria de cargo não encontrada.");
 
         var possuiFuncionariosVinculados = await _funcionarioRepository.ExisteFuncionarioComCargoAsync(id);
 

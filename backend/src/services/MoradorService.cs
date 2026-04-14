@@ -5,22 +5,14 @@ using backend.src.services.interfaces;
 
 namespace backend.src.services;
 
-public class MoradorService : IMoradorService
+public class MoradorService(
+    IMoradorRepository _moradorRepository, 
+    ICacheService _cacheService) : IMoradorService
 {
-    private readonly IMoradorRepository _moradorRepository;
-    private readonly ICacheService _cacheService;
 
     // Chaves de identificação estruturadas para o cache
     private const string CACHE_KEY_TODOS_MORADORES = "moradores:ativos:todos";
     private static string ObterChaveCacheMorador(long id) => $"moradores:detalhe:{id}";
-
-    public MoradorService(
-        IMoradorRepository moradorRepository, 
-        ICacheService cacheService)
-    {
-        _moradorRepository = moradorRepository;
-        _cacheService = cacheService;
-    }
 
     // ---------------- Lógica de Invalidação ----------------
 

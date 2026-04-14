@@ -7,25 +7,14 @@ using backend.src.services.interfaces;
 
 namespace backend.src.services;
 
-public class AvisoService : IAvisoService
+public class AvisoService(
+    IAvisoRepository _avisoRepository, 
+    AppDbContext _context,
+    ICacheService _cacheService) : IAvisoService
 {
-    private readonly IAvisoRepository _avisoRepository;
-    private readonly AppDbContext _context;
-    private readonly ICacheService _cacheService;
-
     // Nomenclatura hierárquica baseada em namespaces
     private const string CACHE_KEY_AVISOS_ATIVOS = "aviso:ativos:todos";
     private const string CACHE_KEY_AVISOS_GESTAO = "aviso:gestao:todos";
-
-    public AvisoService(
-        IAvisoRepository avisoRepository, 
-        AppDbContext context,
-        ICacheService cacheService)
-    {
-        _avisoRepository = avisoRepository;
-        _context = context;
-        _cacheService = cacheService;
-    }
 
     // ---------------- Lógica de Invalidação ----------------
 
@@ -99,9 +88,8 @@ public class AvisoService : IAvisoService
 
     public async Task<AvisoResponseDto> AtualizarAsync(long id, AvisoUpdateDto dto)
     {
-        var aviso = await _avisoRepository.ObterPorIdTrackedAsync(id);
-        if (aviso == null)
-            throw new NotFoundException("Aviso não encontrado.");
+        var aviso = await _avisoRepository.ObterPorIdTrackedAsync(id)
+            ?? throw new NotFoundException("Aviso não encontrado.");
 
         var diaExpiracao = dto.DataExpiracao.Kind == DateTimeKind.Unspecified
             ? DateTime.SpecifyKind(dto.DataExpiracao.Date, DateTimeKind.Utc)
@@ -126,9 +114,8 @@ public class AvisoService : IAvisoService
 
     public async Task<AvisoResponseDto> DefinirAtivoAsync(long id, bool ativo)
     {
-        var aviso = await _avisoRepository.ObterPorIdTrackedAsync(id);
-        if (aviso == null)
-            throw new NotFoundException("Aviso não encontrado.");
+        var aviso = await _avisoRepository.ObterPorIdTrackedAsync(id)
+            ?? throw new NotFoundException("Aviso não encontrado.");
 
         aviso.Ativo = ativo;
         await _context.SaveChangesAsync();

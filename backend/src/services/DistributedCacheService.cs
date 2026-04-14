@@ -4,14 +4,8 @@ using backend.src.services.interfaces;
 
 namespace backend.src.services;
 
-public class DistributedCacheService : ICacheService
+public class DistributedCacheService(IDistributedCache _distributedCache) : ICacheService
 {
-    private readonly IDistributedCache _distributedCache;
-
-    public DistributedCacheService(IDistributedCache distributedCache)
-    {
-        _distributedCache = distributedCache;
-    }
 
     public async Task<T?> GetAsync<T>(string key)
     {
