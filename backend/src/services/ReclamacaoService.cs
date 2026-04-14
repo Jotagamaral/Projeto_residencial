@@ -13,50 +13,91 @@ public class ReclamacaoService : IReclamacaoService
     private readonly IReclamacaoRepository _reclamacaoRepository;
     private readonly IMoradorRepository _moradorRepository;
     private readonly AppDbContext _context;
+    private readonly ICacheService _cacheService;
+
+    // Chaves de identificação para o armazenamento
+    private const string CACHE_KEY_TODAS_RECLAMACOES = "reclamacoes:admin:todas";
+    private const string CACHE_KEY_RECLAMACOES_PUBLICAS = "reclamacoes:publicas:todas";
+    private static string ObterChaveCacheUsuario(long userId) => $"reclamacoes:usuario:{userId}";
 
     public ReclamacaoService(
         IReclamacaoRepository reclamacaoRepository,
         IMoradorRepository moradorRepository,
-        AppDbContext context)
+        AppDbContext context,
+        ICacheService cacheService)
     {
         _reclamacaoRepository = reclamacaoRepository;
         _moradorRepository = moradorRepository;
         _context = context;
+        _cacheService = cacheService;
     }
 
-    // ---------------- Lógica de Leitura ----------------
+    // ---------------- Lógica de Invalidação ----------------
+
+    private async Task InvalidarCachesAfetadosAsync(long? userIdLogado = null)
+    {
+        await _cacheService.RemoveAsync(CACHE_KEY_TODAS_RECLAMACOES);
+        await _cacheService.RemoveAsync(CACHE_KEY_RECLAMACOES_PUBLICAS);
+
+        if (userIdLogado.HasValue)
+        {
+            await _cacheService.RemoveAsync(ObterChaveCacheUsuario(userIdLogado.Value));
+        }
+    }
+
+    // ---------------- Lógica de Leitura (Com Cache) ----------------
 
     public async Task<IEnumerable<ReclamacaoResponseDto>> ListarMinhasReclamacoesAsync(long userId)
     {
+        string cacheKey = ObterChaveCacheUsuario(userId);
+        var cachedData = await _cacheService.GetAsync<IEnumerable<ReclamacaoResponseDto>>(cacheKey);
+        if (cachedData != null) return cachedData;
+
         var morador = await _moradorRepository.ObterPorIdUserAsync(userId);
         if (morador == null)
             throw new UnauthorizedAccessException("Morador não encontrado.");
 
         var reclamacoes = await _reclamacaoRepository.ListarAtivasPorMoradorAsync(morador.Id);
-        
-        return reclamacoes.Select(r => MapearParaDto(r));
+        var resultado = reclamacoes.Select(r => MapearParaDto(r)).ToList();
+
+        await _cacheService.SetAsync(cacheKey, resultado, TimeSpan.FromHours(12));
+
+        return resultado;
     }
 
     public async Task<IEnumerable<ReclamacaoResponseDto>> ListarTodasReclamacoesAsync()
     {
+        var cachedData = await _cacheService.GetAsync<IEnumerable<ReclamacaoResponseDto>>(CACHE_KEY_TODAS_RECLAMACOES);
+        if (cachedData != null) return cachedData;
+
         var reclamacoes = await _reclamacaoRepository.ListarTodasAtivasAsync();
-        return reclamacoes.Select(r => MapearParaDto(r));
+        var resultado = reclamacoes.Select(r => MapearParaDto(r)).ToList();
+
+        await _cacheService.SetAsync(CACHE_KEY_TODAS_RECLAMACOES, resultado, TimeSpan.FromHours(12));
+
+        return resultado;
     }
 
     public async Task<IEnumerable<ReclamacaoPublicaDto>> ListarTodasReclamacoesPublicasAsync()
-{
-    var reclamacoes = await _reclamacaoRepository.ListarTodasAtivasAsync();
-    
-    return reclamacoes.Select(r => new ReclamacaoPublicaDto
     {
-        Id = r.Id,
-        Titulo = r.Titulo,
-        Descricao = r.Descricao,
-        Status = r.Categoria?.Nome ?? "Status Indefinido"
-    });
-}
+        var cachedData = await _cacheService.GetAsync<IEnumerable<ReclamacaoPublicaDto>>(CACHE_KEY_RECLAMACOES_PUBLICAS);
+        if (cachedData != null) return cachedData;
+
+        var reclamacoes = await _reclamacaoRepository.ListarTodasAtivasAsync();
+        var resultado = reclamacoes.Select(r => new ReclamacaoPublicaDto
+        {
+            Id = r.Id,
+            Titulo = r.Titulo,
+            Descricao = r.Descricao,
+            Status = r.Categoria?.Nome ?? "Status Indefinido"
+        }).ToList();
+
+        await _cacheService.SetAsync(CACHE_KEY_RECLAMACOES_PUBLICAS, resultado, TimeSpan.FromHours(12));
+
+        return resultado;
+    }
     
-    // ---------------- Lógica do Morador ----------------
+    // ---------------- Lógica do Morador (Com Invalidação) ----------------
 
     public async Task<ReclamacaoResponseDto> CriarReclamacaoAsync(ReclamacaoCreateDto dto, long userId)
     {
@@ -76,7 +117,8 @@ public class ReclamacaoService : IReclamacaoService
         await _reclamacaoRepository.AdicionarAsync(novaReclamacao);
         await _context.SaveChangesAsync();
 
-        // Busca novamente para popular os Includes (Morador e Categoria)
+        await InvalidarCachesAfetadosAsync(userId);
+
         var reclamacaoSalva = await _reclamacaoRepository.ObterPorIdAsync(novaReclamacao.Id);
         return MapearParaDto(reclamacaoSalva!);
     }
@@ -97,6 +139,8 @@ public class ReclamacaoService : IReclamacaoService
         await _reclamacaoRepository.AtualizarAsync(reclamacao);
         await _context.SaveChangesAsync();
 
+        await InvalidarCachesAfetadosAsync(userId);
+
         return MapearParaDto(reclamacao);
     }
 
@@ -112,9 +156,11 @@ public class ReclamacaoService : IReclamacaoService
 
         await _reclamacaoRepository.DeletarAsync(reclamacao);
         await _context.SaveChangesAsync();
+
+        await InvalidarCachesAfetadosAsync(userId);
     }
 
-    // ---------------- Admin ----------------
+    // ---------------- Admin (Com Invalidação) ----------------
 
     public async Task<ReclamacaoResponseDto> AtualizarReclamacaoAdminAsync(long id, long adminId, ReclamacaoAdminUpdateDto dto)
     {
@@ -125,10 +171,12 @@ public class ReclamacaoService : IReclamacaoService
 
         reclamacao.Titulo = dto.Titulo.Trim();
         reclamacao.Descricao = dto.Descricao.Trim();
-        reclamacao.IdCategoriaReclamacao = dto.IdCategoriaReclamacao; // Admin altera o status
+        reclamacao.IdCategoriaReclamacao = dto.IdCategoriaReclamacao; 
 
         await _reclamacaoRepository.AtualizarAsync(reclamacao);
         await _context.SaveChangesAsync();
+
+        await InvalidarCachesAfetadosAsync(reclamacao.Morador?.IdUser);
 
         return MapearParaDto(reclamacao);
     }
@@ -142,11 +190,13 @@ public class ReclamacaoService : IReclamacaoService
 
         await _reclamacaoRepository.DeletarAsync(reclamacao);
         await _context.SaveChangesAsync();
+
+        await InvalidarCachesAfetadosAsync(reclamacao.Morador?.IdUser);
     }
 
     // ---------------- Método Auxiliar ----------------
 
-    private ReclamacaoResponseDto MapearParaDto(Reclamacao r)
+    static private ReclamacaoResponseDto MapearParaDto(Reclamacao r)
     {
         return new ReclamacaoResponseDto
         {

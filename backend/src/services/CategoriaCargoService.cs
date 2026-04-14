@@ -13,7 +13,9 @@ public class CategoriaCargoService : ICategoriaCargoService
     private readonly IFuncionarioRepository _funcionarioRepository;
     private readonly ICacheService _cacheService;
 
-    private const string CACHE_KEY_CARGOS = "categorias_cargo_ativas";
+    // Chaves de identificação estruturadas para o cache
+    private const string CACHE_KEY_TODOS_CARGOS = "categoria_cargo:ativas:todas";
+    private string ObterChaveCacheCargo(long id) => $"categoria_cargo:detalhe:{id}";
 
     public CategoriaCargoService(
         ICategoriaCargoRepository categoriaCargoRepository,
@@ -23,6 +25,20 @@ public class CategoriaCargoService : ICategoriaCargoService
         _categoriaCargoRepository = categoriaCargoRepository;
         _funcionarioRepository = funcionarioRepository;
         _cacheService = cacheService;
+    }
+
+    // ---------------- Lógica de Invalidação ----------------
+
+    private async Task InvalidarCachesAfetadosAsync(long? idCargo = null)
+    {
+        // Remove a lista global sempre que um cargo for criado, editado ou excluído
+        await _cacheService.RemoveAsync(CACHE_KEY_TODOS_CARGOS);
+
+        // Remove o cache individual daquele cargo específico
+        if (idCargo.HasValue)
+        {
+            await _cacheService.RemoveAsync(ObterChaveCacheCargo(idCargo.Value));
+        }
     }
 
     // --------------------------- CREATE ---------------------------
@@ -47,7 +63,8 @@ public class CategoriaCargoService : ICategoriaCargoService
 
         await _categoriaCargoRepository.AdicionarAsync(novoCargo);
 
-        await _cacheService.RemoveAsync(CACHE_KEY_CARGOS);
+        // Invalida apenas a lista global (o ID individual ainda não estava em cache)
+        await InvalidarCachesAfetadosAsync();
 
         return new CategoriaCargoResponseDto { Id = novoCargo.Id, Nome = novoCargo.Nome };
     }
@@ -56,26 +73,38 @@ public class CategoriaCargoService : ICategoriaCargoService
 
     public async Task<IEnumerable<CategoriaCargoResponseDto>> ListarCargosAsync()
     {
-        var cachedData = await _cacheService.GetAsync<IEnumerable<CategoriaCargoResponseDto>>(CACHE_KEY_CARGOS);
+        var cachedData = await _cacheService.GetAsync<IEnumerable<CategoriaCargoResponseDto>>(CACHE_KEY_TODOS_CARGOS);
         if (cachedData != null) return cachedData;
 
         var cargos = await _categoriaCargoRepository.ListarAtivosAsync();
         
-        var resultado = cargos.Select(c => new CategoriaCargoResponseDto { Id = c.Id, Nome = c.Nome }).ToList();
+        var resultado = cargos.Select(c => new CategoriaCargoResponseDto 
+        { 
+            Id = c.Id, 
+            Nome = c.Nome 
+        }).ToList(); // Materialização para serialização
 
-        await _cacheService.SetAsync(CACHE_KEY_CARGOS, resultado, TimeSpan.FromHours(24));
+        await _cacheService.SetAsync(CACHE_KEY_TODOS_CARGOS, resultado, TimeSpan.FromHours(24));
 
         return resultado;
     }
 
     public async Task<CategoriaCargoResponseDto> ObterCargoPorIdAsync(long id)
     {
+        var cacheKey = ObterChaveCacheCargo(id);
+        var cachedData = await _cacheService.GetAsync<CategoriaCargoResponseDto>(cacheKey);
+        if (cachedData != null) return cachedData;
+
         var cargo = await _categoriaCargoRepository.ObterPorIdAsync(id);
 
         if (cargo == null)
             throw new NotFoundException("Categoria de cargo não encontrada.");
 
-        return new CategoriaCargoResponseDto { Id = cargo.Id, Nome = cargo.Nome };
+        var resultado = new CategoriaCargoResponseDto { Id = cargo.Id, Nome = cargo.Nome };
+
+        await _cacheService.SetAsync(cacheKey, resultado, TimeSpan.FromHours(24));
+
+        return resultado;
     }
 
     // --------------------------- UPDATE ---------------------------
@@ -101,7 +130,8 @@ public class CategoriaCargoService : ICategoriaCargoService
 
         await _categoriaCargoRepository.AtualizarAsync(cargo);
 
-        await _cacheService.RemoveAsync(CACHE_KEY_CARGOS);
+        // Limpa os dados obsoletos
+        await InvalidarCachesAfetadosAsync(id);
 
         return new CategoriaCargoResponseDto { Id = cargo.Id, Nome = cargo.Nome };
     }
@@ -124,7 +154,8 @@ public class CategoriaCargoService : ICategoriaCargoService
         
         await _categoriaCargoRepository.AtualizarAsync(cargo);
 
-        await _cacheService.RemoveAsync(CACHE_KEY_CARGOS);
+        // Limpa os dados obsoletos
+        await InvalidarCachesAfetadosAsync(id);
 
         return true;
     }

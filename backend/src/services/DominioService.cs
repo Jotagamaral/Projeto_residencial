@@ -10,15 +10,23 @@ public class DominioService : IDominioService
     private readonly IDominioRepository _dominioRepository;
     private readonly ICacheService _cacheService;
 
-    private const string CACHE_KEY_STATUS_ENCOMENDA = "dominios_status_encomenda";
-    private const string CACHE_KEY_STATUS_RECLAMACAO = "dominios_status_reclamacao";
-    private const string CACHE_KEY_STATUS_RESERVA = "dominios_status_reserva";
+    // Nomenclatura hierárquica (namespaces) orientada a domínios
+    private const string CACHE_KEY_STATUS_ENCOMENDA = "dominio:status:encomenda";
+    private const string CACHE_KEY_STATUS_RECLAMACAO = "dominio:status:reclamacao";
+    private const string CACHE_KEY_STATUS_RESERVA = "dominio:status:reserva";
 
     public DominioService(IDominioRepository dominioRepository, ICacheService cacheService)
     {
         _dominioRepository = dominioRepository;
         _cacheService = cacheService;
     }
+
+    // ---------------- Lógica de Invalidação ----------------
+
+    // private async Task InvalidarCachesAfetadosAsync(string CACHE_KEY)
+    // {
+    //     await _cacheService.RemoveAsync(CACHE_KEY);
+    // }
 
     public async Task<IEnumerable<CategoriaStatusDto>> ListarStatusEncomendaAsync()
     {
@@ -28,6 +36,7 @@ public class DominioService : IDominioService
         var lista = await _dominioRepository.ListarCategoriasEncomendaAsync();
         var resultado = lista.Select(x => new CategoriaStatusDto(x.Id, x.Nome)).ToList();
 
+        // Domínios de status raramente mudam, o TTL pode ser longo com segurança
         await _cacheService.SetAsync(CACHE_KEY_STATUS_ENCOMENDA, resultado, TimeSpan.FromHours(24));
 
         return resultado;

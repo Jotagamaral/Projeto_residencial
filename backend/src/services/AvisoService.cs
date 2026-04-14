@@ -11,12 +11,31 @@ public class AvisoService : IAvisoService
 {
     private readonly IAvisoRepository _avisoRepository;
     private readonly AppDbContext _context;
+    private readonly ICacheService _cacheService;
 
-    public AvisoService(IAvisoRepository avisoRepository, AppDbContext context)
+    // Nomenclatura hierárquica baseada em namespaces
+    private const string CACHE_KEY_AVISOS_ATIVOS = "aviso:ativos:todos";
+    private const string CACHE_KEY_AVISOS_GESTAO = "aviso:gestao:todos";
+
+    public AvisoService(
+        IAvisoRepository avisoRepository, 
+        AppDbContext context,
+        ICacheService cacheService)
     {
         _avisoRepository = avisoRepository;
         _context = context;
+        _cacheService = cacheService;
     }
+
+    // ---------------- Lógica de Invalidação ----------------
+
+    private async Task InvalidarCachesAfetadosAsync()
+    {
+        await _cacheService.RemoveAsync(CACHE_KEY_AVISOS_ATIVOS);
+        await _cacheService.RemoveAsync(CACHE_KEY_AVISOS_GESTAO);
+    }
+
+    // ---------------- Lógica de Criação ----------------
 
     public async Task<AvisoResponseDto> CriarAsync(AvisoCreateDto dto, long idUsuario)
     {
@@ -42,20 +61,41 @@ public class AvisoService : IAvisoService
         await _avisoRepository.AdicionarAsync(entidade);
         await _context.SaveChangesAsync();
 
+        // Invalida os caches
+        await InvalidarCachesAfetadosAsync();
+
         return MapearParaDto(entidade);
     }
 
+    // ---------------- Lógica de Leitura ----------------
+
     public async Task<IReadOnlyList<AvisoResponseDto>> ListarAtivosAsync()
     {
+        var cachedData = await _cacheService.GetAsync<IReadOnlyList<AvisoResponseDto>>(CACHE_KEY_AVISOS_ATIVOS);
+        if (cachedData != null) return cachedData;
+
         var lista = await _avisoRepository.ListarAtivosNaoExpiradosAsync(DateTime.UtcNow);
-        return lista.Select(MapearParaDto).ToList();
+        var resultado = lista.Select(MapearParaDto).ToList();
+
+        await _cacheService.SetAsync(CACHE_KEY_AVISOS_ATIVOS, resultado, TimeSpan.FromHours(1));
+
+        return resultado;
     }
 
     public async Task<IReadOnlyList<AvisoResponseDto>> ListarTodosGestaoAsync()
     {
+        var cachedData = await _cacheService.GetAsync<IReadOnlyList<AvisoResponseDto>>(CACHE_KEY_AVISOS_GESTAO);
+        if (cachedData != null) return cachedData;
+
         var lista = await _avisoRepository.ListarTodosAsync();
-        return lista.Select(MapearParaDto).ToList();
+        var resultado = lista.Select(MapearParaDto).ToList();
+
+        await _cacheService.SetAsync(CACHE_KEY_AVISOS_GESTAO, resultado, TimeSpan.FromHours(12));
+
+        return resultado;
     }
+
+    // ---------------- Lógica de Atualização ----------------
 
     public async Task<AvisoResponseDto> AtualizarAsync(long id, AvisoUpdateDto dto)
     {
@@ -78,6 +118,9 @@ public class AvisoService : IAvisoService
 
         await _context.SaveChangesAsync();
 
+        // Invalida os caches após a alteração
+        await InvalidarCachesAfetadosAsync();
+
         return MapearParaDto(aviso);
     }
 
@@ -90,8 +133,13 @@ public class AvisoService : IAvisoService
         aviso.Ativo = ativo;
         await _context.SaveChangesAsync();
 
+        // Invalida os caches
+        await InvalidarCachesAfetadosAsync();
+
         return MapearParaDto(aviso);
     }
+
+    // ---------------- Método Auxiliar ----------------
 
     private static AvisoResponseDto MapearParaDto(Aviso a) => new()
     {
