@@ -1,12 +1,13 @@
 using Xunit;
 using NSubstitute;
 using FluentAssertions;
-using backend.Services;
-using backend.Repositories.Interfaces;
-using backend.DTOs;
-using backend.Models;
-using backend.Data;
-using backend.Exceptions;
+using backend.src.services;
+using backend.src.services.interfaces;
+using backend.src.repositories.interfaces;
+using backend.src.dtos.Reserva;
+using backend.src.models;
+using backend.src.context;
+using backend.src.exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +19,7 @@ public class ReservaServiceTests : TestBase
     private readonly IReservaRepository _reservaRepo;
     private readonly IMoradorRepository _moradorRepo;
     private readonly IHttpContextAccessor _httpContext;
+    private readonly ICacheService _cacheService;
     private readonly AppDbContext _context;
     private readonly ReservaService _service;
 
@@ -25,6 +27,7 @@ public class ReservaServiceTests : TestBase
     {
         _reservaRepo = Substitute.For<IReservaRepository>();
         _moradorRepo = Substitute.For<IMoradorRepository>();
+        _cacheService = Substitute.For<ICacheService>();
         
         _httpContext = CriarHttpContextAccessorMock(27);
         
@@ -34,7 +37,7 @@ public class ReservaServiceTests : TestBase
         
         _context = new AppDbContext(options);
         
-        _service = new ReservaService(_reservaRepo, _moradorRepo, _httpContext, _context);
+        _service = new ReservaService(_reservaRepo, _moradorRepo, _httpContext, _context, _cacheService);
     }
 
     [Fact]

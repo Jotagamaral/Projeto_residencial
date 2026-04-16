@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
-import { publicarReclamacao } from '../../services/reclamacoeService';
+import { criarReclamacao } from '../../services/reclamacoesService';
 import { useNavigate } from 'react-router-dom';
 import {
   FaComments,
@@ -61,7 +61,7 @@ function CadastroReclamacoes() {
       };
 
       try {
-        await publicarReclamacao(reclamacaoData);
+        await criarReclamacao(reclamacaoData);
         setTitulo('');
         setTextoReclamacao('');
         navigate('/reclamacoes', { state: { reload: true } });
@@ -70,7 +70,7 @@ function CadastroReclamacoes() {
         alert('Erro ao enviar reclamação. Tente novamente.');
       }
     },
-    [textoReclamacao, moradorId, anonimo, nomeMorador, navigate]
+    [titulo, textoReclamacao, moradorId, navigate]
   );
 
   const handleVoltar = useCallback(() => {

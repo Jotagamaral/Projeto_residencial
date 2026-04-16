@@ -1,11 +1,12 @@
 using Xunit;
 using NSubstitute;
 using FluentAssertions;
-using backend.Services;
-using backend.Repositories.Interfaces;
-using backend.DTOs;
-using backend.Models;
-using backend.Data;
+using backend.src.services;
+using backend.src.services.interfaces;
+using backend.src.repositories.interfaces;
+using backend.src.dtos.Reclamacao;
+using backend.src.models;
+using backend.src.context;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -15,6 +16,7 @@ public class ReclamacaoServiceTests : TestBase
 {
     private readonly IReclamacaoRepository _reclamacaoRepo;
     private readonly IMoradorRepository _moradorRepo;
+    private readonly ICacheService _cacheService;
     private readonly AppDbContext _context;
     private readonly ReclamacaoService _service;
 
@@ -22,6 +24,7 @@ public class ReclamacaoServiceTests : TestBase
     {
         _reclamacaoRepo = Substitute.For<IReclamacaoRepository>();
         _moradorRepo = Substitute.For<IMoradorRepository>();
+        _cacheService = Substitute.For<ICacheService>();
 
         // Configuração do Banco em Memória
         var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -29,7 +32,7 @@ public class ReclamacaoServiceTests : TestBase
             .Options;
         _context = new AppDbContext(options);
 
-        _service = new ReclamacaoService(_reclamacaoRepo, _moradorRepo, _context);
+        _service = new ReclamacaoService(_reclamacaoRepo, _moradorRepo, _context, _cacheService);
     }
 
     [Fact]
@@ -99,6 +102,10 @@ public class ReclamacaoServiceTests : TestBase
     {
         // Arrange
         long userIdInvalido = 999;
+
+        _cacheService.GetAsync<IEnumerable<ReclamacaoResponseDto>>(Arg.Any<string>())
+        .Returns((IEnumerable<ReclamacaoResponseDto>)null!);
+
         _moradorRepo.ObterPorIdUserAsync(userIdInvalido).Returns((Morador)null!);
 
         // Act

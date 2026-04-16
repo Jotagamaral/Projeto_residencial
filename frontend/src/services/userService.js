@@ -1,30 +1,30 @@
 // src/services/userService.js
 import api from './api';
 
-// LOGIN
+const urlAuth = '/auth';
+
+// ---------------- LOGIN ----------------
+
 export async function loginUser(cpf, senha) {
     try {
-        const response = await api.post(`/auth/login`, { cpf, senha });
+        const response = await api.post(`${urlAuth}/login`, { cpf, senha });
         return response.data;
     } catch (error) {
-        console.error('Erro na requisição de login:', error);
-        const message = error.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.';
-        throw new Error(message);
+        const mensagemErro = error.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.';
+        console.error(`[userService.js] Erro: ${mensagemErro}`);
+        throw new Error(mensagemErro);
     }
 }
 
-// REGISTER
+// ---------------- REGISTER ----------------
+
 export async function registerUser(userData) {
     try {
-        const response = await api.post(`/auth/register`, userData);
+        const response = await api.post(`${urlAuth}/register`, userData);
         return response.data;
     } catch (error) {
-        console.error("Erro na requisição de cadastro:", error);
-
-        if (error.response && error.response.data && error.response.data.message) {
-            throw new Error(error.response.data.message);
-        } else {
-            throw new Error("Erro ao fazer cadastro. Tente novamente.");
-        }
+        const mensagemErro = error.response?.data?.message || 'Erro ao realizar o cadastro. Tente novamente.';
+        console.error(`[userService.js] Erro: ${mensagemErro}`);
+        throw new Error(mensagemErro);
     }
 }
