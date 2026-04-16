@@ -14,24 +14,26 @@ const testCommits = () => {
     let passedAll = true;
 
     cases.forEach(({ msg, expected }) => {
-        try {
-            execSync(`echo "${msg}" | npx commitlint --config ./commitlint.config.mjs`);
-            if (expected) {
-                console.log(`Sucesso esperado: "${msg}"`);
-            } else {
-                console.log(`Falha: O commit "${msg}" deveria ter sido rejeitado!`);
-                passedAll = false;
-            }
-        } catch (error) {
-            if (!expected) {
-                console.log(`Bloqueio correto: "${msg}" foi rejeitado.`);
-            } else {
-                console.log(`Erro: O commit "${msg}" é válido mas foi bloqueado.`);
-                passedAll = false;
-            }
-            throw error;
+    try {
+        execSync(`echo ${msg}| npx commitlint --config ../commitlint.config.mjs`, { stdio: 'pipe' });
+        
+        if (expected) {
+            console.log(`✅ Sucesso esperado: "${msg}"`);
+        } else {
+            console.log(`❌ Falha: O commit "${msg}" deveria ter sido rejeitado!`);
+            passedAll = false;
         }
-    });
+    } catch (error) {
+        if (!expected) {
+            console.log(`✅ Bloqueio correto: "${msg}" foi rejeitado.`);
+        } else {
+            console.log(`❌ Erro: O commit "${msg}" é válido mas foi bloqueado.`);
+            // Captura a mensagem real do commitlint para você entender o motivo
+            console.log("Motivo do Commitlint:", error.stdout.toString());
+            passedAll = false;
+        }
+    }
+});
 
     if (passedAll) {
         console.log('\nTudo certo. Controle de versão está funcionando devidamente.');
