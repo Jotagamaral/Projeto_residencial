@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - NovoBackend
 
 jobs:
   release:
@@ -20,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # Recomendado usar LTS estável
+          node-version: 22
           cache: 'npm'
 
       - name: Setup .NET
