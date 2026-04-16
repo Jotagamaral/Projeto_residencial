@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser } from '../services/userService';
-import axios from 'axios';
+import { buscarCategoriasCargo } from '../services/categoriaCargoService';
 import {
   FaBuilding,
   FaUser,
@@ -16,8 +16,6 @@ import {
   FaArrowLeft,
   FaShieldAlt,
 } from 'react-icons/fa';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function Register() {
   const [nome, setNome] = useState('');
@@ -38,15 +36,19 @@ function Register() {
   const navigate = useNavigate();
 
   useEffect(() => {
+  const carregarCargos = async () => {
     if (tipoUsuario === 3) {
-      axios
-        .get(`${API_BASE_URL}/CategoriaCargo`)
-        .then((res) => setListaCargos(res.data))
-        .catch((err) =>
-          console.error('Erro ao buscar cargos:', err)
-        );
+      try {
+        const dados = await buscarCategoriasCargo();
+        setListaCargos(dados);
+      } catch (err) {
+        console.error('Erro na tela de registro:', err.message);
+      }
     }
-  }, [tipoUsuario]);
+  };
+
+  carregarCargos();
+}, [tipoUsuario]);
 
   const handleCpfChange = useCallback((e) => {
     const digits = e.target.value.replace(/\D/g, '').slice(0, 11);

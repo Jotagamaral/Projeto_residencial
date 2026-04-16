@@ -5,22 +5,14 @@ using backend.src.services.interfaces;
 
 namespace backend.src.services;
 
-public class DominioService : IDominioService
+public class DominioService(IDominioRepository _dominioRepository, ICacheService _cacheService) : IDominioService
 {
-    private readonly IDominioRepository _dominioRepository;
-    private readonly ICacheService _cacheService;
 
     // Nomenclatura hierárquica (namespaces) orientada a domínios
     private const string CACHE_KEY_STATUS_ENCOMENDA = "dominio:status:encomenda";
     private const string CACHE_KEY_STATUS_RECLAMACAO = "dominio:status:reclamacao";
     private const string CACHE_KEY_STATUS_RESERVA = "dominio:status:reserva";
-
-    public DominioService(IDominioRepository dominioRepository, ICacheService cacheService)
-    {
-        _dominioRepository = dominioRepository;
-        _cacheService = cacheService;
-    }
-
+    
     // ---------------- Lógica de Invalidação ----------------
 
     // private async Task InvalidarCachesAfetadosAsync(string CACHE_KEY)
