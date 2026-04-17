@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FaTimes, FaCheck, FaExclamationCircle } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
 
 function EditProfile({ isOpen, onClose, user }) {
-  const { user: currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('dados');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
