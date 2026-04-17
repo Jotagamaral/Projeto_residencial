@@ -10,6 +10,7 @@ import {
   FaSignOutAlt,
   FaBuilding,
   FaChevronRight,
+  FaUser,
 } from 'react-icons/fa';
 
 const navItems = [
@@ -17,6 +18,7 @@ const navItems = [
   { title: 'Reclamacoes', href: '/reclamacoes', icon: FaComments },
   { title: 'Reservas', href: '/reservas', icon: FaCalendarAlt },
   { title: 'Encomendas', href: '/encomendas', icon: FaBox },
+  { title: 'Perfil', href: '/perfil', icon: FaUser },
 ];
 
 function CustomSidebar() {
