@@ -1,14 +1,15 @@
+ 
+# CondoSync – Sistema de Gestão de Condomínio
+
+O CondoSync é um sistema desenvolvido para otimizar a gestão de condomínios residenciais, centralizando informações administrativas e melhorando a comunicação entre moradores, funcionários e administradores.
+
+
 # Participantes do Grupo
 22250399-DAVÍ ALVES CARDOSO, 
 22309466-JOÃO GABRIEL,
 22250409- HENRIQUE ROCHA,
 22252016-THALES MARTINS,
 22407619- GABRIEL JESUS
-
- 
- CondoSync – Sistema de Gestão de Condomínio
-
-O CondoSync é um sistema desenvolvido para otimizar a gestão de condomínios residenciais, centralizando informações administrativas e melhorando a comunicação entre moradores, funcionários e administradores.
 
 # Objetivo
 
