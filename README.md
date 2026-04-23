@@ -59,7 +59,7 @@ Modelo relacional com foco em integridade e organização.
 
 * Usuários
 * Moradores
-* Funcionários
+* Funcionarios
 * Visitantes
 * Encomendas
 * Reservas
