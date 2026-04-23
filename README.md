@@ -43,7 +43,7 @@ Facilitar a administração do condomínio por meio de uma plataforma que permit
 
 ---
 
-##  Tecnologias 
+##  Tecnologias Utilizadas
 
 * **Frontend:** React + Vite
 * **Backend:** .NET (C#)
