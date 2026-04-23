@@ -106,7 +106,7 @@ Modelo relacional com foco em integridade e organização.
 
 A documentação completa do projeto está disponível na pasta:
 
-👉 `docs/documentacao_condosync_abnt2.docx`
+👉 docs/documentacao_condosync.docx
 
 
 ---
