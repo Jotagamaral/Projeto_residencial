@@ -1,4 +1,4 @@
-#Participantes do Grupo
+# Participantes do Grupo
 22250399-DAVÍ ALVES CARDOSO, 
 22309466-JOÃO GABRIEL,
 22250409- HENRIQUE ROCHA,
