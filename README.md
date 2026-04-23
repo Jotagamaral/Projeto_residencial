@@ -94,7 +94,7 @@ Modelo relacional com foco em integridade e organização.
 
 ##  Equipe
 
-* 22250399 – Daví Alves Cardoso
+* 22250399 – Davi Alves Cardoso
 * 22309466 – João Gabriel
 * 22250409 – Henrique Rocha
 * 22252016 – Thales Martins
