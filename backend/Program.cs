@@ -183,34 +183,44 @@ bool preferRedis = cacheSettings.GetValue<bool>("PreferRedis");
 
 if (preferRedis)
 {
+    // 1. Centralize a configuração para garantir que o teste e o registro usem a mesma lógica
+    var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST") ?? "localhost";
+    var redisPort = Environment.GetEnvironmentVariable("REDIS_PORT") ?? "6379";
+    var redisPassword = Environment.GetEnvironmentVariable("REDIS_PASSWORD");
+
+    var configurationOptions = new ConfigurationOptions
+    {
+        EndPoints = { { redisHost, int.Parse(redisPort) } },
+        Password = redisPassword,
+        ConnectTimeout = 2000,
+        AbortOnConnectFail = true // Mantemos true para o teste falhar rápido e cair no catch
+    };
+
     try 
     {
-        var redisConnString = cacheSettings.GetValue<string>("RedisConnectionString") ?? "localhost:6379";
-
-        var options = ConfigurationOptions.Parse(redisConnString);
-        options.ConnectTimeout = 2000;
-        options.AbortOnConnectFail = true;
-
-        using var connection = ConnectionMultiplexer.Connect(options);
-
+        // 2. Teste real de conectividade
+        using var connection = ConnectionMultiplexer.Connect(configurationOptions);
+        
         builder.Services.AddStackExchangeRedisCache(redisOptions =>
         {
-            redisOptions.Configuration = redisConnString;
+            // Usamos as mesmas opções validadas no teste
+            redisOptions.ConfigurationOptions = configurationOptions;
             redisOptions.InstanceName = "CondoSync_";
         });
-        
-        builder.Services.AddScoped<ICacheService, backend.src.services.DistributedCacheService>();
-        Console.WriteLine("--> [SUCESSO] Cache L2 (Redis) Detectado, Testado e Ativo.");
+
+        builder.Services.AddScoped<ICacheService, DistributedCacheService>();
+        Console.WriteLine("--> [SUCESSO] Cache L2 (Redis) Ativo.");
     }
-    catch (Exception)
+    catch (Exception ex)
     {
-        Console.WriteLine("--> [AVISO] Redis Offline. Fazendo fallback seguro para Cache L1 (Memória).");
-        builder.Services.AddScoped<ICacheService, backend.src.services.InMemoryCacheService>();
+        // Se o nome 'Redis' não for resolvido ou a senha estiver nula, cairá aqui
+        Console.WriteLine($"--> [FALHA REDIS] {ex.Message}");
+        builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
     }
 }
 else
 {
-    builder.Services.AddScoped<ICacheService, backend.src.services.InMemoryCacheService>();
+    builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
     Console.WriteLine("--> [INFO] Uso do Redis desativado via AppSettings. Cache L1 (Memória) Ativo.");
 }
 
