@@ -74,7 +74,7 @@ Modelo relacional com foco em integridade e organização.
 
 ---
 
-##  Regras de Negócio
+##  Regras de Negocio
 
 * Apenas moradores podem realizar reservas e registrar reclamações
 * Visitantes devem estar vinculados a um morador
