@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
 import {
@@ -233,6 +233,9 @@ function NovaEncomendaModal({ isOpen, onClose, onSuccess }) {
   const [listaMoradores, setListaMoradores] = useState([]);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState('');
+  const [buscaMorador, setBuscaMorador] = useState('');
+  const [dropdownAberto, setDropdownAberto] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -241,9 +244,45 @@ function NovaEncomendaModal({ isOpen, onClose, onSuccess }) {
         .catch(() => setListaMoradores([]));
       setRemetente('');
       setMoradorId('');
+      setBuscaMorador('');
+      setDropdownAberto(false);
       setErro('');
     }
   }, [isOpen]);
+
+  const moradoresFiltrados = useMemo(() => {
+    if (!buscaMorador.trim()) return listaMoradores;
+    const termo = buscaMorador.toLowerCase();
+    return listaMoradores.filter((m) =>
+      m.nome?.toLowerCase().includes(termo)
+    );
+  }, [listaMoradores, buscaMorador]);
+
+  const moradorSelecionado = useMemo(
+    () => listaMoradores.find((m) => String(m.id) === String(moradorId)),
+    [listaMoradores, moradorId]
+  );
+
+  const handleSelecionarMorador = useCallback((morador) => {
+    setMoradorId(String(morador.id));
+    setBuscaMorador(morador.nome);
+    setDropdownAberto(false);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownAberto(false);
+        if (moradorSelecionado) {
+          setBuscaMorador(moradorSelecionado.nome);
+        }
+      }
+    };
+    if (dropdownAberto) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [dropdownAberto, moradorSelecionado]);
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -352,7 +391,7 @@ function NovaEncomendaModal({ isOpen, onClose, onSuccess }) {
             </div>
           </div>
 
-          <div>
+          <div ref={dropdownRef}>
             <label
               htmlFor='modal-morador'
               className='block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider'
@@ -361,21 +400,43 @@ function NovaEncomendaModal({ isOpen, onClose, onSuccess }) {
             </label>
             <div className='relative'>
               <FaUser className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none' />
-              <select
+              <input
                 id='modal-morador'
-                value={moradorId}
-                onChange={(e) => setMoradorId(e.target.value)}
+                type='text'
+                placeholder='Digite para buscar um morador...'
+                value={buscaMorador}
+                onChange={(e) => {
+                  setBuscaMorador(e.target.value);
+                  setDropdownAberto(true);
+                  if (moradorId) setMoradorId('');
+                }}
+                onFocus={() => setDropdownAberto(true)}
                 className={inputClass}
-              >
-                <option value='' disabled>
-                  Selecione um morador
-                </option>
-                {listaMoradores.map((morador) => (
-                  <option key={morador.id} value={morador.id}>
-                    {morador.nome}
-                  </option>
-                ))}
-              </select>
+                autoComplete='off'
+              />
+              {dropdownAberto && (
+                <ul className='absolute z-10 mt-1 w-full max-h-48 overflow-y-auto bg-white rounded-xl border border-gray-200 shadow-lg'>
+                  {moradoresFiltrados.length === 0 ? (
+                    <li className='px-4 py-3 text-sm text-gray-400 text-center'>
+                      Nenhum morador encontrado
+                    </li>
+                  ) : (
+                    moradoresFiltrados.map((morador) => (
+                      <li
+                        key={morador.id}
+                        onClick={() => handleSelecionarMorador(morador)}
+                        className={`px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150 ${
+                          String(morador.id) === String(moradorId)
+                            ? 'bg-blue-50 text-blue-700 font-medium'
+                            : 'text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {morador.nome}
+                      </li>
+                    ))
+                  )}
+                </ul>
+              )}
             </div>
           </div>
 
@@ -720,7 +781,7 @@ function Encomendas() {
             </>
           )}
         </main>
-        {tipoCargo === 'FUNCIONARIO' && (
+        {(tipoCargo === 'FUNCIONARIO' || tipoCargo === 'ADMIN') && (
           <button
             className='fixed bottom-8 right-8 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3.5 px-6 rounded-2xl flex items-center gap-2.5 shadow-lg hover:shadow-xl transition-all duration-200 z-50 group'
             onClick={handleAbrirModal}
