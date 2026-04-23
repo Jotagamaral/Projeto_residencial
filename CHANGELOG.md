@@ -1,3 +1,16 @@
+# [1.3.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.2.0...v1.3.0) (2026-04-23)
+
+
+### Bug Fixes
+
+* remove unused variable in EditProfile ([fffe80c](https://github.com/Jotagamaral/Projeto_residencial/commit/fffe80ce7971c3ee62309741970a6d82826cfa2a))
+
+
+### Features
+
+* implement profile page with edit modal and password change ([38a58ee](https://github.com/Jotagamaral/Projeto_residencial/commit/38a58ee1bcf866b5db7c7d5fae6e65c70c8d8939))
+* implementa redis em backend ([b5a011d](https://github.com/Jotagamaral/Projeto_residencial/commit/b5a011d5da3a5eeb8537c30e23e528ffa564aafb))
+
 # [1.2.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.1.0...v1.2.0) (2026-04-16)
 
 
