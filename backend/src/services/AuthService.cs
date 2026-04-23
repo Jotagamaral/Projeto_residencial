@@ -62,6 +62,23 @@ public class AuthService(IConfiguration _configuration, AppDbContext _context) :
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var tokenString = tokenHandler.WriteToken(token);
 
+        // Buscar ID do Morador ou Funcionário
+        long? moradorId = null;
+        long? funcionarioId = null;
+        
+        if (usuario.CategoriaAcessoId == 2) // MORADOR_ID
+        {
+            var morador = await _context.Moradores
+                .FirstOrDefaultAsync(m => m.IdUser == usuario.Id && m.Ativo);
+            moradorId = morador?.Id;
+        }
+        else if (usuario.CategoriaAcessoId == 3 || usuario.CategoriaAcessoId == 1) // FUNCIONARIO_ID or ADMIN_ID
+        {
+            var funcionario = await _context.Funcionarios
+                .FirstOrDefaultAsync(f => f.IdUser == usuario.Id && f.Ativo);
+            funcionarioId = funcionario?.Id;
+        }
+        
         // Retornar o DTO
         return new LoginResponseDTO
         {
@@ -72,7 +89,9 @@ public class AuthService(IConfiguration _configuration, AppDbContext _context) :
                 Id = usuario.Id,
                 Nome = usuario.Nome,
                 Cpf = usuario.Cpf,
-                Categoria = roleDoUsuario
+                Categoria = roleDoUsuario,
+                MoradorId = moradorId,
+                FuncionarioId = funcionarioId
             }
         };
     }
