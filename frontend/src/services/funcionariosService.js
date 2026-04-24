@@ -40,6 +40,26 @@ export async function atualizarFuncionario(id, funcionarioData) {
   }
 }
 
+export async function atualizarDadosPessoaisFuncionario(id, dadosPessoais) {
+  try {
+    const response = await api.put(`${urlFuncionarios}/${id}/dados-pessoais`, dadosPessoais);
+    return response.data;
+  } catch (error) {
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao atualizar dados pessoais do funcionário.';
+    throw new Error(mensagemErro);
+  }
+}
+
+export async function alterarSenhaFuncionario(id, senhaData) {
+  try {
+    const response = await api.put(`${urlFuncionarios}/${id}/alterar-senha`, senhaData);
+    return response.data;
+  } catch (error) {
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao alterar senha do funcionário.';
+    throw new Error(mensagemErro);
+  }
+}
+
 // ---------------- DELETE ----------------
 
 export async function deletarFuncionario(id) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FaTimes, FaCheck, FaExclamationCircle } from 'react-icons/fa';
 import { atualizarDadosPessoais, alterarSenhaMorador } from '../services/moradoresService';
+import { atualizarDadosPessoaisFuncionario, alterarSenhaFuncionario } from '../services/funcionariosService';
 
 function EditProfile({ isOpen, onClose, user, categoria }) {
   const [activeTab, setActiveTab] = useState('dados');
@@ -49,14 +50,20 @@ function EditProfile({ isOpen, onClose, user, categoria }) {
     setSuccessMessage('');
 
     try {
-      // Chama a service enviando o ID e o objeto formatado
-      await atualizarDadosPessoais(user.id, {
+      const payload = {
         nome: formData.nome,
         email: formData.email,
         cpf: formData.cpf,
         telefone: formData.telefone,
         rg: formData.rg
-      });
+      };
+
+      const isMorador = categoria === 'MORADOR';
+      if (isMorador) {
+        await atualizarDadosPessoais(user.id, payload);
+      } else {
+        await atualizarDadosPessoaisFuncionario(user.id, payload);
+      }
 
       setSuccessMessage('Dados atualizados com sucesso!');
       setTimeout(() => onClose(), 1500);
@@ -80,12 +87,18 @@ function EditProfile({ isOpen, onClose, user, categoria }) {
     setSuccessMessage('');
 
     try {
-      // O objeto enviado deve bater exatamente com a MoradorAlterarSenhaDto do C#
-      await alterarSenhaMorador(user.id, {
+      const payload = {
         senhaAtual: senhaData.senhaAtual,
         novaSenha: senhaData.senhaNova,
         confirmarNovaSenha: senhaData.confirmarSenha
-      });
+      };
+
+      const isMorador = categoria === 'MORADOR';
+      if (isMorador) {
+        await alterarSenhaMorador(user.id, payload);
+      } else {
+        await alterarSenhaFuncionario(user.id, payload);
+      }
 
       setSuccessMessage('Senha alterada com sucesso!');
       setSenhaData({ senhaAtual: '', senhaNova: '', confirmarSenha: '' });
