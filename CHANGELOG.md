@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.3.0...v1.4.0) (2026-04-24)
+
+
+### Bug Fixes
+
+* Cadastro de novas encomendas ([2afdf9f](https://github.com/Jotagamaral/Projeto_residencial/commit/2afdf9fcd72bca1509ef97381a9699487b965260))
+
+
+### Features
+
+* implement profile update, password change, and UI refinements ([64f6d9a](https://github.com/Jotagamaral/Projeto_residencial/commit/64f6d9a5ced4bd2cb022de4c3503c5eb976d66cb))
+
 # [1.3.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.2.0...v1.3.0) (2026-04-23)
 
 
