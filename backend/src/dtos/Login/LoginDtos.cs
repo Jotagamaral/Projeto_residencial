@@ -36,4 +36,10 @@ public class UserResponseDTO
     /// <summary>Nome da categoria (ex: MORADOR).</summary>
     /// <example>MORADOR</example>
     public string Categoria { get; set; } = string.Empty;
+    
+    /// <summary>ID do morador (se for morador).</summary>
+    public long? MoradorId { get; set; }
+    
+    /// <summary>ID do funcionário (se for funcionário).</summary>
+    public long? FuncionarioId { get; set; }
 }

@@ -228,7 +228,9 @@ else
 
 //*  Moradores - Funcionários
 builder.Services.AddScoped<IMoradorRepository, MoradorRepository>();
+builder.Services.AddScoped<IMoradorService, MoradorService>();
 builder.Services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
+builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 
 //*  Usuários
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();

@@ -40,6 +40,27 @@ export async function atualizarMorador(id, moradorData) {
   }
 }
 
+export async function atualizarDadosPessoais(id, dadosPessoais) {
+  try {
+    const response = await api.put(`${urlMoradores}/${id}/dados-pessoais`, dadosPessoais);
+    return response.data;
+  } catch (error) {
+    const mensagemErro = error.response?.data?.message || 'Erro ao atualizar dados pessoais.';
+    throw new Error(mensagemErro);
+  }
+}
+
+export async function alterarSenhaMorador(id, senhaData) {
+  try {
+    // Note que usamos o objeto esperado pelo backend (SenhaAtual, NovaSenha, ConfirmarNovaSenha)
+    const response = await api.put(`${urlMoradores}/${id}/alterar-senha`, senhaData);
+    return response.data;
+  } catch (error) {
+    const mensagemErro = error.response?.data?.message || 'Erro ao alterar senha.';
+    throw new Error(mensagemErro);
+  }
+}
+
 // ---------------- DELETE ----------------
 
 export async function deletarMorador(id) {

@@ -42,7 +42,7 @@ public class MoradorController : ControllerBase
     /// <param name="id">ID numérico do morador.</param>
     /// <returns>Os dados detalhados do morador solicitado.</returns>
     [HttpGet("{id}")]
-    [Authorize(Roles = $"{CategoriaAcessoConstants.ADMIN_ROLE},{CategoriaAcessoConstants.FUNCIONARIO_ROLE}")]
+    [Authorize(Roles = $"{CategoriaAcessoConstants.ADMIN_ROLE},{CategoriaAcessoConstants.FUNCIONARIO_ROLE}, {CategoriaAcessoConstants.MORADOR_ROLE}")]
     [ProducesResponseType(typeof(MoradorResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -72,6 +72,42 @@ public class MoradorController : ControllerBase
     {
         var resultado = await _moradorService.AtualizarMoradorAsync(id, dto);
         return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Atualiza as informações básicas do perfil do usuário.
+    /// </summary>
+    /// <param name="id">ID do usuário a ser atualizado.</param>
+    /// <param name="dto">Novos dados pessoais (Nome, E-mail, Telefone, RG).</param>
+    /// <returns>Retorna os dados do perfil atualizados.</returns>
+    [HttpPut("{id}/dados-pessoais")]
+    [Authorize(Roles = $"{CategoriaAcessoConstants.ADMIN_ROLE},{CategoriaAcessoConstants.FUNCIONARIO_ROLE}, {CategoriaAcessoConstants.MORADOR_ROLE}")]
+    [ProducesResponseType(typeof(MoradorResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AtualizarDadosPessoais(long id, [FromBody] MoradorUpdateDadosPessoaisDto dto)
+    {
+        var resultado = await _moradorService.AtualizarDadosPessoaisAsync(id, dto);
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Redefine a senha de acesso do usuário.
+    /// </summary>
+    /// <param name="id">ID do usuário.</param>
+    /// <param name="dto">Objeto contendo a senha atual e a nova senha para validação.</param>
+    /// <returns>Retorna NoContent em caso de sucesso.</returns>
+    [HttpPut("{id}/alterar-senha")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AlterarSenha(long id, [FromBody] MoradorAlterarSenhaDto dto)
+    {
+        await _moradorService.AlterarSenhaAsync(id, dto);
+        return NoContent();
     }
 
     // --------------------------- DELETE ---------------------------

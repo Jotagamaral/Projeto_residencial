@@ -67,6 +67,7 @@ public class MoradorService(
             Nome = morador.Usuario?.Nome ?? "Sem Nome",
             Email = morador.Usuario?.Email ?? "Sem Email",
             Cpf = morador.Usuario?.Cpf ?? "Sem CPF",
+            Telefone = morador.Usuario?.Celular ?? "Sem Telefone",
             Bloco = morador.Bloco,
             Apartamento = morador.Apartamento
         };
@@ -104,6 +105,63 @@ public class MoradorService(
             Bloco = morador.Bloco,
             Apartamento = morador.Apartamento
         };
+    }
+    public async Task<MoradorResponseDto> AtualizarDadosPessoaisAsync(long id, MoradorUpdateDadosPessoaisDto dto)
+    {
+        // Busca o morador incluindo o usuário vinculado (CSTB001_USER)
+        var morador = await _moradorRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Morador não encontrado.");
+
+        if (morador.Usuario == null)
+            throw new BusinessRuleException("Dados de usuário não localizados para este morador.");
+
+        // Atualiza os campos da tabela CSTB001_USER (Usuario)
+        morador.Usuario.Nome = dto.Nome.Trim();
+        morador.Usuario.Email = dto.Email.Trim();
+        morador.Usuario.Cpf = dto.Cpf.Trim();
+        morador.Usuario.Rg = dto.Rg?.Trim();
+        morador.Usuario.Celular = dto.Telefone?.Trim(); // Mapeado para 'Celular' conforme sua DTO de criação
+
+        // Persiste as mudanças nas tabelas
+        await _moradorRepository.AtualizarAsync(morador);
+        await _moradorRepository.SalvarAlteracoesAsync();
+
+        // Limpa o cache para que a listagem reflita os novos dados pessoais
+        await InvalidarCachesAfetadosAsync(id);
+
+        return new MoradorResponseDto
+        {
+            Id = morador.Id,
+            Nome = morador.Usuario.Nome,
+            Email = morador.Usuario.Email,
+            Cpf = morador.Usuario.Cpf,
+            Bloco = morador.Bloco, // Mantém o dado da CSTB002_MORADOR
+            Apartamento = morador.Apartamento
+        };
+    }
+
+    public async Task AlterarSenhaAsync(long id, MoradorAlterarSenhaDto dto)
+    {
+        var morador = await _moradorRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Morador não encontrado.");
+
+        if (morador.Usuario == null)
+            throw new BusinessRuleException("Registro de usuário não encontrado.");
+
+        // Valida a senha atual (CSTB001_USER.Senha)
+        bool senhaValida = BCrypt.Net.BCrypt.Verify(dto.SenhaAtual, morador.Usuario.Senha);
+        
+        if (!senhaValida)
+            throw new BusinessRuleException("A senha atual está incorreta.");
+
+        // Gera o novo hash para o campo Senha da CSTB001_USER
+        morador.Usuario.Senha = BCrypt.Net.BCrypt.HashPassword(dto.NovaSenha);
+
+        await _moradorRepository.AtualizarAsync(morador);
+        await _moradorRepository.SalvarAlteracoesAsync();
+
+        // Invalida cache se necessário
+        await InvalidarCachesAfetadosAsync(id);
     }
 
     public async Task DeletarMoradorAsync(long id)
