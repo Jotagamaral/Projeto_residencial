@@ -7,5 +7,7 @@ public interface IFuncionarioService
     Task<IEnumerable<FuncionarioResponseDto>> ListarFuncionariosAsync();
     Task<FuncionarioResponseDto> ObterFuncionarioPorIdAsync(long id);
     Task<FuncionarioResponseDto> AtualizarFuncionarioAsync(long id, FuncionarioUpdateDto dto);
+    Task<FuncionarioResponseDto> AtualizarDadosPessoaisAsync(long id, FuncionarioUpdateDadosPessoaisDto dto);
+    Task AlterarSenhaAsync(long id, FuncionarioAlterarSenhaDto dto);
     Task DeletarFuncionarioAsync(long id);
 }

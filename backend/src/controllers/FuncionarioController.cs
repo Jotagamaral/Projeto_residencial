@@ -62,6 +62,34 @@ public class FuncionarioController : ControllerBase
         return Ok(resultado);
     }
 
+    /// <summary>
+    /// Atualiza os dados pessoais (Nome, E-mail, CPF, Telefone e RG) de um funcionário.
+    /// </summary>
+    [HttpPut("{id}/dados-pessoais")]
+    [Authorize(Roles = $"{CategoriaAcessoConstants.ADMIN_ROLE},{CategoriaAcessoConstants.FUNCIONARIO_ROLE}")]
+    [ProducesResponseType(typeof(FuncionarioResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AtualizarDadosPessoais(long id, [FromBody] FuncionarioUpdateDadosPessoaisDto dto)
+    {
+        var resultado = await _funcionarioService.AtualizarDadosPessoaisAsync(id, dto);
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Redefine a senha de acesso de um funcionário.
+    /// </summary>
+    [HttpPut("{id}/alterar-senha")]
+    [Authorize(Roles = $"{CategoriaAcessoConstants.ADMIN_ROLE},{CategoriaAcessoConstants.FUNCIONARIO_ROLE}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AlterarSenha(long id, [FromBody] FuncionarioAlterarSenhaDto dto)
+    {
+        await _funcionarioService.AlterarSenhaAsync(id, dto);
+        return NoContent();
+    }
+
     // --------------------------- DELETE ---------------------------
     
     /// <summary>

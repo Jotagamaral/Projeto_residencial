@@ -105,6 +105,57 @@ public class FuncionarioService(
         };
     }
 
+    public async Task<FuncionarioResponseDto> AtualizarDadosPessoaisAsync(long id, FuncionarioUpdateDadosPessoaisDto dto)
+    {
+        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Funcionário não encontrado.");
+
+        if (funcionario.Usuario == null)
+            throw new BusinessRuleException("Dados de usuário não localizados para este funcionário.");
+
+        funcionario.Usuario.Nome = dto.Nome.Trim();
+        funcionario.Usuario.Email = dto.Email.Trim();
+        funcionario.Usuario.Cpf = dto.Cpf.Trim();
+        funcionario.Usuario.Rg = string.IsNullOrWhiteSpace(dto.Rg) ? null : dto.Rg.Trim();
+        funcionario.Usuario.Celular = string.IsNullOrWhiteSpace(dto.Telefone) ? null : dto.Telefone.Trim();
+
+        await _funcionarioRepository.AtualizarAsync(funcionario);
+        await _funcionarioRepository.SalvarAlteracoesAsync();
+
+        await InvalidarCachesAfetadosAsync(id);
+
+        return new FuncionarioResponseDto
+        {
+            Id = funcionario.Id,
+            Nome = funcionario.Usuario.Nome,
+            Email = funcionario.Usuario.Email,
+            Cpf = funcionario.Usuario.Cpf,
+            CargoId = funcionario.IdCategoriaCargo,
+            CargoNome = funcionario.CategoriaCargo?.Nome
+        };
+    }
+
+    public async Task AlterarSenhaAsync(long id, FuncionarioAlterarSenhaDto dto)
+    {
+        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Funcionário não encontrado.");
+
+        if (funcionario.Usuario == null)
+            throw new BusinessRuleException("Registro de usuário não encontrado.");
+
+        bool senhaValida = BCrypt.Net.BCrypt.Verify(dto.SenhaAtual, funcionario.Usuario.Senha);
+
+        if (!senhaValida)
+            throw new BusinessRuleException("A senha atual está incorreta.");
+
+        funcionario.Usuario.Senha = BCrypt.Net.BCrypt.HashPassword(dto.NovaSenha);
+
+        await _funcionarioRepository.AtualizarAsync(funcionario);
+        await _funcionarioRepository.SalvarAlteracoesAsync();
+
+        await InvalidarCachesAfetadosAsync(id);
+    }
+
     public async Task DeletarFuncionarioAsync(long id)
     {
         var funcionario = await _funcionarioRepository.ObterPorIdAsync(id)
