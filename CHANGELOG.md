@@ -1,3 +1,18 @@
+# [1.5.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.4.0...v1.5.0) (2026-04-28)
+
+
+### Bug Fixes
+
+* corrige skip bot commits ([a9dc1bf](https://github.com/Jotagamaral/Projeto_residencial/commit/a9dc1bf7bd480549134939f48049f0193885ce06))
+* corrige variaveis nao utilizadas ([493ccce](https://github.com/Jotagamaral/Projeto_residencial/commit/493ccce1c32c4058c5b278c75caf194cf373de3f))
+* modifica commit ([6f51e05](https://github.com/Jotagamaral/Projeto_residencial/commit/6f51e05c0aa9d0d90f164e5bb8b981e9749ddc4c))
+
+
+### Features
+
+* Atualizar dados do funcionário ([e5115ce](https://github.com/Jotagamaral/Projeto_residencial/commit/e5115ce2655a3ae37aaff411da3b74b23eb7c56d))
+* implementa logo e nome no site ([c755d59](https://github.com/Jotagamaral/Projeto_residencial/commit/c755d5900a6daa686ce4d69ac6282d17245df1ec))
+
 # [1.4.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.3.0...v1.4.0) (2026-04-24)
 
 
