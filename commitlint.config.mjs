@@ -1,6 +1,13 @@
 export default {
     extends: ['@commitlint/config-conventional'],
-    ignores: [(message) => message.includes('Merge')],
+    ignores: [
+        (message) => message.includes('Merge'),
+        (message) => message.includes('chore(release)'),
+        (message) => message.includes('chore(deps)'),
+        (message) => message.includes('chore(deps-dev)'),
+        (message) => message.includes('[skip ci]'),
+        (message) => message.includes('ci:'),
+    ],
     rules: {
         'type-enum': [
             2,
