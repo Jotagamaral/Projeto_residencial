@@ -112,7 +112,6 @@ function Perfil() {
   };
 
   const isMorador = user?.categoria === 'MORADOR';
-  const isFuncionario = user?.categoria === 'FUNCIONARIO' || user?.categoria === 'ADMIN';
   const dados = isMorador ? morador : funcionario;
 
   return (
