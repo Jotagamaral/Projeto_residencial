@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.5.0...v1.5.1) (2026-05-05)
+
+
+### Bug Fixes
+
+* modifica dockerfile pra deploy em render ([c878bce](https://github.com/Jotagamaral/Projeto_residencial/commit/c878bcee7553154ee9f770334fbe5f1ef65895fc))
+
 # [1.5.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.4.0...v1.5.0) (2026-04-28)
 
 
