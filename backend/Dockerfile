@@ -1,16 +1,23 @@
-# Usamos o SDK do .NET 8 (ou 9, dependendo da sua versão)
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS dev
-WORKDIR /app
+# Compilação (Build)
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
 
-# Copia os arquivos de projeto e restaura as dependências
-COPY *.csproj ./
-RUN dotnet restore
+# Copia o projeto e restaura
+COPY ["backend/*.csproj", "backend/"]
+RUN dotnet restore "backend/backend.csproj"
 
-# Copia o restante do código
+# Copia todo o código e compila
 COPY . .
+WORKDIR "/src/backend"
+RUN dotnet publish "backend.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Expõe a porta padrão do ASP.NET Core
+# Execução (Runtime)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# O Render define a porta automaticamente, o .NET deve ouvir nela
+ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
-# Comando para rodar com "Hot Reload" (atualiza ao salvar)
-ENTRYPOINT ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:8080"]
+ENTRYPOINT ["dotnet", "backend.dll"]
