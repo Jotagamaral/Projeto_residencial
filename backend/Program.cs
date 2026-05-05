@@ -183,37 +183,51 @@ bool preferRedis = cacheSettings.GetValue<bool>("PreferRedis");
 
 if (preferRedis)
 {
-    // 1. Centralize a configuração para garantir que o teste e o registro usem a mesma lógica
-    var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST") ?? "localhost";
-    var redisPort = Environment.GetEnvironmentVariable("REDIS_PORT") ?? "6379";
-    var redisPassword = Environment.GetEnvironmentVariable("REDIS_PASSWORD");
+    ConfigurationOptions configurationOptions;
 
-    var configurationOptions = new ConfigurationOptions
+    // 1. Prioriza a REDIS_URL (Padrão para Render/Upstash)
+    var redisUrl = Environment.GetEnvironmentVariable("REDIS_URL");
+
+    if (!string.IsNullOrEmpty(redisUrl))
     {
-        EndPoints = { { redisHost, int.Parse(redisPort) } },
-        Password = redisPassword,
-        ConnectTimeout = 2000,
-        AbortOnConnectFail = true // Mantemos true para o teste falhar rápido e cair no catch
-    };
+        // Configura SSL, Host, Porta e Senha
+        configurationOptions = ConfigurationOptions.Parse(redisUrl);
+        configurationOptions.ConnectTimeout = 5000; 
+    }
+    else
+    {
+        // 2. Fallback para variáveis individuais (Padrão para Docker Local)
+        var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST") ?? "localhost";
+        var redisPort = Environment.GetEnvironmentVariable("REDIS_PORT") ?? "6379";
+        var redisPassword = Environment.GetEnvironmentVariable("REDIS_PASSWORD");
+
+        configurationOptions = new ConfigurationOptions
+        {
+            EndPoints = { { redisHost, int.Parse(redisPort) } },
+            Password = redisPassword,
+            ConnectTimeout = 2000,
+            Ssl = false
+        };
+    }
+
+    configurationOptions.AbortOnConnectFail = true;
 
     try 
     {
-        // 2. Teste real de conectividade
+        // Teste real de conectividade
         using var connection = ConnectionMultiplexer.Connect(configurationOptions);
         
         builder.Services.AddStackExchangeRedisCache(redisOptions =>
         {
-            // Usamos as mesmas opções validadas no teste
             redisOptions.ConfigurationOptions = configurationOptions;
             redisOptions.InstanceName = "CondoSync_";
         });
 
         builder.Services.AddScoped<ICacheService, DistributedCacheService>();
-        Console.WriteLine("--> [SUCESSO] Cache L2 (Redis) Ativo.");
+        Console.WriteLine($"--> [SUCESSO] Cache L2 (Redis) Ativo via {(string.IsNullOrEmpty(redisUrl) ? "Host/Port" : "URL")}.");
     }
     catch (Exception ex)
     {
-        // Se o nome 'Redis' não for resolvido ou a senha estiver nula, cairá aqui
         Console.WriteLine($"--> [FALHA REDIS] {ex.Message}");
         builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
     }
@@ -221,7 +235,7 @@ if (preferRedis)
 else
 {
     builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
-    Console.WriteLine("--> [INFO] Uso do Redis desativado via AppSettings. Cache L1 (Memória) Ativo.");
+    Console.WriteLine("--> [INFO] Uso do Redis desativado. Cache L1 (Memória) Ativo.");
 }
 
 //? Adição dos Serviços
