@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.0...v1.6.1) (2026-05-05)
+
+
+### Bug Fixes
+
+* corrige redis url deploy render ([518001d](https://github.com/Jotagamaral/Projeto_residencial/commit/518001d8c48e6220b9d67508f287363838cacf0b))
+
 # [1.6.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.5.1...v1.6.0) (2026-05-05)
 
 
