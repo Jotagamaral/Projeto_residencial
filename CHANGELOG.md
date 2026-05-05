@@ -1,3 +1,15 @@
+# [1.6.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.5.1...v1.6.0) (2026-05-05)
+
+
+### Bug Fixes
+
+* corrige dockefile versao .NET ([0cb1332](https://github.com/Jotagamaral/Projeto_residencial/commit/0cb133275b97db46d13dd0151b0dfc8b8023cdfc))
+
+
+### Features
+
+* implementa dependabot para NovoBackend ([0b7bc00](https://github.com/Jotagamaral/Projeto_residencial/commit/0b7bc0022b1e40004877f4c64aa4531116beee8f))
+
 ## [1.5.1](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.5.0...v1.5.1) (2026-05-05)
 
 
