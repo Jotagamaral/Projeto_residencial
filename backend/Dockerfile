@@ -1,22 +1,20 @@
-# Compilação (Build)
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Compilação (SDK do .NET 10)
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copia o projeto e restaura
-COPY ["backend/*.csproj", "backend/"]
+COPY ["backend/backend.csproj", "backend/"]
 RUN dotnet restore "backend/backend.csproj"
 
-# Copia todo o código e compila
 COPY . .
 WORKDIR "/src/backend"
 RUN dotnet publish "backend.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Execução (Runtime)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# Execução (Runtime do .NET 10)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# O Render define a porta automaticamente, o .NET deve ouvir nela
+# Garante que o ASP.NET ouça na porta correta
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 

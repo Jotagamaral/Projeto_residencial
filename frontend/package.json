@@ -14,11 +14,11 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
     "@tailwindcss/vite": "^4.1.11",
-    "axios": "^1.15.0",
+    "axios": "^1.15.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
-    "react-router-dom": "^7.3.0",
+    "react-router-dom": "^7.14.2",
     "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
@@ -37,7 +37,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
     "husky": "^9.1.7",
-    "postcss": "^8.5.3",
+    "postcss": "^8.5.12",
     "vite": "^6.4.2"
   }
 }
