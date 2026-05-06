@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.1...v1.6.2) (2026-05-06)
+
+
+### Bug Fixes
+
+* corrige conexoes de url para deploy em render e vercel ([f62252c](https://github.com/Jotagamaral/Projeto_residencial/commit/f62252c87e5894e4cdc82f10e39e347f424f82e8))
+
 ## [1.6.1](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.0...v1.6.1) (2026-05-05)
 
 
