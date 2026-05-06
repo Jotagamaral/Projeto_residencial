@@ -283,11 +283,15 @@ builder.Services.AddScoped<AuditLogActionFilter>();
 // CORS
 builder.Services.AddCors(options =>
 {
-   options.AddPolicy("CondoSyncPolicy", policy =>
+    options.AddPolicy("CondoSyncPolicy", policy =>
     {
-        policy.AllowAnyOrigin()
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") 
+                          ?? "http://localhost:5173"; 
+
+        policy.WithOrigins(frontendUrl)
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
