@@ -17,24 +17,38 @@ public class LogWorker : BackgroundService
     public LogWorker(IServiceProvider serviceProvider, IConfiguration configuration)
     {
         _serviceProvider = serviceProvider;
-        
-        var host = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
-        var port = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672";
-        var user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "guest";
-        var pass = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "guest";
 
-        var factory = new ConnectionFactory() 
-        { 
-            HostName = host,
-            Port = int.Parse(port),
-            UserName = user,
-            Password = pass
-        };
-        
+        // Tenta buscar a URL completa (Padrão para CloudAMQP/Produção)
+        var rabbitUrl = Environment.GetEnvironmentVariable("RABBITMQ_URL");
+        var factory = new ConnectionFactory();
+
+        if (!string.IsNullOrEmpty(rabbitUrl))
+        {
+            // Se houver URL, o Uri cuida de Host, Porta, User e Pass automaticamente
+            factory.Uri = new Uri(rabbitUrl);
+        }
+        else
+        {
+            // Fallback para variáveis individuais (Padrão para Docker Local)
+            var host = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+            var port = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672";
+            var user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "guest";
+            var pass = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "guest";
+
+            factory.HostName = host;
+            factory.Port = int.Parse(port);
+            factory.UserName = user;
+            factory.Password = pass;
+        }
+
+        // Configurações recomendadas para nuvem
+        factory.AutomaticRecoveryEnabled = true;
+
         try
         {
             _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
             _isRabbitMqAvailable = true;
+            Console.WriteLine("--> [SUCESSO] RabbitMQ Conectado.");
         }
         catch (Exception)
         {
