@@ -3,8 +3,6 @@ on:
   push:
     branches:
       - main
-      - NovoBackend
-
 jobs:
   release:
     runs-on: ubuntu-latest

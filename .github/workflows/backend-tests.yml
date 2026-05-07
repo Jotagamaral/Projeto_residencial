@@ -2,7 +2,7 @@ name: Backend Tests
 
 on:
   push:
-    branches: [ "main", "NovoBackend" ]
+    branches: [ "main", "develop" ]
     paths:
       - 'backend/**'
       - 'backend.Tests/**'
