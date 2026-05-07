@@ -66,6 +66,7 @@ public class FuncionarioService(
             Nome = funcionario.Usuario?.Nome,
             Email = funcionario.Usuario?.Email,
             Cpf = funcionario.Usuario?.Cpf,
+            Telefone = funcionario.Usuario?.Celular ?? "Sem Telefone",
             CargoId = funcionario.IdCategoriaCargo,
             CargoNome = funcionario.CategoriaCargo?.Nome
         };
