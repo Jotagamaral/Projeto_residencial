@@ -4,7 +4,7 @@ import { FaTimes, FaCheck, FaExclamationCircle } from 'react-icons/fa';
 import { atualizarDadosPessoais, alterarSenhaMorador } from '../services/moradoresService';
 import { atualizarDadosPessoaisFuncionario, alterarSenhaFuncionario } from '../services/funcionariosService';
 
-function EditProfile({ isOpen, onClose, user, categoria }) {
+function EditProfile({ isOpen, onClose, onSuccess, user, categoria, initialTab = 'dados' }) {
   const [activeTab, setActiveTab] = useState('dados');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -12,12 +12,13 @@ function EditProfile({ isOpen, onClose, user, categoria }) {
 
   useEffect(() => {
     if (isOpen) {
+      setActiveTab(initialTab);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
-  }, [isOpen]);
+  }, [isOpen, initialTab]);
 
   const [formData, setFormData] = useState({
     nome: user?.nome || '',
@@ -66,7 +67,10 @@ function EditProfile({ isOpen, onClose, user, categoria }) {
       }
 
       setSuccessMessage('Dados atualizados com sucesso!');
-      setTimeout(() => onClose(), 1500);
+      setTimeout(() => {
+        if (onSuccess) onSuccess();
+        onClose();
+      }, 1500);
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
@@ -102,7 +106,10 @@ function EditProfile({ isOpen, onClose, user, categoria }) {
 
       setSuccessMessage('Senha alterada com sucesso!');
       setSenhaData({ senhaAtual: '', senhaNova: '', confirmarSenha: '' });
-      setTimeout(() => onClose(), 1500);
+      setTimeout(() => {
+        if (onSuccess) onSuccess();
+        onClose();
+      }, 1500);
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
