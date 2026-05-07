@@ -26,7 +26,46 @@ function Perfil() {
   const [funcionario, setFuncionario] = useState(null);
   const [activeTab, setActiveTab] = useState('dados');
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [editProfileInitialTab, setEditProfileInitialTab] = useState('dados');
   const [isLoading, setIsLoading] = useState(true);
+
+  const loadProfile = async () => {
+    try {
+      const isMorador = user?.categoria === 'MORADOR';
+      const isFuncionario = user?.categoria === 'FUNCIONARIO' || user?.categoria === 'ADMIN';
+
+      let profileId = null;
+      if (isMorador) {
+        profileId = user?.moradorId;
+      } else if (isFuncionario) {
+        profileId = user?.funcionarioId;
+      }
+
+      if (!profileId) {
+        console.error('ID do perfil não encontrado na sessão.');
+        return;
+      }
+
+      if (isMorador) {
+        const moradorData = await buscarMoradorPorId(profileId);
+        setMorador(moradorData);
+      } else if (isFuncionario) {
+        const funcionarioData = await buscarFuncionarioPorId(profileId);
+        setFuncionario(funcionarioData);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados do perfil:', error);
+    }
+  };
+
+  const reloadProfile = () => {
+    loadProfile();
+  };
+
+  const openEditProfile = (tab = 'dados') => {
+    setEditProfileInitialTab(tab);
+    setIsEditProfileOpen(true);
+  };
 
   useEffect(() => {
     if (!user) {
@@ -50,23 +89,12 @@ function Perfil() {
       return;
     }
 
-    const loadProfile = async () => {
-      try {
-        if (isMorador) {
-          const moradorData = await buscarMoradorPorId(profileId);
-          setMorador(moradorData);
-        } else if (isFuncionario) {
-          const funcionarioData = await buscarFuncionarioPorId(profileId);
-          setFuncionario(funcionarioData);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados do perfil:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    const fetchData = async () => {
+      await loadProfile();
+      setIsLoading(false);
     };
 
-    loadProfile();
+    fetchData();
   }, [user, navigate]);
 
   if (!user || isLoading || (!morador && !funcionario)) return null;
@@ -129,8 +157,10 @@ function Perfil() {
       <EditProfile 
         isOpen={isEditProfileOpen}
         onClose={() => setIsEditProfileOpen(false)}
+        onSuccess={reloadProfile}
         user={dados}
         categoria={user?.categoria}
+        initialTab={editProfileInitialTab}
       />
     </div>
   );
@@ -172,7 +202,7 @@ function Perfil() {
               {/* Botões de Ação */}
               <div className="flex flex-col gap-2 w-full sm:w-auto">
                 <button 
-                  onClick={() => setIsEditProfileOpen(true)}
+                  onClick={() => openEditProfile('dados')}
                   className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors duration-200">
                   <FaEdit className="text-sm" />
                   Editar Perfil
@@ -294,7 +324,7 @@ function Perfil() {
                   <p className="text-gray-900 font-medium">{dados.telefone || 'Não informado'}</p>
                 </div>
                 <div className="pt-4 border-t border-gray-100">
-                  <button className="w-full inline-flex items-center justify-center gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-medium hover:bg-blue-100 transition-colors duration-200">
+                  <button onClick={() => openEditProfile('dados')} className="w-full inline-flex items-center justify-center gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-medium hover:bg-blue-100 transition-colors duration-200">
                     <FaEdit className="text-sm" />
                     Editar Contato
                   </button>
@@ -331,7 +361,7 @@ function Perfil() {
                 <p className="text-gray-600 text-sm">
                   Para maior segurança, altere sua senha periodicamente.
                 </p>
-                <button className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors duration-200">
+                <button onClick={() => openEditProfile('seguranca')} className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors duration-200">
                   <FaEdit className="text-sm" />
                   Alterar Senha
                 </button>
@@ -438,7 +468,7 @@ function Perfil() {
               {/* Botões de Ação */}
               <div className="flex flex-col gap-2 w-full sm:w-auto">
                 <button 
-                  onClick={() => setIsEditProfileOpen(true)}
+                  onClick={() => openEditProfile('dados')}
                   className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors duration-200">
                   <FaEdit className="text-sm" />
                   Editar Perfil
@@ -527,16 +557,17 @@ function Perfil() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Email
                   </label>
+                  {console.log('Dados do perfil:', dados), console.log('Dados do user:', user)}
                   <p className="text-gray-900 font-medium break-all">{dados.email}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Telefone
                   </label>
-                  <p className="text-gray-900 font-medium">{user.telefone || 'Não informado'}</p>
+                  <p className="text-gray-900 font-medium">{dados.telefone || 'Não informado'}</p>
                 </div>
                 <div className="pt-4 border-t border-gray-100">
-                  <button className="w-full inline-flex items-center justify-center gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-medium hover:bg-blue-100 transition-colors duration-200">
+                  <button onClick={() => openEditProfile('dados')} className="w-full inline-flex items-center justify-center gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-medium hover:bg-blue-100 transition-colors duration-200">
                     <FaEdit className="text-sm" />
                     Editar Contato
                   </button>
@@ -573,7 +604,7 @@ function Perfil() {
                 <p className="text-gray-600 text-sm">
                   Para maior segurança, altere sua senha periodicamente.
                 </p>
-                <button className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors duration-200">
+                <button onClick={() => openEditProfile('seguranca')} className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors duration-200">
                   <FaEdit className="text-sm" />
                   Alterar Senha
                 </button>
