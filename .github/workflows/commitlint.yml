@@ -1,0 +1,21 @@
+name: Validar Mensagens de Commit
+on:
+  pull_request:
+    branches:
+      - main
+      - NovoBackend
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necessário para validar o histórico de commits no PR
+
+      - name: Validar Commits
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: ./commitlint.config.mjs
+          failOnWarnings: false

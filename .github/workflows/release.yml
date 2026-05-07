@@ -28,7 +28,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x' # Ou a versão que você usa no backend
+          dotnet-version: '8.0.x'
 
       - name: Instalar Dependencias (Root)
         run: npm install
@@ -37,15 +37,7 @@ jobs:
         working-directory: ./frontend/tests
         run: npm run test:pipeline
 
-      - name: Validar Commits
-        uses: wagoid/commitlint-github-action@v6
-        with:
-          # Apontando para a raiz agora
-          configFile: ./commitlint.config.mjs
-          failOnWarnings: false
-
       - name: Rodar Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # Roda na raiz para versionar o projeto todo
         run: npx semantic-release
