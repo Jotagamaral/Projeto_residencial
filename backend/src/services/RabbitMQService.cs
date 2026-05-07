@@ -6,46 +6,54 @@ using backend.src.services.interfaces;
 
 namespace backend.src.services;
 
-// Implementamos IAsyncDisposable para limpar recursos de rede corretamente
 public class RabbitMQService : IMessageBusService, IAsyncDisposable
 {
     private readonly ConnectionFactory _factory;
     private IConnection? _connection;
     private IChannel? _channel;
 
-    // Controles de estado para garantir execução segura em ambiente Singleton
     private bool _connectionAttempted = false;
     private bool _isRabbitMqAvailable = false;
     private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
     public RabbitMQService(IConfiguration configuration)
     {
-        var host = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
-        var port = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672";
-        var user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "guest";
-        var pass = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "guest";
-
         _factory = new ConnectionFactory()
         {
-            HostName = host,
-            Port = int.Parse(port),
-            UserName = user,
-            Password = pass,
-            RequestedConnectionTimeout = TimeSpan.FromSeconds(1),
-            SocketReadTimeout = TimeSpan.FromSeconds(1),
-            SocketWriteTimeout = TimeSpan.FromSeconds(1)
+            RequestedConnectionTimeout = TimeSpan.FromSeconds(5),
+            SocketReadTimeout = TimeSpan.FromSeconds(5),
+            SocketWriteTimeout = TimeSpan.FromSeconds(5)
         };
+
+        // Tenta buscar a URL completa (Produção / CloudAMQP)
+        var rabbitUrl = Environment.GetEnvironmentVariable("RABBITMQ_URL");
+
+        if (!string.IsNullOrEmpty(rabbitUrl))
+        {
+            _factory.Uri = new Uri(rabbitUrl);
+        }
+        else
+        {
+            // Fallback para variáveis individuais (Localhost / Docker)
+            var host = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+            var port = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672";
+            var user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "guest";
+            var pass = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "guest";
+
+            _factory.HostName = host;
+            _factory.Port = int.Parse(port);
+            _factory.UserName = user;
+            _factory.Password = pass;
+        }
     }
 
     private async Task EnsureConnectionAsync()
     {
-
         if (_connectionAttempted) return;
 
         await _semaphore.WaitAsync();
         try
         {
-            // Verificação dupla de segurança
             if (_connectionAttempted) return;
 
             _connectionAttempted = true;
@@ -60,9 +68,9 @@ public class RabbitMQService : IMessageBusService, IAsyncDisposable
 
             _isRabbitMqAvailable = true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            Console.WriteLine($"[AVISO] RabbitMQ indisponível no host {_factory.HostName}:{_factory.Port}. O sistema funcionará em modo de degradação graciosa.");
+            Console.WriteLine($"[AVISO] RabbitMQ indisponível ({ex.Message}). O sistema funcionará em modo de degradação graciosa.");
             _isRabbitMqAvailable = false;
         }
         finally
@@ -73,7 +81,6 @@ public class RabbitMQService : IMessageBusService, IAsyncDisposable
 
     public async Task PublishLogAsync(Log log)
     {
-        // Garante que a conexão foi tentada pelo menos uma vez
         await EnsureConnectionAsync();
 
         if (!_isRabbitMqAvailable || _channel == null)
@@ -94,7 +101,6 @@ public class RabbitMQService : IMessageBusService, IAsyncDisposable
         }
         catch (Exception)
         {
-            // Se o RabbitMQ cair enquanto o sistema estiver rodando, ele desativa o envio e não trava a API.
             _isRabbitMqAvailable = false;
         }
     }
