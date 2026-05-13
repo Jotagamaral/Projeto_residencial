@@ -1,3 +1,43 @@
+## [1.6.3](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.2...v1.6.3) (2026-05-07)
+
+
+### Bug Fixes
+
+* corrige erro workflows ([94db896](https://github.com/Jotagamaral/Projeto_residencial/commit/94db89635d21f1c486aed026a6a9f468fed525e3))
+* corrige erros actions ([8c13e19](https://github.com/Jotagamaral/Projeto_residencial/commit/8c13e197810357af9e3e50a5930c306679c15c95))
+* corrige implementacao de log CloudAMQP ([e61dcb2](https://github.com/Jotagamaral/Projeto_residencial/commit/e61dcb2c77fad5e828361017a8a86c68919d7773))
+* editprofile now reload profile page ([5e1999c](https://github.com/Jotagamaral/Projeto_residencial/commit/5e1999c4a27a2afae87e05c927fc6c10fd47af56))
+* error displaying phone number on profile page ([669f53d](https://github.com/Jotagamaral/Projeto_residencial/commit/669f53d3aaae9ecf9dbd76dec323438266a40c1c))
+* modifica testes para commits ([eb8b651](https://github.com/Jotagamaral/Projeto_residencial/commit/eb8b651e9e86c1ef9235483c480e8386e9982101))
+* modifica worflows ([7963d62](https://github.com/Jotagamaral/Projeto_residencial/commit/7963d62a5280dc6e40603a7241a6b3230fc44b92))
+* realease secret semantic-bot ([91dba17](https://github.com/Jotagamaral/Projeto_residencial/commit/91dba179e047d0089f09b328e71b2a2ee85206e7))
+
+## [1.6.2](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.1...v1.6.2) (2026-05-06)
+
+
+### Bug Fixes
+
+* corrige conexoes de url para deploy em render e vercel ([f62252c](https://github.com/Jotagamaral/Projeto_residencial/commit/f62252c87e5894e4cdc82f10e39e347f424f82e8))
+
+## [1.6.1](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.0...v1.6.1) (2026-05-05)
+
+
+### Bug Fixes
+
+* corrige redis url deploy render ([518001d](https://github.com/Jotagamaral/Projeto_residencial/commit/518001d8c48e6220b9d67508f287363838cacf0b))
+
+# [1.6.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.5.1...v1.6.0) (2026-05-05)
+
+
+### Bug Fixes
+
+* corrige dockefile versao .NET ([0cb1332](https://github.com/Jotagamaral/Projeto_residencial/commit/0cb133275b97db46d13dd0151b0dfc8b8023cdfc))
+
+
+### Features
+
+* implementa dependabot para NovoBackend ([0b7bc00](https://github.com/Jotagamaral/Projeto_residencial/commit/0b7bc0022b1e40004877f4c64aa4531116beee8f))
+
 ## [1.5.1](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.5.0...v1.5.1) (2026-05-05)
 
 
