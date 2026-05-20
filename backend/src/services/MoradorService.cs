@@ -13,19 +13,19 @@ public class MoradorService(
     // Chaves de identificação estruturadas para o cache
     private const string CACHE_KEY_TODOS_MORADORES = "moradores:ativos:todos";
     private static string ObterChaveCacheMorador(long id) => $"moradores:detalhe:{id}";
+    private static string ObterChaveCachePerfilUsuario(long userId) => $"perfil:morador:{userId}";
 
     // ---------------- Lógica de Invalidação ----------------
 
-    private async Task InvalidarCachesAfetadosAsync(long? idMorador = null)
+    private async Task InvalidarCachesAfetadosAsync(long? idMorador = null, long? idUser = null)
     {
-        // Limpa a listagem geral sempre que houver alteração na base de moradores
         await _cacheService.RemoveAsync(CACHE_KEY_TODOS_MORADORES);
         
-        // Limpa o registro individual do morador, se aplicável
         if (idMorador.HasValue)
-        {
             await _cacheService.RemoveAsync(ObterChaveCacheMorador(idMorador.Value));
-        }
+            
+        if (idUser.HasValue)
+            await _cacheService.RemoveAsync(ObterChaveCachePerfilUsuario(idUser.Value));
     }
 
     // ---------------- Lógica de Leitura ----------------
@@ -51,7 +51,31 @@ public class MoradorService(
 
         return resultado;
     }
+    
+    public async Task<MoradorResponseDto> ObterPerfilPorUserIdAsync(long userId)
+    {
+        string cacheKey = ObterChaveCachePerfilUsuario(userId);
+        var cachedData = await _cacheService.GetAsync<MoradorResponseDto>(cacheKey);
+        if (cachedData != null) return cachedData;
 
+        var morador = await _moradorRepository.ObterPorIdUserAsync(userId)
+            ?? throw new NotFoundException("Morador não encontrado ou inativo no sistema.");
+
+        var resultado = new MoradorResponseDto
+        {
+            Id = morador.Id,
+            Nome = morador.Usuario?.Nome ?? "Sem Nome",
+            Email = morador.Usuario?.Email ?? "Sem Email",
+            Cpf = morador.Usuario?.Cpf ?? "Sem CPF",
+            Telefone = morador.Usuario?.Celular ?? "Sem Telefone",
+            Bloco = morador.Bloco,
+            Apartamento = morador.Apartamento
+        };
+
+        await _cacheService.SetAsync(cacheKey, resultado, TimeSpan.FromHours(12));
+        return resultado;
+    }
+    
     public async Task<MoradorResponseDto> ObterMoradorPorIdAsync(long id)
     {
         var cacheKey = ObterChaveCacheMorador(id);
@@ -106,6 +130,7 @@ public class MoradorService(
             Apartamento = morador.Apartamento
         };
     }
+    
     public async Task<MoradorResponseDto> AtualizarDadosPessoaisAsync(long id, MoradorUpdateDadosPessoaisDto dto)
     {
         // Busca o morador incluindo o usuário vinculado (CSTB001_USER)
@@ -127,7 +152,7 @@ public class MoradorService(
         await _moradorRepository.SalvarAlteracoesAsync();
 
         // Limpa o cache para que a listagem reflita os novos dados pessoais
-        await InvalidarCachesAfetadosAsync(id);
+        await InvalidarCachesAfetadosAsync(morador.Id, morador.IdUser);
 
         return new MoradorResponseDto
         {
@@ -161,7 +186,7 @@ public class MoradorService(
         await _moradorRepository.SalvarAlteracoesAsync();
 
         // Invalida cache se necessário
-        await InvalidarCachesAfetadosAsync(id);
+        await InvalidarCachesAfetadosAsync(morador.Id, morador.IdUser);
     }
 
     public async Task DeletarMoradorAsync(long id)

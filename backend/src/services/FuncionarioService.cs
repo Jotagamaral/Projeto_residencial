@@ -13,17 +13,19 @@ public class FuncionarioService(
     // Chaves de identificação para o armazenamento
     private const string CACHE_KEY_TODOS_FUNCIONARIOS = "funcionarios:ativos:todos";
     private static string ObterChaveCacheFuncionario(long id) => $"funcionarios:detalhe:{id}";
+    private static string ObterChaveCachePerfilUsuario(long userId) => $"perfil:funcionario:{userId}";
 
     // ---------------- Lógica de Invalidação ----------------
 
-    private async Task InvalidarCachesAfetadosAsync(long? idFuncionario = null)
+    private async Task InvalidarCachesAfetadosAsync(long? idFuncionario = null, long? idUser = null)
     {
         await _cacheService.RemoveAsync(CACHE_KEY_TODOS_FUNCIONARIOS);
         
         if (idFuncionario.HasValue)
-        {
             await _cacheService.RemoveAsync(ObterChaveCacheFuncionario(idFuncionario.Value));
-        }
+            
+        if (idUser.HasValue)
+            await _cacheService.RemoveAsync(ObterChaveCachePerfilUsuario(idUser.Value));
     }
 
     // ---------------- Lógica de Leitura ----------------
@@ -51,6 +53,30 @@ public class FuncionarioService(
         return resultado;
     }
 
+    public async Task<FuncionarioResponseDto> ObterPerfilPorUserIdAsync(long userId)
+    {
+        string cacheKey = ObterChaveCachePerfilUsuario(userId);
+        var cachedData = await _cacheService.GetAsync<FuncionarioResponseDto>(cacheKey);
+        if (cachedData != null) return cachedData;
+
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(userId)
+            ?? throw new NotFoundException("Funcionário não encontrado ou inativo no sistema.");
+
+        var resultado = new FuncionarioResponseDto
+        {
+            Id = funcionario.Id,
+            Nome = funcionario.Usuario?.Nome ?? "Sem Nome",
+            Email = funcionario.Usuario?.Email ?? "Sem Email",
+            Cpf = funcionario.Usuario?.Cpf ?? "Sem CPF",
+            Telefone = funcionario.Usuario?.Celular ?? "Sem Telefone",
+            CargoId = funcionario.IdCategoriaCargo,
+            CargoNome = funcionario.CategoriaCargo?.Nome ?? "Não definido"
+        };
+
+        await _cacheService.SetAsync(cacheKey, resultado, TimeSpan.FromHours(12));
+        return resultado;
+    }
+    
     public async Task<FuncionarioResponseDto> ObterFuncionarioPorIdAsync(long id)
     {
         var cacheKey = ObterChaveCacheFuncionario(id);
@@ -123,7 +149,7 @@ public class FuncionarioService(
         await _funcionarioRepository.AtualizarAsync(funcionario);
         await _funcionarioRepository.SalvarAlteracoesAsync();
 
-        await InvalidarCachesAfetadosAsync(id);
+        await InvalidarCachesAfetadosAsync(funcionario.Id, funcionario.IdUser);
 
         return new FuncionarioResponseDto
         {
@@ -154,7 +180,7 @@ public class FuncionarioService(
         await _funcionarioRepository.AtualizarAsync(funcionario);
         await _funcionarioRepository.SalvarAlteracoesAsync();
 
-        await InvalidarCachesAfetadosAsync(id);
+        await InvalidarCachesAfetadosAsync(funcionario.Id, funcionario.IdUser);
     }
 
     public async Task DeletarFuncionarioAsync(long id)
