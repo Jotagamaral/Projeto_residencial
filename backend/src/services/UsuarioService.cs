@@ -144,4 +144,27 @@ public class UsuarioService : IUsuarioService
             Email = u.Email
         });
     }
+
+    public async Task<UsuarioResponseDto> ObterPerfilAdminPorUserIdAsync(long userId)
+    {
+        // Busca o usuário garantindo que ele está ativo e traz o nome da categoria
+        var admin = await _context.Usuario
+            .Include(u => u.Categoria)
+            .FirstOrDefaultAsync(u => u.Id == userId && u.Ativo);
+
+        if (admin == null)
+            throw new NotFoundException("Administrador não encontrado ou inativo no sistema.");
+
+        
+
+        return new UsuarioResponseDto
+        {
+            Id = admin.Id,
+            Nome = admin.Nome,
+            Email = admin.Email,
+            Cpf = admin.Cpf,
+            CategoriaAcesso = CategoriaAcessoConstants.ADMIN_ROLE,
+            Detalhes = null
+        };
+    }
 }

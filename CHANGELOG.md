@@ -1,3 +1,17 @@
+## [1.6.3](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.2...v1.6.3) (2026-05-07)
+
+
+### Bug Fixes
+
+* corrige erro workflows ([94db896](https://github.com/Jotagamaral/Projeto_residencial/commit/94db89635d21f1c486aed026a6a9f468fed525e3))
+* corrige erros actions ([8c13e19](https://github.com/Jotagamaral/Projeto_residencial/commit/8c13e197810357af9e3e50a5930c306679c15c95))
+* corrige implementacao de log CloudAMQP ([e61dcb2](https://github.com/Jotagamaral/Projeto_residencial/commit/e61dcb2c77fad5e828361017a8a86c68919d7773))
+* editprofile now reload profile page ([5e1999c](https://github.com/Jotagamaral/Projeto_residencial/commit/5e1999c4a27a2afae87e05c927fc6c10fd47af56))
+* error displaying phone number on profile page ([669f53d](https://github.com/Jotagamaral/Projeto_residencial/commit/669f53d3aaae9ecf9dbd76dec323438266a40c1c))
+* modifica testes para commits ([eb8b651](https://github.com/Jotagamaral/Projeto_residencial/commit/eb8b651e9e86c1ef9235483c480e8386e9982101))
+* modifica worflows ([7963d62](https://github.com/Jotagamaral/Projeto_residencial/commit/7963d62a5280dc6e40603a7241a6b3230fc44b92))
+* realease secret semantic-bot ([91dba17](https://github.com/Jotagamaral/Projeto_residencial/commit/91dba179e047d0089f09b328e71b2a2ee85206e7))
+
 ## [1.6.2](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.1...v1.6.2) (2026-05-06)
 
 
