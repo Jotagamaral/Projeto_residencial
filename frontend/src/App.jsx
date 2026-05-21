@@ -7,6 +7,7 @@ import LoginPage from "./pages/LoginPage";
 import Encomendas from "./pages/Encomendas/Encomendas";
 import CadastroEncomenda from "./pages/Encomendas/CadastroEncomenda";
 import Reclamacoes from "./pages/Reclamacoes/Reclamacoes";
+import Funcionarios from "./pages/Funcionarios/Funcionarios";
 
 import { AuthProvider } from './context/AuthContext'; // Importar AuthProvider
 import PrivateRoute from './components/PrivateRoute'; // Importar PrivateRoute
@@ -30,6 +31,7 @@ function App() {
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/encomendas" element={<Encomendas />} />
             <Route path="/reclamacoes" element={<Reclamacoes />} />
+            <Route path="/funcionarios" element={<Funcionarios />} />
             <Route path="/reservas" element={<Reservas />} />
             <Route path="/cadastro_reclamacao" element={<CadastroReclamacao />} />
             <Route path="/cadastro_encomendas" element={<CadastroEncomenda />} />
