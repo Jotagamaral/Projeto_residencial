@@ -4,8 +4,14 @@ import Navbar from "../components/Navbar";
 import CustomSidebar from "../components/CustomSidebar";
 import EditProfile from "../components/EditProfile";
 import { useAuth } from '../context/AuthContext';
-import { buscarMoradorPorId } from '../services/moradoresService';
-import { buscarFuncionarioPorId } from '../services/funcionariosService';
+
+// Importe os novos serviços centralizados
+import { 
+  buscarPerfilMorador, 
+  buscarPerfilFuncionario, 
+  buscarPerfilAdmin 
+} from '../services/perfilService';
+
 import {
   FaUser,
   FaEnvelope,
@@ -15,8 +21,6 @@ import {
   FaEdit,
   FaClock,
   FaCheck,
-  FaExclamationCircle,
-  FaArrowRight,
 } from 'react-icons/fa';
 
 function Perfil() {
@@ -31,27 +35,15 @@ function Perfil() {
 
   const loadProfile = async () => {
     try {
-      const isMorador = user?.categoria === 'MORADOR';
-      const isFuncionario = user?.categoria === 'FUNCIONARIO' || user?.categoria === 'ADMIN';
-
-      let profileId = null;
-      if (isMorador) {
-        profileId = user?.moradorId;
-      } else if (isFuncionario) {
-        profileId = user?.funcionarioId;
-      }
-
-      if (!profileId) {
-        console.error('ID do perfil não encontrado na sessão.');
-        return;
-      }
-
-      if (isMorador) {
-        const moradorData = await buscarMoradorPorId(profileId);
+      if (user?.categoria === 'MORADOR') {
+        const moradorData = await buscarPerfilMorador();
         setMorador(moradorData);
-      } else if (isFuncionario) {
-        const funcionarioData = await buscarFuncionarioPorId(profileId);
+      } else if (user?.categoria === 'FUNCIONARIO') {
+        const funcionarioData = await buscarPerfilFuncionario();
         setFuncionario(funcionarioData);
+      } else if (user?.categoria === 'ADMIN') {
+        const adminData = await buscarPerfilAdmin();
+        setFuncionario(adminData); // Reaproveita o estado de funcionário para renderizar o painel
       }
     } catch (error) {
       console.error('Erro ao carregar dados do perfil:', error);
@@ -73,22 +65,6 @@ function Perfil() {
       return;
     }
 
-    const isMorador = user?.categoria === 'MORADOR';
-    const isFuncionario = user?.categoria === 'FUNCIONARIO' || user?.categoria === 'ADMIN';
-
-    let profileId = null;
-    if (isMorador) {
-      profileId = user?.moradorId;
-    } else if (isFuncionario) {
-      profileId = user?.funcionarioId;
-    }
-
-    if (!profileId) {
-      console.error('ID do perfil não encontrado na sessão.');
-      navigate('/login');
-      return;
-    }
-
     const fetchData = async () => {
       await loadProfile();
       setIsLoading(false);
@@ -99,19 +75,18 @@ function Perfil() {
 
   if (!user || isLoading || (!morador && !funcionario)) return null;
 
-  // Mapear categorias para nomes amigáveis
   const categoriaMap = {
     'MORADOR': 'Morador',
     'FUNCIONARIO': 'Funcionário',
     'SINDICO': 'Síndico',
     'ZELADOR': 'Zelador',
+    'ADMIN': 'Administrador'
   };
 
   const getNomeCategoria = (categoria) => {
     return categoriaMap[categoria] || categoria;
   };
 
-  // Obter iniciais do nome
   const getInitials = (nome) => {
     if (!nome) return '?';
     return nome
@@ -122,13 +97,13 @@ function Perfil() {
       .slice(0, 2);
   };
 
-  // Cores para avatar baseado em categoria
   const getAvatarColors = (categoria) => {
     const colors = {
       'MORADOR': 'bg-blue-500',
       'FUNCIONARIO': 'bg-purple-500',
       'SINDICO': 'bg-amber-500',
       'ZELADOR': 'bg-green-500',
+      'ADMIN': 'bg-red-500'
     };
     return colors[categoria] || 'bg-blue-500';
   };
@@ -153,7 +128,6 @@ function Perfil() {
         </main>
       </div>
 
-      {/* Modal de Editar Perfil */}
       <EditProfile 
         isOpen={isEditProfileOpen}
         onClose={() => setIsEditProfileOpen(false)}
@@ -172,12 +146,10 @@ function Perfil() {
         <div className="mb-8">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-end gap-6">
-              {/* Avatar */}
               <div className={`${getAvatarColors(user.categoria)} h-24 w-24 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-md flex-shrink-0`}>
                 {getInitials(dados.nome)}
               </div>
 
-              {/* Informações Principais */}
               <div className="flex-1">
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
                   {dados.nome}
@@ -199,7 +171,6 @@ function Perfil() {
                 </p>
               </div>
 
-              {/* Botões de Ação */}
               <div className="flex flex-col gap-2 w-full sm:w-auto">
                 <button 
                   onClick={() => openEditProfile('dados')}
@@ -256,7 +227,6 @@ function Perfil() {
         {/* Conteúdo das Tabs */}
         {activeTab === 'dados' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Card de Informações Pessoais */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaUser className="text-blue-600" />
@@ -304,7 +274,6 @@ function Perfil() {
               </div>
             </div>
 
-            {/* Card de Contato */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaEnvelope className="text-emerald-600" />
@@ -336,7 +305,6 @@ function Perfil() {
 
         {activeTab === 'seguranca' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Card de Segurança */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaCheck className="text-amber-600" />
@@ -354,7 +322,6 @@ function Perfil() {
               </div>
             </div>
 
-            {/* Card de Senha */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Alterar Senha</h2>
               <div className="space-y-4">
@@ -368,7 +335,6 @@ function Perfil() {
               </div>
             </div>
 
-            {/* Card de Sessões Ativas */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 lg:col-span-2">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaClock className="text-indigo-600" />
@@ -438,12 +404,10 @@ function Perfil() {
         <div className="mb-8">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-end gap-6">
-              {/* Avatar */}
               <div className={`${getAvatarColors(user.categoria)} h-24 w-24 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-md flex-shrink-0`}>
                 {getInitials(dados.nome)}
               </div>
 
-              {/* Informações Principais */}
               <div className="flex-1">
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
                   {dados.nome}
@@ -465,7 +429,6 @@ function Perfil() {
                 </p>
               </div>
 
-              {/* Botões de Ação */}
               <div className="flex flex-col gap-2 w-full sm:w-auto">
                 <button 
                   onClick={() => openEditProfile('dados')}
@@ -512,7 +475,6 @@ function Perfil() {
         {/* Conteúdo das Tabs */}
         {activeTab === 'dados' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Card de Informações Profissionais */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaBriefcase className="text-purple-600" />
@@ -546,7 +508,6 @@ function Perfil() {
               </div>
             </div>
 
-            {/* Card de Contato */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaEnvelope className="text-emerald-600" />
@@ -557,7 +518,6 @@ function Perfil() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Email
                   </label>
-                  {console.log('Dados do perfil:', dados), console.log('Dados do user:', user)}
                   <p className="text-gray-900 font-medium break-all">{dados.email}</p>
                 </div>
                 <div>
@@ -579,7 +539,6 @@ function Perfil() {
 
         {activeTab === 'seguranca' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Card de Segurança */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaCheck className="text-amber-600" />
@@ -597,7 +556,6 @@ function Perfil() {
               </div>
             </div>
 
-            {/* Card de Senha */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Alterar Senha</h2>
               <div className="space-y-4">
@@ -611,7 +569,6 @@ function Perfil() {
               </div>
             </div>
 
-            {/* Card de Sessões Ativas */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 lg:col-span-2">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FaClock className="text-indigo-600" />
