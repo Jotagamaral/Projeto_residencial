@@ -1,117 +1,141 @@
- 
-#  CondoSync – Sistema de Gestão de Condomínios
+# CondoSync – Sistema de Gestão de Condomínios
 
-O **CondoSync** é uma solução digital desenvolvida para otimizar a gestão de condomínios residenciais, centralizando informações administrativas e melhorando a comunicação entre moradores, funcionários e administradores.
-
----
-
-##  Sobre o Projeto
-
-Com o crescimento dos condomínios e a complexidade da gestão, muitos processos ainda são realizados de forma manual, gerando falhas, retrabalho e falta de controle.
-
-O CondoSync surge como uma solução para digitalizar e organizar esses processos, proporcionando mais eficiência, segurança e praticidade no dia a dia condominial.
+O CondoSync é uma plataforma digital desenvolvida para centralizar e automatizar os processos administrativos de condomínios residenciais, melhorando a comunicação entre moradores, funcionários e administradores.
 
 ---
 
-##  Objetivo
+## Tecnologias Utilizadas
 
-Facilitar a administração do condomínio por meio de uma plataforma que permite:
-
-* Gerenciar moradores, funcionários e visitantes
-* Controlar reservas de áreas comuns
-* Registrar avisos e reclamações
-* Monitorar encomendas
-
----
-
-##  Funcionalidades Principais
-
-* Cadastro de moradores, funcionários e visitantes
-* Gestão de avisos e comunicação interna
-* Registro e acompanhamento de reclamações
-* Reserva de áreas comuns (salão, churrasqueira, etc.)
-* Controle de encomendas
-* Controle de acesso de visitantes
+- **Frontend:** React + Vite
+- **Backend:** .NET 8 (C#)
+- **Banco de Dados:** PostgreSQL via Supabase
+- **Cache:** Redis
+- **Mensageria:** RabbitMQ
+- **Containerização:** Docker + Docker Compose
+- **CI/CD:** GitHub Actions
 
 ---
 
-##  Perfis de Usuário
+## Funcionalidades Implementadas
 
-* **Administrador / Síndico**: gerencia o sistema e cria avisos
-* **Funcionário / Portaria**: controla visitantes e encomendas
-* **Morador**: realiza reservas, registra reclamações e acompanha avisos
-
----
-
-##  Tecnologias Utilizadas
-
-* **Frontend:** React + Vite
-* **Backend:** .NET (C#)
-* **Banco de Dados:** PostgreSQL (Supabase)
+- Autenticação com JWT e controle de acesso por perfil (Administrador, Funcionário, Morador)
+- Cadastro e gestão de moradores e funcionários
+- Publicação e listagem de avisos
+- Registro e acompanhamento de encomendas
+- Registro e acompanhamento de reclamações
+- Reserva de áreas comuns com controle de conflito de horário
+- Log de auditoria de ações no sistema
+- Cache com Redis e filas com RabbitMQ
 
 ---
 
-##  Banco de Dados (Resumo)
+## Pré-requisitos
 
-Modelo relacional com foco em integridade e organização.
+Antes de rodar o projeto, instale:
 
-### Principais entidades:
-
-* Usuários
-* Moradores
-* Funcionarios
-* Visitantes
-* Encomendas
-* Reservas
-* Locais
-* Avisos
-* Reclamações
-
-### Recursos adicionais:
-
-* Auditoria de alterações
-* Controle de permissões por tipo de usuário
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (com WSL 2 habilitado no Windows)
+- [Git](https://git-scm.com/)
 
 ---
 
-##  Regras de Negocio
+## Como Executar
 
-* Apenas moradores podem realizar reservas e registrar reclamações
-* Visitantes devem estar vinculados a um morador
-* Funcionários são responsáveis pelo registro de encomendas
-* Administradores criam avisos
-* Reservas exigem data, horário e local
+### 1. Clone o repositório
 
----
+```bash
+git clone https://github.com/Jotagamaral/Projeto_residencial.git
+cd Projeto_residencial
+```
 
-##  Requisitos Funcionais
+### 2. Configure as variáveis de ambiente
 
-* Cadastro e consulta de usuários
-* Registro de reservas, avisos, reclamações e encomendas
-* Consulta de dados do sistema
+```bash
+cd docker
+cp .env.example .env
+```
 
----
+### 3. Suba os containers
 
-##  Equipe
+```bash
+docker compose up --build
+```
 
-* 22250399 – Davi Alves Cardoso
-* 22309466 – João Gabriel
-* 22250409 – Henrique Rocha
-* 22252016 – Thales Martins
-* 22407619 – Gabriel Jesus
+Aguarde o build completo. Na primeira execução pode demorar alguns minutos.
 
----
+### 4. Acesse o sistema
 
-##  Documentação
-
-A documentação completa do projeto está disponível na pasta:
-
-👉 docs/documentacao_condosync.docx
-
+| Serviço | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| Backend (API) | http://localhost:8080 |
+| RabbitMQ (painel) | http://localhost:15672 |
 
 ---
 
-## ✅ Conclusão
+## Como Executar Apenas o Frontend
 
-O CondoSync centraliza e organiza os principais processos de um condomínio, trazendo mais eficiência, controle e comunicação para a gestão, além de promover a modernização de atividades que ainda são realizadas de forma manual.
+Caso queira rodar somente o frontend sem Docker:
 
+### Pré-requisito
+
+- [Node.js LTS](https://nodejs.org/)
+
+### Passos
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Acesse: **http://localhost:5173**
+
+---
+
+## Como Executar os Testes
+
+```bash
+cd backend.Tests
+dotnet test
+```
+
+---
+
+## Estrutura do Projeto
+
+```
+Projeto_residencial/
+├── backend/          # API em .NET (C#)
+├── backend.Tests/    # Testes unitários do backend
+├── frontend/         # Interface em React + Vite
+├── DB/supabase/      # Migrations e scripts SQL
+├── docker/           # Docker Compose e variáveis de ambiente
+├── docs/             # Documentação do projeto
+└── scripts/          # Scripts auxiliares (seed do banco)
+```
+
+---
+
+## Perfis de Usuário
+
+| Perfil | Permissões |
+|---|---|
+| Administrador / Síndico | Gerencia moradores, funcionários, avisos e reclamações |
+| Funcionário / Portaria | Registra encomendas e controla visitantes |
+| Morador | Realiza reservas, registra reclamações e acompanha avisos |
+
+---
+
+## Equipe
+
+| Matrícula | Nome |
+|---|---|
+| 22250399 | Daví Alves Cardoso |
+| 22309466 | João Gabriel |
+| 22250409 | Henrique Rocha |
+| 22252016 | Thales Martins |
+| 22407619 | Gabriel Jesus |
+
+**Orientador:** Prof. Thiago Leite  
+**Instituição:** Centro Universitário de Brasília – UniCEUB  
+**Curso:** Ciência da Computação – 2026
