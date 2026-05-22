@@ -136,6 +136,6 @@ Projeto_residencial/
 | 22252016 | Thales Martins |
 | 22407619 | Gabriel Jesus |
 
-**Orientador:** Prof. Thiago Leite  
+**Orientador:** Prof. Tiago Leite  
 **Instituição:** Centro Universitário de Brasília – UniCEUB  
 **Curso:** Ciência da Computação – 2026
