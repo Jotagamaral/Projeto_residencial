@@ -30,25 +30,15 @@ public class AppDbContext : DbContext
     public DbSet<Encomenda> Encomendas { get; set; } = null!;
     public DbSet<CategoriaEncomenda> CategoriasEncomenda { get; set; } = null!;
 
+    //* Visitantes
+    public DbSet<Visitante> Visitantes { get; set; } = null!;
+    public DbSet<AcessoVisitante> AcessosVisitante { get; set; } = null!;
+
     public DbSet<Aviso> Avisos { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        // modelBuilder.Entity<Morador>(entity =>
-        // {
-        //     entity.HasIndex(m => m.Cpf).IsUnique();
-        //     entity.HasIndex(m => m.Rg).IsUnique();
-        //     entity.HasIndex(m => m.Email).IsUnique();
-        // });
-
-        // modelBuilder.Entity<Funcionario>(entity =>
-        // {
-        //     entity.HasIndex(f => f.Cpf).IsUnique();
-        //     entity.HasIndex(f => f.Rg).IsUnique();
-        //     entity.HasIndex(f => f.Email).IsUnique();
-        // });
 
         modelBuilder.Entity<Log>(entity =>
         {
@@ -61,14 +51,10 @@ public class AppDbContext : DbContext
             }
             else
             {
-                // Se for o PostgreSQL (produção), usa o comando nativo do banco
                 entity.Property(l => l.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             }
         });
 
-        // Entidades
-
-        // Config CSTB001_USER
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.HasIndex(u => u.Cpf).IsUnique();
@@ -114,6 +100,25 @@ public class AppDbContext : DbContext
                     v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
 
             entity.Property(e => e.DataExpiracao)
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToUniversalTime() : v,
+                    v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+        });
+
+        modelBuilder.Entity<Visitante>(entity =>
+        {
+            entity.HasIndex(v => v.Cpf).IsUnique();
+            entity.HasIndex(v => v.Rg).IsUnique();
+        });
+
+        modelBuilder.Entity<AcessoVisitante>(entity =>
+        {
+            entity.Property(e => e.DataEntrada)
+                .HasConversion(
+                    v => v.ToUniversalTime(),
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+            entity.Property(e => e.DataSaida)
                 .HasConversion(
                     v => v.HasValue ? v.Value.ToUniversalTime() : v,
                     v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);

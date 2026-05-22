@@ -12,6 +12,7 @@ import {
   FaChevronRight,
   FaUser,
   FaUserTie,
+  FaUsers,
 } from 'react-icons/fa';
 
 const navItems = [
@@ -48,6 +49,9 @@ function CustomSidebar() {
     .join('')
     .toUpperCase();
 
+  const isAdmin = tipoCargo === 'ADMIN';
+  const isFuncOrAdmin = tipoCargo === 'FUNCIONARIO' || tipoCargo === 'ADMIN';
+
   return (
     <aside className="min-h-screen w-64 bg-[#1a1f3d] text-white flex flex-col shrink-0">
       {/* Logo */}
@@ -63,10 +67,8 @@ function CustomSidebar() {
         </Link>
       </div>
 
-      {/* Separator */}
       <div className="mx-5 h-px bg-white/10" />
 
-      {/* Navigation */}
       <nav className="flex-1 px-3 py-4">
         <p className="px-3 mb-3 text-[10px] font-semibold uppercase tracking-widest text-white/30">
           Menu
@@ -86,14 +88,13 @@ function CustomSidebar() {
                 >
                   <item.icon className="text-base" />
                   <span>{item.title}</span>
-                  {isActive && (
-                    <FaChevronRight className="ml-auto text-[10px] opacity-60" />
-                  )}
+                  {isActive && <FaChevronRight className="ml-auto text-[10px] opacity-60" />}
                 </Link>
               </li>
             );
           })}
-          {tipoCargo === 'ADMIN' && (
+
+          {isAdmin && (
             <li>
               <Link
                 to="/funcionarios"
@@ -105,13 +106,29 @@ function CustomSidebar() {
               >
                 <FaUserTie className="text-base" />
                 <span>Funcionários</span>
-                {location.pathname === '/funcionarios' && (
-                  <FaChevronRight className="ml-auto text-[10px] opacity-60" />
-                )}
+                {location.pathname === '/funcionarios' && <FaChevronRight className="ml-auto text-[10px] opacity-60" />}
               </Link>
             </li>
           )}
-          {(tipoCargo === 'FUNCIONARIO' || tipoCargo === 'ADMIN') && (
+
+          {isFuncOrAdmin && (
+            <li>
+              <Link
+                to="/visitantes"
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  location.pathname === '/visitantes'
+                    ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
+                    : 'text-white/60 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                <FaUsers className="text-base" />
+                <span>Visitantes</span>
+                {location.pathname === '/visitantes' && <FaChevronRight className="ml-auto text-[10px] opacity-60" />}
+              </Link>
+            </li>
+          )}
+
+          {isFuncOrAdmin && (
             <li>
               <Link
                 to="/cadastro_aviso"
@@ -123,9 +140,7 @@ function CustomSidebar() {
               >
                 <FaBullhorn className="text-base" />
                 <span>Novos avisos</span>
-                {location.pathname === '/cadastro_aviso' && (
-                  <FaChevronRight className="ml-auto text-[10px] opacity-60" />
-                )}
+                {location.pathname === '/cadastro_aviso' && <FaChevronRight className="ml-auto text-[10px] opacity-60" />}
               </Link>
             </li>
           )}

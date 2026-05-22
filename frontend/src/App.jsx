@@ -14,6 +14,7 @@ import PrivateRoute from './components/PrivateRoute'; // Importar PrivateRoute
 import Reservas from "./pages/Reservas/Reservas";
 import CadastroReclamacao from "./pages/Reclamacoes/CadastroReclamacoes";
 import CadastroAvisos from "./pages/Avisos/CadastroAvisos";
+import Visitantes from "./pages/Visitantes/Visitantes";
 
 function App() {
   return (
@@ -35,7 +36,8 @@ function App() {
             <Route path="/reservas" element={<Reservas />} />
             <Route path="/cadastro_reclamacao" element={<CadastroReclamacao />} />
             <Route path="/cadastro_encomendas" element={<CadastroEncomenda />} />
-            <Route path="/cadastro_aviso" element={<CadastroAvisos />} />    
+            <Route path="/cadastro_aviso" element={<CadastroAvisos />} />
+            <Route path="/visitantes" element={<Visitantes />} />    
 
             {/* Adicione outras rotas protegidas aqui */}
           </Route>

@@ -275,6 +275,11 @@ builder.Services.AddScoped<ICategoriaCargoService, CategoriaCargoService>();
 builder.Services.AddScoped<ILocalRepository, LocalRepository>();
 builder.Services.AddScoped<ILocalService, LocalService>();
 
+//* Visitantes
+builder.Services.AddScoped<IVisitanteRepository, VisitanteRepository>();
+builder.Services.AddScoped<IAcessoVisitanteRepository, AcessoVisitanteRepository>();
+builder.Services.AddScoped<IVisitanteService, VisitanteService>();
+
 //* RabbitMQ
 builder.Services.AddSingleton<IMessageBusService, RabbitMQService>();
 builder.Services.AddHostedService<LogWorker>();
