@@ -280,6 +280,10 @@ builder.Services.AddScoped<IVisitanteRepository, VisitanteRepository>();
 builder.Services.AddScoped<IAcessoVisitanteRepository, AcessoVisitanteRepository>();
 builder.Services.AddScoped<IVisitanteService, VisitanteService>();
 
+//* Domínios
+builder.Services.AddScoped<IDominioRepository, DominioRepository>();
+builder.Services.AddScoped<IDominioService, DominioService>();
+
 //* RabbitMQ
 builder.Services.AddSingleton<IMessageBusService, RabbitMQService>();
 builder.Services.AddHostedService<LogWorker>();
