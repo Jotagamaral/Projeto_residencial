@@ -60,6 +60,17 @@ export async function alterarSenhaFuncionario(id, senhaData) {
   }
 }
 
+export async function atualizarCargoFuncionario(id, cargoId) {
+    try {
+        const response = await api.put(`${urlFuncionarios}/${id}`, { cargoId });
+        return response.data;
+    } catch (error) {
+        const mensagemErro = error.response?.data?.message || 'Erro ao atualizar cargo do funcionário.';
+        console.error(`[funcionariosService.js] Erro: ${mensagemErro}`);
+        throw new Error(mensagemErro);
+    }
+}
+
 // ---------------- DELETE ----------------
 
 export async function deletarFuncionario(id) {

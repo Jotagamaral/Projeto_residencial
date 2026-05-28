@@ -7,12 +7,15 @@ import LoginPage from "./pages/LoginPage";
 import Encomendas from "./pages/Encomendas/Encomendas";
 import CadastroEncomenda from "./pages/Encomendas/CadastroEncomenda";
 import Reclamacoes from "./pages/Reclamacoes/Reclamacoes";
+import Funcionarios from "./pages/Funcionarios/Funcionarios";
 
 import { AuthProvider } from './context/AuthContext'; // Importar AuthProvider
 import PrivateRoute from './components/PrivateRoute'; // Importar PrivateRoute
 import Reservas from "./pages/Reservas/Reservas";
 import CadastroReclamacao from "./pages/Reclamacoes/CadastroReclamacoes";
 import CadastroAvisos from "./pages/Avisos/CadastroAvisos";
+import Visitantes from "./pages/Visitantes/Visitantes";
+import Configuracoes from "./pages/Configuracoes/Configuracoes";
 
 function App() {
   return (
@@ -30,10 +33,13 @@ function App() {
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/encomendas" element={<Encomendas />} />
             <Route path="/reclamacoes" element={<Reclamacoes />} />
+            <Route path="/funcionarios" element={<Funcionarios />} />
             <Route path="/reservas" element={<Reservas />} />
             <Route path="/cadastro_reclamacao" element={<CadastroReclamacao />} />
             <Route path="/cadastro_encomendas" element={<CadastroEncomenda />} />
-            <Route path="/cadastro_aviso" element={<CadastroAvisos />} />    
+            <Route path="/cadastro_aviso" element={<CadastroAvisos />} />
+            <Route path="/visitantes" element={<Visitantes />} />    
+            <Route path="/configuracoes" element={<Configuracoes />} />
 
             {/* Adicione outras rotas protegidas aqui */}
           </Route>

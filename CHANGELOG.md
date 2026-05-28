@@ -1,3 +1,12 @@
+## [1.6.4](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.3...v1.6.4) (2026-05-21)
+
+
+### Bug Fixes
+
+* modifica logica de controller para area de perfil ([8b1fe13](https://github.com/Jotagamaral/Projeto_residencial/commit/8b1fe13f503d9572e1894cee3c29a33123c3b8bf))
+* modifica logica de service para area de perfil ([3d82f50](https://github.com/Jotagamaral/Projeto_residencial/commit/3d82f504e521ed0d7138994764483e9bfc9c9cad))
+* **perfil:** implementa conexao com api em perfil ([e83a459](https://github.com/Jotagamaral/Projeto_residencial/commit/e83a4591dc0bf5d8a51af8f16b953cccada626f6))
+
 ## [1.6.3](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.2...v1.6.3) (2026-05-07)
 
 
