@@ -1,0 +1,817 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "CondoSync API",
+    "description": "Especificação completa dos endpoints da API CondoSync para importação no Postman. Inclui fluxos de autenticação, gestão de funcionários, locais, domínios e regras de acesso por perfil.",
+    "version": "1.6.4"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api",
+      "description": "Servidor de Desenvolvimento Local"
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Autentica um usuário no sistema e retorna o Token JWT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "cpf",
+                  "senha"
+                ],
+                "properties": {
+                  "cpf": {
+                    "type": "string",
+                    "example": "12345678901",
+                    "description": "CPF cadastrado (somente números)"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "example": "Senha@123",
+                    "description": "Senha de acesso"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticação realizada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "nome": {
+                          "type": "string",
+                          "example": "Administrador do Condomínio"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "admin@condosync.com"
+                        },
+                        "categoria": {
+                          "type": "string",
+                          "example": "ADMIN"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Payload inválido ou credenciais incorretas"
+          },
+          "401": {
+            "description": "Não autorizado"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Realiza o cadastro de um novo usuário (Morador ou Funcionário)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nome",
+                  "cpf",
+                  "email",
+                  "senha",
+                  "categoriaAcessoId"
+                ],
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "João da Silva"
+                  },
+                  "cpf": {
+                    "type": "string",
+                    "example": "98765432109"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "joao.silva@condosync.com"
+                  },
+                  "rg": {
+                    "type": "string",
+                    "example": "MG-12.345.678"
+                  },
+                  "celular": {
+                    "type": "string",
+                    "example": "61999998888"
+                  },
+                  "apartamento": {
+                    "type": "integer",
+                    "example": 204
+                  },
+                  "bloco": {
+                    "type": "string",
+                    "example": "B"
+                  },
+                  "cargoId": {
+                    "type": "integer",
+                    "example": null,
+                    "nullable": true
+                  },
+                  "senha": {
+                    "type": "string",
+                    "example": "Senha@123"
+                  },
+                  "categoriaAcessoId": {
+                    "type": "integer",
+                    "example": 3,
+                    "description": "1: Admin, 2: Funcionário, 3: Morador"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso"
+          },
+          "400": {
+            "description": "Dados incorretos ou e-mail/CPF duplicado"
+          }
+        }
+      }
+    },
+    "/locais": {
+      "get": {
+        "tags": [
+          "Locais (Áreas Comuns)"
+        ],
+        "summary": "Lista todos os locais ativos cadastrados",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista obtida com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "example": 1
+                      },
+                      "nome": {
+                        "type": "string",
+                        "example": "Salão de Festas"
+                      },
+                      "capacidade": {
+                        "type": "integer",
+                        "example": 60
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Locais (Áreas Comuns)"
+        ],
+        "summary": "(Admin) Cria um novo local (espaço comum) no condomínio",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nome",
+                  "capacidade"
+                ],
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "Churrasqueira A"
+                  },
+                  "capacidade": {
+                    "type": "integer",
+                    "example": 25
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Local criado com sucesso"
+          },
+          "403": {
+            "description": "Acesso restrito ao Administrador"
+          }
+        }
+      }
+    },
+    "/locais/{id}": {
+      "get": {
+        "tags": [
+          "Locais (Áreas Comuns)"
+        ],
+        "summary": "Busca os detalhes de um local específico pelo seu ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do local"
+          },
+          "404": {
+            "description": "Local não encontrado"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Locais (Áreas Comuns)"
+        ],
+        "summary": "(Admin) Atualiza o nome ou capacidade de um local",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "Churrasqueira Gourmet"
+                  },
+                  "capacidade": {
+                    "type": "integer",
+                    "example": 30
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Local atualizado com sucesso"
+          },
+          "403": {
+            "description": "Permissão negada"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Locais (Áreas Comuns)"
+        ],
+        "summary": "(Admin) Inativa o registro de um local (Soft Delete)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Local inativado com sucesso"
+          },
+          "400": {
+            "description": "Impossível excluir devido a reservas futuras ativas"
+          }
+        }
+      }
+    },
+    "/categorias-cargo": {
+      "get": {
+        "tags": [
+          "Categorias de Cargo"
+        ],
+        "summary": "Lista todas as categorias de cargo ativas",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "example": 1
+                      },
+                      "nome": {
+                        "type": "string",
+                        "example": "Porteiro"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Categorias de Cargo"
+        ],
+        "summary": "(Admin) Cria uma nova categoria de cargo",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nome"
+                ],
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "Zelador Geral"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cargo criado com sucesso"
+          }
+        }
+      }
+    },
+    "/categorias-cargo/{id}": {
+      "get": {
+        "tags": [
+          "Categorias de Cargo"
+        ],
+        "summary": "Busca os detalhes de uma categoria de cargo pelo ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do cargo"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Categorias de Cargo"
+        ],
+        "summary": "(Admin) Atualiza os dados de uma categoria de cargo existente",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "Supervisor de Segurança"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cargo atualizado"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Categorias de Cargo"
+        ],
+        "summary": "(Admin) Inativa ou exclui uma categoria de cargo pelo ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Cargo excluído"
+          }
+        }
+      }
+    },
+    "/dominios/status/encomendas": {
+      "get": {
+        "tags": [
+          "Domínios (Status)"
+        ],
+        "summary": "Lista os status disponíveis para as Encomendas",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de status de encomendas"
+          }
+        }
+      }
+    },
+    "/dominios/status/reclamacoes": {
+      "get": {
+        "tags": [
+          "Domínios (Status)"
+        ],
+        "summary": "Lista os status disponíveis para as Reclamações",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de status de reclamações"
+          }
+        }
+      }
+    },
+    "/dominios/status/reservas": {
+      "get": {
+        "tags": [
+          "Domínios (Status)"
+        ],
+        "summary": "Lista os status disponíveis para as Reservas",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de status de reservas"
+          }
+        }
+      }
+    },
+    "/funcionarios": {
+      "get": {
+        "tags": [
+          "Funcionários"
+        ],
+        "summary": "Lista todos os funcionários ativos (Acesso: Admin/Funcionário)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/funcionarios/{id}": {
+      "get": {
+        "tags": [
+          "Funcionários"
+        ],
+        "summary": "Retorna os detalhes de um funcionário específico",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Funcionários"
+        ],
+        "summary": "(Admin) Atualiza o cargo de um funcionário",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cargoId": {
+                    "type": "integer",
+                    "example": 2
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Funcionários"
+        ],
+        "summary": "(Admin) Inativa o registro de um funcionário",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Inativado com sucesso"
+          }
+        }
+      }
+    },
+    "/funcionarios/{id}/dados-pessoais": {
+      "put": {
+        "tags": [
+          "Funcionários"
+        ],
+        "summary": "Atualiza os dados pessoais de um funcionário",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "Carlos Alberto"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "carlos.alberto@condosync.com"
+                  },
+                  "celular": {
+                    "type": "string",
+                    "example": "61988887777"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/funcionarios/{id}/alterar-senha": {
+      "put": {
+        "tags": [
+          "Funcionários"
+        ],
+        "summary": "Redefine a senha de acesso de um funcionário",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "senhaAtual",
+                  "novaSenha"
+                ],
+                "properties": {
+                  "senhaAtual": {
+                    "type": "string",
+                    "example": "Senha@123"
+                  },
+                  "novaSenha": {
+                    "type": "string",
+                    "example": "NovaSenha@456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Senha atualizada com sucesso"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Insira o token JWT retornado no endpoint /login"
+      }
+    }
+  }
+}
