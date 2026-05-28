@@ -68,16 +68,6 @@ function Funcionarios() {
     }
   }, [funcionarios]);
 
-  const atualizarCargo = async (id, cargoId) => {
-    try {
-      await atualizarCargoFuncionario(id, cargoId);
-      setFuncionarios((prev) => prev.map((f) => (f.id === id ? { ...f, cargoId, cargoNome: cargos.find(c => c.id === cargoId)?.nome || f.cargoNome } : f)));
-    } catch (err) {
-      setErro('Erro ao atualizar cargo.');
-      console.error(err);
-    }
-  };
-
   const handleSelectChange = (id, value) => {
     setRowStates((prev) => ({ ...prev, [id]: { ...(prev[id] || {}), selectedCargo: Number(value), error: null } }));
   };
