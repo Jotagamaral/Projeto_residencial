@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../components/Navbar";
 import CustomSidebar from "../components/CustomSidebar";
@@ -33,7 +33,7 @@ function Perfil() {
   const [editProfileInitialTab, setEditProfileInitialTab] = useState('dados');
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       if (user?.categoria === 'MORADOR') {
         const moradorData = await buscarPerfilMorador();
@@ -48,7 +48,7 @@ function Perfil() {
     } catch (error) {
       console.error('Erro ao carregar dados do perfil:', error);
     }
-  };
+  }, [user]);
 
   const reloadProfile = () => {
     loadProfile();
@@ -71,7 +71,7 @@ function Perfil() {
     };
 
     fetchData();
-  }, [user, navigate]);
+  }, [user, navigate, loadProfile]);
 
   if (!user || isLoading || (!morador && !funcionario)) return null;
 

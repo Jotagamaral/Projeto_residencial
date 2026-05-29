@@ -27,3 +27,4 @@ dist-ssr
 .venv
 .idea
 .pnpm-lock.yaml
+agents.md
