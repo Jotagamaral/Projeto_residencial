@@ -118,8 +118,16 @@ public class VisitanteService(
                 Nome = dto.Nome.Trim(), Telefone = dto.Telefone?.Trim(), Ativo = true
             };
             await _visitanteRepository.AdicionarAsync(visitante);
-            await _visitanteRepository.SalvarAlteracoesAsync();
         }
+        else
+        {
+            visitante.Ativo = true;
+            visitante.Nome = dto.Nome.Trim();
+            visitante.Rg = dto.Rg.Trim();
+            visitante.Telefone = dto.Telefone?.Trim();
+            await _visitanteRepository.AtualizarAsync(visitante);
+        }
+        await _visitanteRepository.SalvarAlteracoesAsync();
 
         var acesso = new AcessoVisitante
         {

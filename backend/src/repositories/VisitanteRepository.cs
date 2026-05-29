@@ -18,7 +18,7 @@ public class VisitanteRepository : IVisitanteRepository
     {
         return await _context.Visitantes
             .Where(v => v.Ativo)
-            .OrderBy(v => v.Nome)
+            .OrderByDescending(v => v.Id)
             .ToListAsync();
     }
 
@@ -43,7 +43,7 @@ public class VisitanteRepository : IVisitanteRepository
     public async Task<Visitante?> ObterPorCpfAsync(string cpf)
     {
         return await _context.Visitantes
-            .FirstOrDefaultAsync(v => v.Cpf == cpf && v.Ativo);
+            .FirstOrDefaultAsync(v => v.Cpf == cpf);
     }
 
     public async Task<Visitante?> ObterPorIdAsync(long id)

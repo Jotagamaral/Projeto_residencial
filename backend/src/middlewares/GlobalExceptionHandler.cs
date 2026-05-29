@@ -34,12 +34,17 @@ public class GlobalExceptionHandler : IExceptionHandler
         else
             _logger.LogWarning("Violação de regra de negócio: {Message}", exception.Message);
 
+        var isDev = httpContext.RequestServices
+            .GetRequiredService<IWebHostEnvironment>().IsDevelopment();
+
         // Monta a resposta
         var problemDetails = new ProblemDetails
         {
             Status = statusCode,
             Title = statusCode == 500 ? "Erro interno no servidor" : "Ocorreu um erro ao processar a requisição",
-            Detail = statusCode == 500 ? "Ocorreu um erro inesperado. Contate o suporte." : exception.Message,
+            Detail = statusCode == 500
+                ? (isDev ? $"{exception.GetType().Name}: {exception.Message}" : "Ocorreu um erro inesperado. Contate o suporte.")
+                : exception.Message,
             Instance = httpContext.Request.Path
         };
 
