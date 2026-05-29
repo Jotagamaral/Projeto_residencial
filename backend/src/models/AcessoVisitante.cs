@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.src.models;
 
-[Table("CSTB_ACESSO_VISITANTE")]
+[Table("CSTB015_ACESSO_VISITANTE")]
 public class AcessoVisitante
 {
     [Key]
