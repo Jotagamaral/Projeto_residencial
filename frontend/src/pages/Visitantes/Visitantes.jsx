@@ -16,6 +16,32 @@ import {
 
 const FORM_VAZIO = { cpf: '', rg: '', nome: '', telefone: '' };
 
+function mascaraCpf(valor) {
+  const d = valor.replace(/\D/g, '').slice(0, 11);
+  return d
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+}
+
+function mascaraRg(valor) {
+  const d = valor.replace(/\D/g, '').slice(0, 7);
+  return d
+    .replace(/(\d{1})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2');
+}
+
+function mascaraTelefone(valor) {
+  const d = valor.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 10)
+    return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d{1,4})$/, '$1-$2');
+  return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+}
+
+function apenasDigitos(valor) {
+  return valor.replace(/\D/g, '');
+}
+
 function obterUsuarioLogado() {
   try {
     const raw = localStorage.getItem('user');
@@ -102,10 +128,10 @@ export default function Visitantes() {
   const selecionarVisitanteExistente = (v) => {
     setVisitanteSelecionado(v);
     setForm({
-      cpf: v.cpf || '',
-      rg: v.rg || '',
+      cpf: mascaraCpf(v.cpf || ''),
+      rg: mascaraRg(v.rg || ''),
       nome: v.nome || '',
-      telefone: v.telefone || '',
+      telefone: mascaraTelefone(v.telefone || ''),
     });
   };
 
@@ -150,17 +176,17 @@ export default function Visitantes() {
           setSalvando(false);
           return;
         }
-        if (form.cpf.length !== 11) {
+        if (apenasDigitos(form.cpf).length !== 11) {
           setErroSubmit('O CPF deve ter 11 dígitos');
           setSalvando(false);
           return;
         }
 
         const payload = {
-          cpf: form.cpf,
-          rg: form.rg,
+          cpf: apenasDigitos(form.cpf),
+          rg: apenasDigitos(form.rg),
           nome: form.nome,
-          telefone: form.telefone || null,
+          telefone: form.telefone ? apenasDigitos(form.telefone) : null,
           idMorador: Number(moradorSelecionado.id),
           idFuncionario: Number(idFuncionarioLogado),
         };
@@ -175,16 +201,16 @@ export default function Visitantes() {
 
         const houveAlteracao =
           form.nome !== (visitanteSelecionado.nome || '') ||
-          form.cpf !== (visitanteSelecionado.cpf || '') ||
-          form.rg !== (visitanteSelecionado.rg || '') ||
-          form.telefone !== (visitanteSelecionado.telefone || '');
+          apenasDigitos(form.cpf) !== (visitanteSelecionado.cpf || '') ||
+          apenasDigitos(form.rg) !== (visitanteSelecionado.rg || '') ||
+          apenasDigitos(form.telefone) !== (visitanteSelecionado.telefone || '');
 
         if (houveAlteracao) {
           await atualizarVisitante(visitanteSelecionado.id, {
             nome: form.nome,
-            cpf: form.cpf || null,
-            rg: form.rg,
-            telefone: form.telefone || null,
+            cpf: form.cpf ? apenasDigitos(form.cpf) : null,
+            rg: apenasDigitos(form.rg),
+            telefone: form.telefone ? apenasDigitos(form.telefone) : null,
           });
         }
 
@@ -424,23 +450,23 @@ export default function Visitantes() {
                   <div className='grid grid-cols-2 gap-3'>
                     <div>
                       <label className='block text-sm font-semibold text-gray-900 mb-2'>CPF {modoModal === 'novo' && '*'}</label>
-                      <input type='text' maxLength='11' placeholder='11999999999' value={form.cpf}
-                        onChange={(e) => setForm({ ...form, cpf: e.target.value.replace(/\D/g, '') })}
+                      <input type='text' maxLength='14' placeholder='000.000.000-00' value={form.cpf}
+                        onChange={(e) => setForm({ ...form, cpf: mascaraCpf(e.target.value) })}
                         className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
                         required={modoModal === 'novo'} />
                     </div>
                     <div>
                       <label className='block text-sm font-semibold text-gray-900 mb-2'>RG *</label>
-                      <input type='text' placeholder='123456789' value={form.rg}
-                        onChange={(e) => setForm({ ...form, rg: e.target.value })}
+                      <input type='text' maxLength='9' placeholder='0.000.000' value={form.rg}
+                        onChange={(e) => setForm({ ...form, rg: mascaraRg(e.target.value) })}
                         className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500' required />
                     </div>
                   </div>
 
                   <div>
                     <label className='block text-sm font-semibold text-gray-900 mb-2'>Telefone</label>
-                    <input type='tel' placeholder='(11) 99999-9999' value={form.telefone}
-                      onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+                    <input type='tel' maxLength='15' placeholder='(00) 00000-0000' value={form.telefone}
+                      onChange={(e) => setForm({ ...form, telefone: mascaraTelefone(e.target.value) })}
                       className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500' />
                   </div>
 
