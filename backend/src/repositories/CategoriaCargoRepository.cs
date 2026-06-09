@@ -49,4 +49,9 @@ public class CategoriaCargoRepository : ICategoriaCargoRepository
     {
         _context.CategoriaCargo.Update(categoria);
     }
+
+    public async Task SalvarAlteracoesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 }

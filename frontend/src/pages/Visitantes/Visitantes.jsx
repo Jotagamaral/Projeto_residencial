@@ -9,6 +9,7 @@ import {
   atualizarVisitante,
 } from '../../services/visitantesService';
 import { buscarMoradores } from '../../services/moradoresService';
+import { alertErro, confirmarAcao } from '../../utils/swal';
 import {
   FaPlus, FaSearch, FaUsers, FaSignOutAlt, FaTimes, FaPaperPlane,
   FaUserPlus, FaUserCheck, FaHome, FaUserTie, FaExclamationTriangle,
@@ -230,13 +231,13 @@ export default function Visitantes() {
   };
 
   const handleInativar = async (id, nome) => {
-    if (!confirm(`Confirma a saída de ${nome} do prédio?`)) return;
+    if (!await confirmarAcao('Registrar Saída', `Confirma a saída de ${nome} do prédio?`)) return;
     setInativandoId(id);
     try {
       await inativarVisitante(id);
       await carregar();
     } catch (erro) {
-      alert(`Erro: ${erro.message}`);
+      await alertErro('Erro ao registrar saída', erro.message);
     } finally {
       setInativandoId(null);
     }

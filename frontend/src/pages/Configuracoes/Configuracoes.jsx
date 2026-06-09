@@ -13,6 +13,7 @@ import {
   atualizarCategoriaCargo,
   deletarCategoriaCargo,
 } from '../../services/categoriaCargoService';
+import { confirmarAcao } from '../../utils/swal';
 import {
   buscarStatusEncomendas,
   buscarStatusReclamacoes,
@@ -140,7 +141,7 @@ function Configuracoes() {
   };
 
   const handleDeletarLocal = async (id) => {
-    if (!window.confirm('Deseja realmente inativar este local?')) return;
+    if (!await confirmarAcao('Inativar Local', 'Deseja realmente inativar este local?')) return;
 
     try {
       await deletarLocal(id);
@@ -182,7 +183,7 @@ function Configuracoes() {
   };
 
   const handleDeletarCargo = async (id) => {
-    if (!window.confirm('Deseja realmente inativar este cargo?')) return;
+    if (!await confirmarAcao('Inativar Cargo', 'Deseja realmente inativar este cargo?')) return;
 
     try {
       await deletarCategoriaCargo(id);
