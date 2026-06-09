@@ -23,6 +23,8 @@ import {
   FaCheck,
 } from 'react-icons/fa';
 
+import { confirmarAcao } from '../utils/swal';
+
 function Perfil() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -108,8 +110,8 @@ function Perfil() {
     return colors[categoria] || 'bg-blue-500';
   };
 
-  const handleLogout = () => {
-    if (window.confirm('Tem certeza que deseja sair?')) {
+  const handleLogout = async () => {
+    if (await confirmarAcao('Sair', 'Tem certeza que deseja sair?')) {
       logout();
     }
   };

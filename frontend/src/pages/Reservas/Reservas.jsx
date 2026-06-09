@@ -5,7 +5,8 @@ import {
   buscarReservasCalendario,
   criarReserva,
 } from '../../services/reservasService';
-import { buscarLocais } from '../../services/locaisService'
+import { buscarLocais } from '../../services/locaisService';
+import { alertAviso, alertSucesso, alertErro } from '../../utils/swal';
 import {
   FaCalendarAlt,
   FaChevronLeft,
@@ -152,7 +153,7 @@ function Reservas() {
 
   const adicionarReserva = useCallback(async () => {
     if (!filtroLocal || !diaSelecionado) {
-      alert('Selecione um local e um dia!');
+      await alertAviso('Seleção inválida', 'Selecione um local e um dia!');
       return;
     }
     const dataInicio = new Date(
@@ -181,11 +182,11 @@ function Reservas() {
       const novasReservas = await buscarReservasCalendario();
       setReservas(novasReservas);
       setDiaSelecionado(null);
-      alert('Reserva adicionada!');
+      await alertSucesso('Reserva realizada', 'Reserva adicionada com sucesso!');
     } catch (error) {
       const msg =
         error.response?.data?.message || 'Erro ao adicionar reserva!';
-      alert(msg);
+      await alertErro('Erro ao reservar', msg);
     }
   }, [filtroLocal, diaSelecionado]); // Dependências corrigidas (anoAtual e mesAtual removidos)
 
