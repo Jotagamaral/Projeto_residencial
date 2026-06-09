@@ -10,7 +10,7 @@ export async function buscarMoradores() {
     const response = await api.get(urlMoradores);
     return response.data;
   } catch (error) {
-    const mensagemErro = error.response?.data?.message || 'Erro desconhecido ao buscar moradores.';
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro desconhecido ao buscar moradores.';
     console.error(`[moradoresService.js] Erro: ${mensagemErro}`);
     throw new Error(mensagemErro);
   }
@@ -21,7 +21,7 @@ export async function buscarMoradorPorId(id) {
     const response = await api.get(`${urlMoradores}/${id}`);
     return response.data;
   } catch (error) {
-    const mensagemErro = error.response?.data?.message || 'Erro ao buscar os detalhes do morador.';
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao buscar os detalhes do morador.';
     console.error(`[moradoresService.js] Erro: ${mensagemErro}`);
     throw new Error(mensagemErro);
   }
@@ -34,7 +34,7 @@ export async function atualizarMorador(id, moradorData) {
     const response = await api.put(`${urlMoradores}/${id}`, moradorData);
     return response.data;
   } catch (error) {
-    const mensagemErro = error.response?.data?.message || 'Erro ao atualizar dados residenciais do morador.';
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao atualizar dados residenciais do morador.';
     console.error(`[moradoresService.js] Erro: ${mensagemErro}`);
     throw new Error(mensagemErro);
   }
@@ -45,7 +45,7 @@ export async function atualizarDadosPessoais(id, dadosPessoais) {
     const response = await api.put(`${urlMoradores}/${id}/dados-pessoais`, dadosPessoais);
     return response.data;
   } catch (error) {
-    const mensagemErro = error.response?.data?.message || 'Erro ao atualizar dados pessoais.';
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao atualizar dados pessoais.';
     throw new Error(mensagemErro);
   }
 }
@@ -56,7 +56,7 @@ export async function alterarSenhaMorador(id, senhaData) {
     const response = await api.put(`${urlMoradores}/${id}/alterar-senha`, senhaData);
     return response.data;
   } catch (error) {
-    const mensagemErro = error.response?.data?.message || 'Erro ao alterar senha.';
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao alterar senha.';
     throw new Error(mensagemErro);
   }
 }
@@ -68,7 +68,7 @@ export async function deletarMorador(id) {
     const response = await api.delete(`${urlMoradores}/${id}`);
     return response.data;
   } catch (error) {
-    const mensagemErro = error.response?.data?.message || 'Erro ao inativar/excluir o morador.';
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao inativar/excluir o morador.';
     console.error(`[moradoresService.js] Erro: ${mensagemErro}`);
     throw new Error(mensagemErro);
   }

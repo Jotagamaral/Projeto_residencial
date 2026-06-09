@@ -4,6 +4,7 @@ import CustomSidebar from '../../components/CustomSidebar';
 import { useNavigate } from 'react-router-dom';
 import { criarEncomenda } from '../../services/encomendasService';
 import { buscarMoradores } from '../../services/moradoresService';
+import { alertAviso } from '../../utils/swal';
 
 function CadastroEncomenda() {
   const [remetente, setRemetente] = useState('');
@@ -29,11 +30,11 @@ function CadastroEncomenda() {
       event.preventDefault();
 
       if (!remetente.trim()) {
-        alert('O remetente é obrigatório!');
+        await alertAviso('Atenção', 'O remetente é obrigatório!');
         return;
       }
       if (!moradorId) {
-        alert('Selecione um destinatário (morador)!');
+        await alertAviso('Atenção', 'Selecione um destinatário (morador)!');
         return;
       }
 

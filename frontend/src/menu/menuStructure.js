@@ -17,15 +17,6 @@ export const menuStructure = [
   { title: 'Encomendas', href: '/encomendas', icon: FaBox },
   { title: 'Perfil', href: '/perfil', icon: FaUser },
   {
-    title: 'Administração',
-    icon: FaCogs,
-    roles: ['ADMIN'],
-    children: [
-      { title: 'Funcionários', href: '/funcionarios', icon: FaUserTie },
-      { title: 'Configurações', href: '/configuracoes', icon: FaCogs },
-    ]
-  },
-  {
     title: 'Operação',
     icon: FaUsers,
     roles: ['FUNCIONARIO', 'ADMIN'],
@@ -33,5 +24,16 @@ export const menuStructure = [
       { title: 'Visitantes', href: '/visitantes', icon: FaUsers },
       { title: 'Novos avisos', href: '/cadastro_aviso', icon: FaBullhorn },
     ]
+  },
+  {
+    title: 'Administração',
+    icon: FaCogs,
+    roles: ['ADMIN'],
+    children: [
+      { title: 'Funcionários', href: '/funcionarios', icon: FaUserTie },
+      { title: 'Moradores', href: '/moradores', icon: FaHome },
+      { title: 'Configurações', href: '/configuracoes', icon: FaCogs },
+    ]
   }
+  
 ];
