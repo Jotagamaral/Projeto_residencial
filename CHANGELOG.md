@@ -1,3 +1,21 @@
+# [1.7.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.4...v1.7.0) (2026-05-29)
+
+
+### Bug Fixes
+
+* **backend:** registra servico de dominio ([b2f75be](https://github.com/Jotagamaral/Projeto_residencial/commit/b2f75be096eccf44191e0c639644e8d57208f13f))
+* **frontend:** remove avisos e erros apontados pelo linter de dependencias ([268cc3d](https://github.com/Jotagamaral/Projeto_residencial/commit/268cc3d1ad47056f40fe9e3e5d38fd6c23653e66))
+* melhoria no módulo de visitantes ([f784610](https://github.com/Jotagamaral/Projeto_residencial/commit/f784610bf0fd34e8c971ff6ede1c78f6f456fc48))
+* melhoria no módulo de visitantes ([5a98f5f](https://github.com/Jotagamaral/Projeto_residencial/commit/5a98f5f08e3e7e1c83c66e685f9009c5702f7fd8))
+
+
+### Features
+
+* **config:** adiciona tela de configuracoes administrativas ([6e081a9](https://github.com/Jotagamaral/Projeto_residencial/commit/6e081a9a99ded5b646cc270ed3a018601b662a0c))
+* implement admin view and update cargos ([0a0a151](https://github.com/Jotagamaral/Projeto_residencial/commit/0a0a151e6a262c0d71b0a50b819d00262ae6385e))
+* novo módulo de visitantes com erro ([3133aec](https://github.com/Jotagamaral/Projeto_residencial/commit/3133aec763f4aa4e2c8403fe5e01e9ca42f8aa40))
+* **sidebar:** refatora menu para layout colapsavel e modular ([676f03a](https://github.com/Jotagamaral/Projeto_residencial/commit/676f03ae9b119b3642a2d77b288e1a62eb6e9006))
+
 ## [1.6.4](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.3...v1.6.4) (2026-05-21)
 
 
