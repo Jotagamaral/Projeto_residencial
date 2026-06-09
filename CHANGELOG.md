@@ -1,3 +1,17 @@
+# [1.8.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.7.0...v1.8.0) (2026-06-09)
+
+
+### Bug Fixes
+
+* **backend:** corrige erro de crud categoria cargo ([8110f83](https://github.com/Jotagamaral/Projeto_residencial/commit/8110f83cc7129cb1a08d52fdf7539fc86232c37a))
+
+
+### Features
+
+* **frontend:** implementa controle de moradores para admin ([b57c231](https://github.com/Jotagamaral/Projeto_residencial/commit/b57c231855a96cb9cd9f367ce0d2877ffdcde82f))
+* **frontend:** implementa sweetalert para mensagens de acoes ([ebca7ff](https://github.com/Jotagamaral/Projeto_residencial/commit/ebca7ff4ad68215b03fc0f799caabb305a5824d7))
+* **test:** implementa testes para categoria cargo e usuarios ([12a59dc](https://github.com/Jotagamaral/Projeto_residencial/commit/12a59dc56988fa3feb8aa95ca70d208328e240cc))
+
 # [1.7.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.6.4...v1.7.0) (2026-05-29)
 
 
