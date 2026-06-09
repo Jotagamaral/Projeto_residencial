@@ -16,6 +16,7 @@ import CadastroReclamacao from "./pages/Reclamacoes/CadastroReclamacoes";
 import CadastroAvisos from "./pages/Avisos/CadastroAvisos";
 import Visitantes from "./pages/Visitantes/Visitantes";
 import Configuracoes from "./pages/Configuracoes/Configuracoes";
+import Moradores from "./pages/Moradores/Moradores";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="/cadastro_aviso" element={<CadastroAvisos />} />
             <Route path="/visitantes" element={<Visitantes />} />    
             <Route path="/configuracoes" element={<Configuracoes />} />
+            <Route path="/moradores" element={<Moradores />} />
 
             {/* Adicione outras rotas protegidas aqui */}
           </Route>
