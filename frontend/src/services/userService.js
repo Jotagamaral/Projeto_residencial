@@ -10,7 +10,7 @@ export async function loginUser(cpf, senha) {
         const response = await api.post(`${urlAuth}/login`, { cpf, senha });
         return response.data;
     } catch (error) {
-        const mensagemErro = error.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.';
+        const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.';
         console.error(`[userService.js] Erro: ${mensagemErro}`);
         throw new Error(mensagemErro);
     }
@@ -23,7 +23,7 @@ export async function registerUser(userData) {
         const response = await api.post(`${urlAuth}/register`, userData);
         return response.data;
     } catch (error) {
-        const mensagemErro = error.response?.data?.message || 'Erro ao realizar o cadastro. Tente novamente.';
+        const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao realizar o cadastro. Tente novamente.';
         console.error(`[userService.js] Erro: ${mensagemErro}`);
         throw new Error(mensagemErro);
     }

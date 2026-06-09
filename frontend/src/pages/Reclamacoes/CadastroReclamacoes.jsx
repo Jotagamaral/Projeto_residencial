@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
 import { criarReclamacao } from '../../services/reclamacoesService';
+import { alertAviso, alertErro } from '../../utils/swal';
 import { useNavigate } from 'react-router-dom';
 import {
   FaComments,
@@ -45,12 +46,12 @@ function CadastroReclamacoes() {
       e.preventDefault();
 
       if (!titulo.trim() || !textoReclamacao.trim()) {
-        alert('O título e a descrição são obrigatórios!');
+        await alertAviso('Campos vazios', 'O título e a descrição são obrigatórios!');
         return;
       }
 
       if (!moradorId) {
-        alert('ID do morador não disponível. Tente relogar.');
+        await alertErro('Sessão inválida', 'ID do morador não disponível. Tente relogar.');
         return;
       }
 
@@ -67,7 +68,7 @@ function CadastroReclamacoes() {
         navigate('/reclamacoes', { state: { reload: true } });
       } catch (error) {
         console.error('[CadastroReclamacoes.jsx]: ', error);
-        alert('Erro ao enviar reclamação. Tente novamente.');
+        await alertErro('Erro ao enviar', 'Erro ao enviar reclamação. Tente novamente.');
       }
     },
     [titulo, textoReclamacao, moradorId, navigate]

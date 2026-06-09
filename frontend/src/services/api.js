@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { alertErro } from '../utils/swal';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -19,12 +20,12 @@ api.interceptors.request.use(
 // Trata 401 (token expirado/inválido) e força logout
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
+    async (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('jwtToken');
             localStorage.removeItem('user');
             if (window.location.pathname !== '/login') {
-                alert('Sua sessão expirou. Faça login novamente.');
+                await alertErro('Sessão expirada', 'Sua sessão expirou. Faça login novamente.');
                 window.location.href = '/login';
             }
         }

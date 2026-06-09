@@ -14,7 +14,7 @@ export async function buscarCategoriasCargo() {
         const response = await api.get(urlCategorias);
         return response.data;
     } catch (error) {
-        const mensagemErro = error.response?.data?.message || 'Erro ao buscar a lista de categorias de cargo.';
+        const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao buscar a lista de categorias de cargo.';
         console.error(`[categoriaCargoService.js] Erro: ${mensagemErro}`);
         throw new Error(mensagemErro);
     }
@@ -29,7 +29,7 @@ export async function buscarCategoriaCargoPorId(id) {
         const response = await api.get(`${urlCategorias}/${id}`);
         return response.data;
     } catch (error) {
-        const mensagemErro = error.response?.data?.message || 'Erro ao buscar detalhes da categoria de cargo.';
+        const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao buscar detalhes da categoria de cargo.';
         console.error(`[categoriaCargoService.js] Erro: ${mensagemErro}`);
         throw new Error(mensagemErro);
     }
@@ -46,7 +46,7 @@ export async function criarCategoriaCargo(categoriaData) {
         const response = await api.post(urlCategorias, categoriaData);
         return response.data;
     } catch (error) {
-        const mensagemErro = error.response?.data?.message || 'Erro ao cadastrar nova categoria de cargo.';
+        const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao cadastrar nova categoria de cargo.';
         console.error(`[categoriaCargoService.js] Erro: ${mensagemErro}`);
         throw new Error(mensagemErro);
     }
@@ -63,7 +63,7 @@ export async function atualizarCategoriaCargo(id, categoriaData) {
         const response = await api.put(`${urlCategorias}/${id}`, categoriaData);
         return response.data;
     } catch (error) {
-        const mensagemErro = error.response?.data?.message || 'Erro ao atualizar dados da categoria de cargo.';
+        const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao atualizar dados da categoria de cargo.';
         console.error(`[categoriaCargoService.js] Erro: ${mensagemErro}`);
         throw new Error(mensagemErro);
     }
@@ -80,7 +80,7 @@ export async function deletarCategoriaCargo(id) {
         const response = await api.delete(`${urlCategorias}/${id}`);
         return response.data;
     } catch (error) {
-        const mensagemErro = error.response?.data?.message || 'Erro ao inativar/excluir a categoria de cargo.';
+        const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao inativar/excluir a categoria de cargo.';
         console.error(`[categoriaCargoService.js] Erro: ${mensagemErro}`);
         throw new Error(mensagemErro);
     }

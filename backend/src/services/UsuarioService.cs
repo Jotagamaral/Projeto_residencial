@@ -43,6 +43,22 @@ public class UsuarioService : IUsuarioService
             if (usuarioExistente != null)
                 throw new BusinessRuleException("Este CPF já está em uso."); 
 
+            // Verificar se o E-mail já está cadastrado
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                var emailEmUso = await _context.Usuario.AnyAsync(u => u.Email != null && u.Email.ToLower() == dto.Email.ToLower());
+                if (emailEmUso)
+                    throw new BusinessRuleException("Este e-mail já está em uso.");
+            }
+
+            // Verificar se o RG já está cadastrado
+            if (!string.IsNullOrWhiteSpace(dto.Rg))
+            {
+                var rgEmUso = await _context.Usuario.AnyAsync(u => u.Rg != null && u.Rg.ToLower() == dto.Rg.ToLower());
+                if (rgEmUso)
+                    throw new BusinessRuleException("Este RG já está em uso.");
+            }
+
             // Impede criar Admin
             if (dto.CategoriaAcessoId == CategoriaAcessoConstants.ADMIN_ID)
             {
