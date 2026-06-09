@@ -11,4 +11,5 @@ public interface ICategoriaCargoRepository
     Task<IEnumerable<CategoriaCargo>> ListarAtivosAsync();
     Task AdicionarAsync(CategoriaCargo categoria);
     Task AtualizarAsync(CategoriaCargo categoria);
+    Task SalvarAlteracoesAsync();
 }

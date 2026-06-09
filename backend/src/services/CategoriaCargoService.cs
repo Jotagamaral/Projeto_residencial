@@ -49,6 +49,7 @@ public class CategoriaCargoService(
         };
 
         await _categoriaCargoRepository.AdicionarAsync(novoCargo);
+        await _categoriaCargoRepository.SalvarAlteracoesAsync();
 
         // Invalida apenas a lista global
         await InvalidarCachesAfetadosAsync();
@@ -112,6 +113,7 @@ public class CategoriaCargoService(
         cargo.Nome = nomeFormatado;
 
         await _categoriaCargoRepository.AtualizarAsync(cargo);
+        await _categoriaCargoRepository.SalvarAlteracoesAsync();
 
         // Limpa os dados obsoletos
         await InvalidarCachesAfetadosAsync(id);
@@ -134,6 +136,7 @@ public class CategoriaCargoService(
         cargo.Ativo = false;
         
         await _categoriaCargoRepository.AtualizarAsync(cargo);
+        await _categoriaCargoRepository.SalvarAlteracoesAsync();
 
         // Limpa os dados obsoletos
         await InvalidarCachesAfetadosAsync(id);
