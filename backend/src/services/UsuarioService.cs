@@ -17,18 +17,21 @@ public class UsuarioService : IUsuarioService
     private readonly IUsuarioRepository     _usuarioRepository;
     private readonly IMoradorRepository     _moradorRepository;
     private readonly IFuncionarioRepository _funcionarioRepository;
+    private readonly ICacheService         _cacheService;
     private readonly AppDbContext           _context;
 
     public UsuarioService(
         IUsuarioRepository      usuarioRepository,
         IMoradorRepository      moradorRepository,
         IFuncionarioRepository  funcionarioRepository,
+        ICacheService           cacheService,
         AppDbContext            context
         )
     {
         _usuarioRepository      = usuarioRepository;
         _moradorRepository      = moradorRepository;
         _funcionarioRepository  = funcionarioRepository;
+        _cacheService           = cacheService;
         _context                = context;
     }
 
@@ -125,6 +128,9 @@ public class UsuarioService : IUsuarioService
                     await _funcionarioRepository.AdicionarAsync(novoFuncionario);
                     nomeCategoria = "FUNCIONARIO";
                     detalhesFuncionario = new FuncionarioResponseDto { CargoId = novoFuncionario.IdCategoriaCargo };
+                    
+                    // Invalida o cache de funcionários
+                    await _cacheService.RemoveAsync("funcionarios:ativos:todos");
                 }
 
                 await _context.SaveChangesAsync();
