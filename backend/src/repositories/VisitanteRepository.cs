@@ -14,10 +14,9 @@ public class VisitanteRepository : IVisitanteRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Visitante>> ListarAtivosAsync()
+    public async Task<IEnumerable<Visitante>> ListarTodosAsync()
     {
         return await _context.Visitantes
-            .Where(v => v.Ativo)
             .OrderByDescending(v => v.Id)
             .ToListAsync();
     }

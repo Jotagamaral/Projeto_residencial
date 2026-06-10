@@ -64,6 +64,7 @@ export default function Visitantes() {
   const [erroMoradores, setErroMoradores] = useState(null);
   const [busca, setBusca] = useState('');
   const [inativandoId, setInativandoId] = useState(null);
+  const [abaAtiva, setAbaAtiva] = useState('ativos');
 
   const [modalAberto, setModalAberto] = useState(false);
   const [modoModal, setModoModal] = useState('novo');
@@ -117,6 +118,13 @@ export default function Visitantes() {
 
   const abrirModal = () => { resetarModal(); setModalAberto(true); };
   const fecharModal = () => { setModalAberto(false); resetarModal(); };
+
+  const abrirModalReinserir = (v) => {
+    resetarModal();
+    setModoModal('existente');
+    selecionarVisitanteExistente(v);
+    setModalAberto(true);
+  };
 
   const trocarModo = (modo) => {
     setModoModal(modo);
@@ -244,6 +252,8 @@ export default function Visitantes() {
   };
 
   const visitantesFiltrados = visitantes.filter((v) => {
+    if (abaAtiva === 'ativos' && !v.ativo) return false;
+    if (abaAtiva === 'inativos' && v.ativo) return false;
     const termo = busca.toLowerCase();
     return (
       v.nome?.toLowerCase().includes(termo) ||
@@ -251,6 +261,9 @@ export default function Visitantes() {
       v.rg?.toLowerCase().includes(termo)
     );
   });
+
+  const totalAtivos = visitantes.filter((v) => v.ativo).length;
+  const totalInativos = visitantes.filter((v) => !v.ativo).length;
 
   const podeMostrarFormulario = modoModal === 'novo' || visitanteSelecionado;
 
@@ -296,6 +309,17 @@ export default function Visitantes() {
                 </div>
               </div>
             )}
+
+            <div className='flex gap-2 p-1 bg-gray-100 rounded-lg mb-4 max-w-md'>
+              <button onClick={() => setAbaAtiva('ativos')}
+                className={`flex-1 px-4 py-2 rounded-md text-sm font-semibold transition-colors ${abaAtiva === 'ativos' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}>
+                Ativos ({totalAtivos})
+              </button>
+              <button onClick={() => setAbaAtiva('inativos')}
+                className={`flex-1 px-4 py-2 rounded-md text-sm font-semibold transition-colors ${abaAtiva === 'inativos' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}>
+                Inativos ({totalInativos})
+              </button>
+            </div>
 
             <div className='relative mb-4'>
               <FaSearch className='absolute left-3 top-3.5 text-gray-400' />
@@ -344,11 +368,17 @@ export default function Visitantes() {
                           </span>
                         </td>
                         <td className='px-6 py-4 text-right'>
-                          {v.ativo && (
+                          {v.ativo ? (
                             <button onClick={() => handleInativar(v.id, v.nome)} disabled={inativandoId === v.id}
                               className='inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed text-red-600 text-xs font-semibold rounded-lg transition-colors'>
                               <FaSignOutAlt className='text-xs' />
                               {inativandoId === v.id ? 'Saindo...' : 'Registrar Saída'}
+                            </button>
+                          ) : (
+                            <button onClick={() => abrirModalReinserir(v)}
+                              className='inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg transition-colors'>
+                              <FaUserCheck className='text-xs' />
+                              Registrar Entrada
                             </button>
                           )}
                         </td>
@@ -364,7 +394,7 @@ export default function Visitantes() {
       </div>
 
       {modalAberto && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50'>
+        <div className='fixed inset-0 bg-white/10 backdrop-blur-sm flex items-center justify-center p-4 z-50'>
           <div className='bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-auto'>
             <div className='sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10'>
               <h2 className='text-xl font-bold text-gray-900'>Registrar Entrada</h2>

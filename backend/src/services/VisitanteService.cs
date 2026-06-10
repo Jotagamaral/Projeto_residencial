@@ -14,7 +14,7 @@ public class VisitanteService(
 {
     public async Task<IEnumerable<VisitanteResponseDto>> ListarVisitantesAsync()
     {
-        var visitantes = await _visitanteRepository.ListarAtivosAsync();
+        var visitantes = await _visitanteRepository.ListarTodosAsync();
         return visitantes.Select(v => new VisitanteResponseDto
         {
             Id = v.Id, Nome = v.Nome, Cpf = v.Cpf, Rg = v.Rg, Telefone = v.Telefone, Ativo = v.Ativo
@@ -70,6 +70,13 @@ public class VisitanteService(
 
         _ = await _funcionarioRepository.ObterPorIdAsync(dto.IdFuncionario)
             ?? throw new NotFoundException("Funcionário não encontrado.");
+
+        if (!visitante.Ativo)
+        {
+            visitante.Ativo = true;
+            await _visitanteRepository.AtualizarAsync(visitante);
+            await _visitanteRepository.SalvarAlteracoesAsync();
+        }
 
         var acesso = new AcessoVisitante
         {
