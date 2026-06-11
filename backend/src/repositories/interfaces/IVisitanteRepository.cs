@@ -4,7 +4,7 @@ namespace backend.src.repositories.interfaces;
 
 public interface IVisitanteRepository
 {
-    Task<IEnumerable<Visitante>> ListarAtivosAsync();
+    Task<IEnumerable<Visitante>> ListarTodosAsync();
     Task<IEnumerable<(Visitante, AcessoVisitante?)>> ListarAtivosComUltimoAcessoAsync();
     Task<Visitante?> ObterPorCpfAsync(string cpf);
     Task<Visitante?> ObterPorIdAsync(long id);

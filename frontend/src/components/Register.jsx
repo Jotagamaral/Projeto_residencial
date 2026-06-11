@@ -1,7 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser } from '../services/userService';
-import { buscarCategoriasCargo } from '../services/categoriaCargoService';
 import {
   FaBuilding,
   FaUser,
@@ -11,11 +10,17 @@ import {
   FaPhone,
   FaHome,
   FaCubes,
-  FaBriefcase,
   FaArrowRight,
   FaArrowLeft,
   FaShieldAlt,
 } from 'react-icons/fa';
+
+function mascaraTelefone(valor) {
+  const d = valor.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 10)
+    return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d{1,4})$/, '$1-$2');
+  return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+}
 
 function Register() {
   const [nome, setNome] = useState('');
@@ -23,11 +28,8 @@ function Register() {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
-  const [tipoUsuario, setTipoUsuario] = useState(2);
   const [apartamento, setApartamento] = useState('');
   const [bloco, setBloco] = useState('');
-  const [cargoId, setCargoId] = useState('');
-  const [listaCargos, setListaCargos] = useState([]);
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
   const [rg, setRg] = useState('');
@@ -35,20 +37,6 @@ function Register() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-  const carregarCargos = async () => {
-    if (tipoUsuario === 3) {
-      try {
-        const dados = await buscarCategoriasCargo();
-        setListaCargos(dados);
-      } catch (err) {
-        console.error('Erro na tela de registro:', err.message);
-      }
-    }
-  };
-
-  carregarCargos();
-}, [tipoUsuario]);
 
   const handleCpfChange = useCallback((e) => {
     const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
@@ -76,10 +64,10 @@ function Register() {
           nome,
           cpf: cpf.replace(/\D/g, ''),
           senha,
-          categoriaAcessoId: tipoUsuario,
+          categoriaAcessoId: 2, // 2 = Morador
           apartamento: apartamento ? Number(apartamento) : null,
           bloco: bloco ? bloco.charAt(0) : null,
-          cargoId: cargoId ? Number(cargoId) : null,
+          cargoId: null,
           celular: telefone,
           email,
           rg,
@@ -96,10 +84,8 @@ function Register() {
       cpf,
       senha,
       confirmarSenha,
-      tipoUsuario,
       apartamento,
       bloco,
-      cargoId,
       telefone,
       email,
       rg,
@@ -190,69 +176,6 @@ function Register() {
           </div>
 
           <form onSubmit={handleSubmit} className='space-y-5'>
-            <div className='bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden'>
-              <div className='px-6 py-4 border-b border-gray-100'>
-                <h2 className='text-sm font-semibold text-gray-900'>
-                  Tipo de usuário
-                </h2>
-              </div>
-              <div className='p-6'>
-                <div className='grid grid-cols-2 gap-3'>
-                  <button
-                    type='button'
-                    onClick={() => setTipoUsuario(2)}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
-                      tipoUsuario === 2
-                        ? 'border-blue-500 bg-blue-50 shadow-sm'
-                        : 'border-gray-100 bg-gray-50/50 hover:border-gray-200 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div
-                      className={`flex size-10 items-center justify-center rounded-xl transition-colors ${
-                        tipoUsuario === 2
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white text-gray-400'
-                      }`}
-                    >
-                      <FaHome className='text-sm' />
-                    </div>
-                    <span
-                      className={`text-xs font-semibold ${
-                        tipoUsuario === 2 ? 'text-blue-700' : 'text-gray-600'
-                      }`}
-                    >
-                      Morador
-                    </span>
-                  </button>
-                  <button
-                    type='button'
-                    onClick={() => setTipoUsuario(3)}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
-                      tipoUsuario === 3
-                        ? 'border-blue-500 bg-blue-50 shadow-sm'
-                        : 'border-gray-100 bg-gray-50/50 hover:border-gray-200 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div
-                      className={`flex size-10 items-center justify-center rounded-xl transition-colors ${
-                        tipoUsuario === 3
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white text-gray-400'
-                      }`}
-                    >
-                      <FaBriefcase className='text-sm' />
-                    </div>
-                    <span
-                      className={`text-xs font-semibold ${
-                        tipoUsuario === 3 ? 'text-blue-700' : 'text-gray-600'
-                      }`}
-                    >
-                      Funcionário
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
 
             <div className='bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden'>
               <div className='px-6 py-4 border-b border-gray-100'>
@@ -340,7 +263,7 @@ function Register() {
                         type='text'
                         placeholder='(00) 00000-0000'
                         value={telefone}
-                        onChange={(e) => setTelefone(e.target.value)}
+                        onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
                         className={inputClass}
                       />
                     </div>
@@ -361,7 +284,7 @@ function Register() {
                       type='text'
                       placeholder='Digite seu RG'
                       value={rg}
-                      onChange={(e) => setRg(e.target.value)}
+                      onChange={(e) => setRg(e.target.value.replace(/\D/g, ''))}
                       className={inputClass}
                     />
                   </div>
@@ -369,98 +292,59 @@ function Register() {
               </div>
             </div>
 
-            {tipoUsuario === 2 && (
-              <div className='bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden'>
-                <div className='px-6 py-4 border-b border-gray-100'>
-                  <h2 className='text-sm font-semibold text-gray-900'>
-                    Dados do apartamento
-                  </h2>
-                </div>
-                <div className='p-6'>
-                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                    <div>
-                      <label
-                        htmlFor='apartamento'
-                        className='block text-sm font-medium text-gray-700 mb-2'
-                      >
-                        Apartamento <span className='text-red-400'>*</span>
-                      </label>
-                      <div className='relative'>
-                        <FaHome className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs' />
-                        <input
-                          id='apartamento'
-                          type='text'
-                          placeholder='Nº do apartamento'
-                          value={apartamento}
-                          onChange={(e) => setApartamento(e.target.value)}
-                          required
-                          className={inputClass}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor='bloco'
-                        className='block text-sm font-medium text-gray-700 mb-2'
-                      >
-                        Bloco <span className='text-red-400'>*</span>
-                      </label>
-                      <div className='relative'>
-                        <FaCubes className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs' />
-                        <input
-                          id='bloco'
-                          type='text'
-                          placeholder='Bloco'
-                          value={bloco}
-                          onChange={(e) => setBloco(e.target.value)}
-                          required
-                          className={inputClass}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <div className='bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden'>
+              <div className='px-6 py-4 border-b border-gray-100'>
+                <h2 className='text-sm font-semibold text-gray-900'>
+                  Dados do apartamento
+                </h2>
               </div>
-            )}
-
-            {tipoUsuario === 3 && (
-              <div className='bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden'>
-                <div className='px-6 py-4 border-b border-gray-100'>
-                  <h2 className='text-sm font-semibold text-gray-900'>
-                    Dados profissionais
-                  </h2>
-                </div>
-                <div className='p-6'>
+              <div className='p-6'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div>
                     <label
-                      htmlFor='cargo'
+                      htmlFor='apartamento'
                       className='block text-sm font-medium text-gray-700 mb-2'
                     >
-                      Cargo <span className='text-red-400'>*</span>
+                      Apartamento <span className='text-red-400'>*</span>
                     </label>
                     <div className='relative'>
-                      <FaBriefcase className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none' />
-                      <select
-                        id='cargo'
-                        value={cargoId}
-                        onChange={(e) => setCargoId(e.target.value)}
+                      <FaHome className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs' />
+                      <input
+                        id='apartamento'
+                        type='text'
+                        placeholder='Nº do apartamento'
+                        value={apartamento}
+                        onChange={(e) => setApartamento(e.target.value)}
                         required
                         className={inputClass}
-                      >
-                        <option value='' disabled>
-                          Selecione um cargo
-                        </option>
-                        {listaCargos.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.nome}
-                          </option>
-                        ))}
-                      </select>
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor='bloco'
+                      className='block text-sm font-medium text-gray-700 mb-2'
+                    >
+                      Bloco <span className='text-red-400'>*</span>
+                    </label>
+                    <div className='relative'>
+                      <FaCubes className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs' />
+                      <input
+                        id='bloco'
+                        type='text'
+                        placeholder='Bloco'
+                        value={bloco}
+                        onChange={(e) => setBloco(e.target.value)}
+                        required
+                        className={inputClass}
+                      />
                     </div>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
+
+
 
             <div className='bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden'>
               <div className='px-6 py-4 border-b border-gray-100'>

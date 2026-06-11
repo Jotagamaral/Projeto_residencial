@@ -26,6 +26,10 @@ public class Morador
     [Required]
     public bool Ativo { get; set; } = true;
 
+    [Column("LG_STATUS")]
+    [Required]
+    public bool Verificado { get; set; } = false;
+
     // Relacionamento
     [ForeignKey("IdUser")]
     public virtual Usuario? Usuario { get; set; }
