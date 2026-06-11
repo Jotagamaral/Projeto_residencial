@@ -134,7 +134,7 @@ public class FuncionarioService(
 
     public async Task<FuncionarioResponseDto> AtualizarDadosPessoaisAsync(long id, FuncionarioUpdateDadosPessoaisDto dto)
     {
-        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id)
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(id)
             ?? throw new NotFoundException("Funcionário não encontrado.");
 
         if (funcionario.Usuario == null)
@@ -164,7 +164,7 @@ public class FuncionarioService(
 
     public async Task AlterarSenhaAsync(long id, FuncionarioAlterarSenhaDto dto)
     {
-        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id)
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(id)
             ?? throw new NotFoundException("Funcionário não encontrado.");
 
         if (funcionario.Usuario == null)

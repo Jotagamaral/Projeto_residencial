@@ -136,7 +136,7 @@ public class MoradorService(
     public async Task<MoradorResponseDto> AtualizarDadosPessoaisAsync(long id, MoradorUpdateDadosPessoaisDto dto)
     {
         // Busca o morador incluindo o usuário vinculado (CSTB001_USER)
-        var morador = await _moradorRepository.ObterPorIdAsync(id)
+        var morador = await _moradorRepository.ObterPorIdUserAsync(id)
             ?? throw new NotFoundException("Morador não encontrado.");
 
         if (morador.Usuario == null)
@@ -169,7 +169,7 @@ public class MoradorService(
 
     public async Task AlterarSenhaAsync(long id, MoradorAlterarSenhaDto dto)
     {
-        var morador = await _moradorRepository.ObterPorIdAsync(id)
+        var morador = await _moradorRepository.ObterPorIdUserAsync(id)
             ?? throw new NotFoundException("Morador não encontrado.");
 
         if (morador.Usuario == null)

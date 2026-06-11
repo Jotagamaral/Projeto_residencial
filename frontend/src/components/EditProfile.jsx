@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FaTimes, FaCheck, FaExclamationCircle } from 'react-icons/fa';
-import { atualizarDadosPessoais, alterarSenhaMorador } from '../services/moradoresService';
-import { atualizarDadosPessoaisFuncionario, alterarSenhaFuncionario } from '../services/funcionariosService';
+import { 
+  AtualizarMeusDadosMorador,
+  AlterarMinhaSenhaMorador,
+  AtualizarMeusDadosFuncionario,
+  AlterarMinhaSenhaFuncionario,
+  AtualizarMeusDadosAdmin,
+  AlterarMinhaSenhaAdmin
+} from '../services/perfilService';
 
 function EditProfile({ isOpen, onClose, onSuccess, user, categoria, initialTab = 'dados' }) {
   const [activeTab, setActiveTab] = useState('dados');
@@ -59,11 +65,12 @@ function EditProfile({ isOpen, onClose, onSuccess, user, categoria, initialTab =
         rg: formData.rg
       };
 
-      const isMorador = categoria === 'MORADOR';
-      if (isMorador) {
-        await atualizarDadosPessoais(user.id, payload);
-      } else {
-        await atualizarDadosPessoaisFuncionario(user.id, payload);
+      if (categoria === 'MORADOR') {
+        await AtualizarMeusDadosMorador(payload);
+      } else if (categoria === 'FUNCIONARIO'){
+        await AtualizarMeusDadosFuncionario(payload);
+      } else if (categoria === 'ADMIN'){
+        await AtualizarMeusDadosAdmin(payload);
       }
 
       setSuccessMessage('Dados atualizados com sucesso!');
@@ -97,11 +104,12 @@ function EditProfile({ isOpen, onClose, onSuccess, user, categoria, initialTab =
         confirmarNovaSenha: senhaData.confirmarSenha
       };
 
-      const isMorador = categoria === 'MORADOR';
-      if (isMorador) {
-        await alterarSenhaMorador(user.id, payload);
-      } else {
-        await alterarSenhaFuncionario(user.id, payload);
+      if (categoria === 'MORADOR') {
+        await AlterarMinhaSenhaMorador(payload);
+      } else if (categoria === 'FUNCIONARIO') {
+        await AlterarMinhaSenhaFuncionario(payload);
+      } else if (categoria === 'ADMIN'){
+        await AlterarMinhaSenhaAdmin(payload);
       }
 
       setSuccessMessage('Senha alterada com sucesso!');

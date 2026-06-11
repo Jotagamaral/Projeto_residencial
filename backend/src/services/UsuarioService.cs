@@ -185,6 +185,7 @@ public class UsuarioService : IUsuarioService
             Nome = admin.Nome,
             Email = admin.Email,
             Cpf = admin.Cpf,
+            Telefone = admin.Celular ?? "Sem Telefone",
             CategoriaAcesso = CategoriaAcessoConstants.ADMIN_ROLE,
             Detalhes = null
         };

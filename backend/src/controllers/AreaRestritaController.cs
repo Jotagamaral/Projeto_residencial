@@ -43,6 +43,32 @@ public class AreaRestritaController : ControllerBase
         return Ok(resultado);
     }
 
+    [HttpPut("area-admin/meus-dados")]
+    [Authorize(Roles = CategoriaAcessoConstants.ADMIN_ROLE)]
+    [ProducesResponseType(typeof(FuncionarioResponseDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> AtualizarMeusDadosAdmin([FromBody] FuncionarioUpdateDadosPessoaisDto dto)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+            return Unauthorized(new { message = "Usuário não autenticado." });
+
+        var resultado = await _funcionarioService.AtualizarDadosPessoaisAsync(userId, dto);
+        return Ok(resultado);
+    }
+
+    [HttpPut("area-admin/minha-senha")]
+    [Authorize(Roles = CategoriaAcessoConstants.ADMIN_ROLE)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> AlterarMinhaSenhaAdmin([FromBody] FuncionarioAlterarSenhaDto dto)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
+            return Unauthorized(new { message = "Usuário não autenticado." });
+
+        await _funcionarioService.AlterarSenhaAsync(userId, dto);
+        return NoContent();
+    }
+
     // ---------- MORADOR ----------
     [HttpGet("area-morador")]
     [Authorize(Roles = CategoriaAcessoConstants.MORADOR_ROLE)]
@@ -85,7 +111,7 @@ public class AreaRestritaController : ControllerBase
 
     // ---------- FUNCIONÁRIO ----------
     [HttpGet("area-funcionario")]
-    [Authorize(Roles = CategoriaAcessoConstants.FUNCIONARIO_ROLE)]
+    [Authorize(Roles = CategoriaAcessoConstants.FUNCIONARIO_ROLE )]
     [ProducesResponseType(typeof(FuncionarioResponseDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAreaFuncionario()
     {
