@@ -18,6 +18,7 @@ import {
   FaIdCard,
   FaBriefcase,
   FaSignOutAlt,
+  FaCheckCircle,
   FaEdit,
   FaClock,
   FaCheck,
@@ -167,10 +168,22 @@ function Perfil() {
                       {dados.apartamento != null ? `Apto. ${dados.apartamento}` : 'Sem apartamento'}
                     </span>
                   )}
+                  {dados.verificado ? (
+                    <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium border border-green-200">
+                      <FaCheckCircle className="text-xs" />
+                      Verificado
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-lg text-sm font-medium border border-amber-200">
+                      <FaClock className="text-xs" />
+                      Pendente (Verificar)
+                    </span>
+                  )}
                 </div>
                 <p className="text-gray-600 text-sm mt-3">
                   {dados.email}
                 </p>
+
               </div>
 
               <div className="flex flex-col gap-2 w-full sm:w-auto">
@@ -213,16 +226,6 @@ function Perfil() {
             }`}
           >
             Segurança
-          </button>
-          <button
-            onClick={() => setActiveTab('atividade')}
-            className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors duration-200 ${
-              activeTab === 'atividade'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Atividade
           </button>
         </div>
 
@@ -357,44 +360,6 @@ function Perfil() {
             </div>
           </div>
         )}
-
-        {activeTab === 'atividade' && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <FaClock className="text-indigo-600" />
-              Atividade Recente
-            </h2>
-            <div className="space-y-4">
-              <div className="flex items-start gap-4 pb-4 border-b border-gray-100">
-                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                  <FaSignOutAlt className="text-blue-600 text-sm" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900">Login realizado</p>
-                  <p className="text-sm text-gray-600">Há 2 minutos</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 pb-4 border-b border-gray-100">
-                <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
-                  <FaCheck className="text-green-600 text-sm" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900">Perfil visualizado</p>
-                  <p className="text-sm text-gray-600">Há 5 minutos</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 pb-4">
-                <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
-                  <FaEdit className="text-purple-600 text-sm" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900">Perfil atualizado</p>
-                  <p className="text-sm text-gray-600">Hoje às 10:30</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </>
     );
   }
@@ -495,12 +460,14 @@ function Perfil() {
                   </label>
                   <p className="text-gray-900 font-medium">{dados.cpf || 'Não informado'}</p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Cargo
-                  </label>
-                  <p className="text-gray-900 font-medium">{dados.cargoNome || 'Não informado'}</p>
-                </div>
+                {user?.categoria !== 'ADMIN' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Cargo
+                    </label>
+                    <p className="text-gray-900 font-medium">{dados.cargoNome || 'Não informado'}</p>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Categoria

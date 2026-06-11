@@ -3,7 +3,9 @@ import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
 import { buscarFuncionarios, atualizarCargoFuncionario } from '../../services/funcionariosService';
 import { buscarCategoriasCargo } from '../../services/categoriaCargoService';
-import { FaUsers, FaSearch } from 'react-icons/fa';
+import CadastroFuncionario from '../../components/CadastroFuncionario';
+import DetalheFuncionario from '../../components/DetalheFuncionario';
+import { FaUsers, FaSearch, FaPlus, FaInfoCircle } from 'react-icons/fa';
 
 // A UI foi convertida para tabela — controle por linha abaixo
 
@@ -15,6 +17,8 @@ function Funcionarios() {
   const [busca, setBusca] = useState('');
 
   const [userCargo, setUserCargo] = useState('');
+  const [mostrarCadastro, setMostrarCadastro] = useState(false);
+  const [funcionarioSelecionado, setFuncionarioSelecionado] = useState(null);
 
   useEffect(() => {
     const userString = localStorage.getItem('user');
@@ -49,6 +53,26 @@ function Funcionarios() {
 
     carregar();
   }, []);
+
+  const handleCadastroSucesso = async () => {
+    try {
+      const listaFunc = await buscarFuncionarios();
+      setFuncionarios(Array.isArray(listaFunc) ? listaFunc : []);
+      setRowStates({}); // Limpa o cache para forçar reinicialização
+    } catch (err) {
+      console.error('Erro ao recarregar funcionários:', err);
+    }
+  };
+
+  const handleDeleteFuncionario = (id) => {
+    // Remove o funcionário da lista após delete
+    setFuncionarios(prev => prev.filter(f => f.id !== id));
+    setRowStates(prev => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
 
   // estados por linha da tabela
   const [rowStates, setRowStates] = useState({});
@@ -116,6 +140,15 @@ function Funcionarios() {
                 <p className='text-sm text-gray-500 mt-0.5'>{funcionarios.length} registros</p>
               </div>
             </div>
+            {isAdmin && (
+              <button
+                onClick={() => setMostrarCadastro(true)}
+                className='flex items-center gap-2 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-sm font-medium transition-colors'
+              >
+                <FaPlus className='text-xs' />
+                Adicionar funcionário
+              </button>
+            )}
           </div>
 
           <div className='flex flex-col sm:flex-row gap-3 mb-6'>
@@ -191,9 +224,22 @@ function Funcionarios() {
                               >
                                 {rs.saving ? 'Salvando...' : rs.success ? 'Salvo' : 'Salvar'}
                               </button>
+                              <button
+                                onClick={() => setFuncionarioSelecionado(f)}
+                                className='px-3 py-2 rounded-xl text-sm bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors flex items-center gap-1.5'
+                              >
+                                <FaInfoCircle className='text-xs' />
+                                Info
+                              </button>
                             </div>
                           ) : (
-                            <span className='text-xs text-gray-500'>—</span>
+                            <button
+                              onClick={() => setFuncionarioSelecionado(f)}
+                              className='px-3 py-2 rounded-xl text-sm bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors flex items-center gap-1.5'
+                            >
+                              <FaInfoCircle className='text-xs' />
+                              Info
+                            </button>
                           )}
                           {rs.error && <p className='text-xs text-red-500 mt-1'>{rs.error}</p>}
                         </td>
@@ -206,6 +252,21 @@ function Funcionarios() {
           )}
         </main>
       </div>
+
+      {mostrarCadastro && (
+        <CadastroFuncionario
+          onClose={() => setMostrarCadastro(false)}
+          onSuccess={handleCadastroSucesso}
+        />
+      )}
+
+      {funcionarioSelecionado && (
+        <DetalheFuncionario
+          funcionario={funcionarioSelecionado}
+          onClose={() => setFuncionarioSelecionado(null)}
+          onDelete={handleDeleteFuncionario}
+        />
+      )}
     </div>
   );
 }

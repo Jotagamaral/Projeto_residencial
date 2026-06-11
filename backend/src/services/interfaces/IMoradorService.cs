@@ -10,5 +10,6 @@ public interface IMoradorService
     Task<MoradorResponseDto> AtualizarMoradorAsync(long id, MoradorUpdateDto dto);
     Task<MoradorResponseDto> AtualizarDadosPessoaisAsync(long id, MoradorUpdateDadosPessoaisDto dto);
     Task AlterarSenhaAsync(long id, MoradorAlterarSenhaDto dto);
+    Task AtualizarStatusAsync(long id);
     Task DeletarMoradorAsync(long id);
 }

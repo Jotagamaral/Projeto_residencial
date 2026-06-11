@@ -1,3 +1,4 @@
+using System.Linq;
 using backend.src.dtos.Funcionario;
 using backend.src.exceptions;
 using backend.src.repositories.interfaces;
@@ -134,7 +135,7 @@ public class FuncionarioService(
 
     public async Task<FuncionarioResponseDto> AtualizarDadosPessoaisAsync(long id, FuncionarioUpdateDadosPessoaisDto dto)
     {
-        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id)
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(id)
             ?? throw new NotFoundException("Funcionário não encontrado.");
 
         if (funcionario.Usuario == null)
@@ -143,6 +144,11 @@ public class FuncionarioService(
         funcionario.Usuario.Nome = dto.Nome.Trim();
         funcionario.Usuario.Email = dto.Email.Trim();
         funcionario.Usuario.Cpf = dto.Cpf.Trim();
+        if (!string.IsNullOrWhiteSpace(dto.Rg))
+        {
+            if (!dto.Rg.All(char.IsDigit))
+                throw new BusinessRuleException("O RG deve conter apenas números.");
+        }
         funcionario.Usuario.Rg = string.IsNullOrWhiteSpace(dto.Rg) ? null : dto.Rg.Trim();
         funcionario.Usuario.Celular = string.IsNullOrWhiteSpace(dto.Telefone) ? null : dto.Telefone.Trim();
 
@@ -164,7 +170,7 @@ public class FuncionarioService(
 
     public async Task AlterarSenhaAsync(long id, FuncionarioAlterarSenhaDto dto)
     {
-        var funcionario = await _funcionarioRepository.ObterPorIdAsync(id)
+        var funcionario = await _funcionarioRepository.ObterPorIdUserAsync(id)
             ?? throw new NotFoundException("Funcionário não encontrado.");
 
         if (funcionario.Usuario == null)

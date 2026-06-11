@@ -1,3 +1,4 @@
+using System.Linq;
 using backend.src.dtos.Morador;
 using backend.src.exceptions;
 using backend.src.repositories.interfaces;
@@ -44,7 +45,8 @@ public class MoradorService(
             Email = m.Usuario?.Email ?? "Sem Email",
             Cpf = m.Usuario?.Cpf ?? "Sem CPF",
             Bloco = m.Bloco,
-            Apartamento = m.Apartamento
+            Apartamento = m.Apartamento,
+            Verificado = m.Verificado
         }).ToList();
 
         await _cacheService.SetAsync(CACHE_KEY_TODOS_MORADORES, resultado, TimeSpan.FromHours(24));
@@ -69,7 +71,8 @@ public class MoradorService(
             Cpf = morador.Usuario?.Cpf ?? "Sem CPF",
             Telefone = morador.Usuario?.Celular ?? "Sem Telefone",
             Bloco = morador.Bloco,
-            Apartamento = morador.Apartamento
+            Apartamento = morador.Apartamento,
+            Verificado = morador.Verificado
         };
 
         await _cacheService.SetAsync(cacheKey, resultado, TimeSpan.FromHours(12));
@@ -134,7 +137,7 @@ public class MoradorService(
     public async Task<MoradorResponseDto> AtualizarDadosPessoaisAsync(long id, MoradorUpdateDadosPessoaisDto dto)
     {
         // Busca o morador incluindo o usuário vinculado (CSTB001_USER)
-        var morador = await _moradorRepository.ObterPorIdAsync(id)
+        var morador = await _moradorRepository.ObterPorIdUserAsync(id)
             ?? throw new NotFoundException("Morador não encontrado.");
 
         if (morador.Usuario == null)
@@ -144,6 +147,11 @@ public class MoradorService(
         morador.Usuario.Nome = dto.Nome.Trim();
         morador.Usuario.Email = dto.Email.Trim();
         morador.Usuario.Cpf = dto.Cpf.Trim();
+        if (!string.IsNullOrWhiteSpace(dto.Rg))
+        {
+            if (!dto.Rg.All(char.IsDigit))
+                throw new BusinessRuleException("O RG deve conter apenas números.");
+        }
         morador.Usuario.Rg = dto.Rg?.Trim();
         morador.Usuario.Celular = dto.Telefone?.Trim(); // Mapeado para 'Celular' conforme sua DTO de criação
 
@@ -167,7 +175,7 @@ public class MoradorService(
 
     public async Task AlterarSenhaAsync(long id, MoradorAlterarSenhaDto dto)
     {
-        var morador = await _moradorRepository.ObterPorIdAsync(id)
+        var morador = await _moradorRepository.ObterPorIdUserAsync(id)
             ?? throw new NotFoundException("Morador não encontrado.");
 
         if (morador.Usuario == null)
@@ -188,6 +196,22 @@ public class MoradorService(
         // Invalida cache se necessário
         await InvalidarCachesAfetadosAsync(morador.Id, morador.IdUser);
     }
+
+    public async Task AtualizarStatusAsync(long id)
+    {
+        var morador = await _moradorRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Morador não encontrado.");
+        
+        morador.Verificado = true;
+
+
+        await _moradorRepository.AtualizarAsync(morador);
+        await _moradorRepository.SalvarAlteracoesAsync();
+
+        // Invalida os dados obsoletos
+        await InvalidarCachesAfetadosAsync(id);
+    }
+
 
     public async Task DeletarMoradorAsync(long id)
     {

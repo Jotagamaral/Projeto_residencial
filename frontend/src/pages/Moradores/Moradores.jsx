@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import Navbar from '../../components/Navbar';
 import CustomSidebar from '../../components/CustomSidebar';
 import EditMoradorModal from '../../components/EditMoradorModal';
-import { buscarMoradores, deletarMorador } from '../../services/moradoresService';
+import { buscarMoradores, deletarMorador , atualizarStatusMorador} from '../../services/moradoresService';
 import { confirmarAcao } from '../../utils/swal';
 import { FaUsers, FaSearch, FaEdit, FaTrash, FaHome, FaInfoCircle } from 'react-icons/fa';
 
@@ -75,6 +75,27 @@ function Moradores() {
       prev.map((m) => (m.id === moradorAtualizado.id ? { ...m, ...moradorAtualizado } : m))
     );
     triggerSucesso('Dados do morador atualizados com sucesso.');
+  };
+
+  const handleVerificar = async (id) => {
+    try {
+      setErro(null);
+      
+      // 1. Chame a função da sua API/Serviço passando o ID e o novo status
+      // Nota: Ajuste o nome da função 'atualizarStatusMorador' se o seu arquivo de serviços usar outro nome
+      await atualizarStatusMorador(id);
+
+      // 2. Atualiza o estado local para refletir a mudança na tabela instantaneamente
+      setMoradores((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, verificado: true } : m))
+      );
+
+      // 3. Dispara o banner de sucesso temporário
+      triggerSucesso('Morador verificado com sucesso.');
+    } catch (err) {
+      // 4. Trata possíveis erros de rede ou permissão
+      setErro(err.message || 'Erro ao verificar o morador.');
+    }
   };
 
   const moradoresFiltrados = useMemo(() => {
@@ -171,6 +192,7 @@ function Moradores() {
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">E-mail</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">CPF</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Bloco / Apartamento</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
                   </tr>
                 </thead>
@@ -191,6 +213,22 @@ function Moradores() {
                           <FaHome className="text-gray-400 text-xs" />
                           {morador.bloco ? `Bloco ${morador.bloco} - ` : ''}Apt. {morador.apartamento || '—'}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {morador.verificado ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+                            <span className="size-1.5 rounded-full bg-emerald-500" />
+                            Verificado
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleVerificar(morador.id)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors duration-150"
+                          >
+                            <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                            Pendente (Verificar)
+                          </button>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-3">

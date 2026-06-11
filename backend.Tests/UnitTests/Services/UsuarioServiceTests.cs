@@ -10,6 +10,8 @@ using backend.src.exceptions;
 using backend.src.constants;
 using Microsoft.EntityFrameworkCore;
 
+using backend.src.services.interfaces;
+
 namespace backend.Tests.UnitTests.Services;
 
 public class UsuarioServiceTests : TestBase
@@ -17,6 +19,7 @@ public class UsuarioServiceTests : TestBase
     private readonly IUsuarioRepository _usuarioRepo;
     private readonly IMoradorRepository _moradorRepo;
     private readonly IFuncionarioRepository _funcionarioRepo;
+    private readonly ICacheService _cacheService;
     private readonly AppDbContext _context;
     private readonly UsuarioService _service;
 
@@ -25,6 +28,7 @@ public class UsuarioServiceTests : TestBase
         _usuarioRepo = Substitute.For<IUsuarioRepository>();
         _moradorRepo = Substitute.For<IMoradorRepository>();
         _funcionarioRepo = Substitute.For<IFuncionarioRepository>();
+        _cacheService = Substitute.For<ICacheService>();
 
         // Configuração do Banco em Memória
         var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -33,7 +37,7 @@ public class UsuarioServiceTests : TestBase
             .Options;
         _context = new AppDbContext(options);
 
-        _service = new UsuarioService(_usuarioRepo, _moradorRepo, _funcionarioRepo, _context);
+        _service = new UsuarioService(_usuarioRepo, _moradorRepo, _funcionarioRepo, _cacheService, _context);
     }
 
     [Fact]
@@ -76,11 +80,11 @@ public class UsuarioServiceTests : TestBase
     public async Task CriarUsuarioAsync_ComRgDuplicado_DeveLancarBusinessRuleException()
     {
         // Arrange
-        var dto = new UsuarioCreateDto { Cpf = "12345678901", Email = "novo@email.com", Rg = "RG123", Senha = "123", CategoriaAcessoId = CategoriaAcessoConstants.MORADOR_ID, Apartamento = 101, Bloco = "A" };
+        var dto = new UsuarioCreateDto { Cpf = "12345678901", Email = "novo@email.com", Rg = "123456", Senha = "123", CategoriaAcessoId = CategoriaAcessoConstants.MORADOR_ID, Apartamento = 101, Bloco = "A" };
         _usuarioRepo.getByCpfAsync("12345678901").Returns((Usuario)null!);
         
         // Adiciona usuário com mesmo RG no DbContext em memória
-        var outroUsuario = new Usuario { Id = 2, Cpf = "98765432100", Email = "outro@email.com", Rg = "RG123" };
+        var outroUsuario = new Usuario { Id = 2, Cpf = "98765432100", Email = "outro@email.com", Rg = "123456" };
         await _context.Usuario.AddAsync(outroUsuario);
         await _context.SaveChangesAsync();
 
@@ -90,6 +94,21 @@ public class UsuarioServiceTests : TestBase
         // Assert
         await acao.Should().ThrowAsync<BusinessRuleException>()
             .WithMessage("Este RG já está em uso.");
+    }
+
+    [Fact]
+    public async Task CriarUsuarioAsync_ComRgComLetras_DeveLancarBusinessRuleException()
+    {
+        // Arrange
+        var dto = new UsuarioCreateDto { Cpf = "12345678901", Email = "novo@email.com", Rg = "RG123", Senha = "123", CategoriaAcessoId = CategoriaAcessoConstants.MORADOR_ID, Apartamento = 101, Bloco = "A" };
+        _usuarioRepo.getByCpfAsync("12345678901").Returns((Usuario)null!);
+
+        // Act
+        Func<Task> acao = async () => await _service.CriarUsuarioAsync(dto);
+
+        // Assert
+        await acao.Should().ThrowAsync<BusinessRuleException>()
+            .WithMessage("O RG deve conter apenas números.");
     }
 
     [Fact]

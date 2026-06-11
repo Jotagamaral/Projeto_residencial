@@ -1,3 +1,4 @@
+using System.Linq;
 using backend.src.dtos.Visitante;
 using backend.src.exceptions;
 using backend.src.models;
@@ -14,7 +15,7 @@ public class VisitanteService(
 {
     public async Task<IEnumerable<VisitanteResponseDto>> ListarVisitantesAsync()
     {
-        var visitantes = await _visitanteRepository.ListarAtivosAsync();
+        var visitantes = await _visitanteRepository.ListarTodosAsync();
         return visitantes.Select(v => new VisitanteResponseDto
         {
             Id = v.Id, Nome = v.Nome, Cpf = v.Cpf, Rg = v.Rg, Telefone = v.Telefone, Ativo = v.Ativo
@@ -45,6 +46,12 @@ public class VisitanteService(
         var visitante = await _visitanteRepository.ObterPorIdAsync(id)
             ?? throw new NotFoundException("Visitante não encontrado.");
 
+        if (!string.IsNullOrWhiteSpace(dto.Rg))
+        {
+            if (!dto.Rg.All(char.IsDigit))
+                throw new BusinessRuleException("O RG deve conter apenas números.");
+        }
+
         visitante.Nome = dto.Nome.Trim();
         visitante.Cpf = dto.Cpf?.Trim();
         visitante.Rg = dto.Rg.Trim();
@@ -70,6 +77,13 @@ public class VisitanteService(
 
         _ = await _funcionarioRepository.ObterPorIdAsync(dto.IdFuncionario)
             ?? throw new NotFoundException("Funcionário não encontrado.");
+
+        if (!visitante.Ativo)
+        {
+            visitante.Ativo = true;
+            await _visitanteRepository.AtualizarAsync(visitante);
+            await _visitanteRepository.SalvarAlteracoesAsync();
+        }
 
         var acesso = new AcessoVisitante
         {
@@ -102,6 +116,8 @@ public class VisitanteService(
             throw new BusinessRuleException("O CPF é obrigatório.");
         if (string.IsNullOrWhiteSpace(dto.Rg))
             throw new BusinessRuleException("O RG é obrigatório.");
+        if (!dto.Rg.All(char.IsDigit))
+            throw new BusinessRuleException("O RG deve conter apenas números.");
 
         var morador = await _moradorRepository.ObterPorIdAsync(dto.IdMorador)
             ?? throw new NotFoundException("Morador não encontrado.");

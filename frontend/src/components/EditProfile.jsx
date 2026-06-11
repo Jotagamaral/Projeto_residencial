@@ -1,8 +1,29 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FaTimes, FaCheck, FaExclamationCircle } from 'react-icons/fa';
-import { atualizarDadosPessoais, alterarSenhaMorador } from '../services/moradoresService';
-import { atualizarDadosPessoaisFuncionario, alterarSenhaFuncionario } from '../services/funcionariosService';
+import { 
+  AtualizarMeusDadosMorador,
+  AlterarMinhaSenhaMorador,
+  AtualizarMeusDadosFuncionario,
+  AlterarMinhaSenhaFuncionario,
+  AtualizarMeusDadosAdmin,
+  AlterarMinhaSenhaAdmin
+} from '../services/perfilService';
+
+function mascaraCpf(valor) {
+  const d = valor.replace(/\D/g, '').slice(0, 11);
+  return d
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+}
+
+function mascaraTelefone(valor) {
+  const d = valor.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 10)
+    return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d{1,4})$/, '$1-$2');
+  return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+}
 
 function EditProfile({ isOpen, onClose, onSuccess, user, categoria, initialTab = 'dados' }) {
   const [activeTab, setActiveTab] = useState('dados');
@@ -10,23 +31,30 @@ function EditProfile({ isOpen, onClose, onSuccess, user, categoria, initialTab =
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const [formData, setFormData] = useState({
+    nome: '',
+    cpf: '',
+    email: '',
+    telefone: '',
+    rg: ''
+  });
+
   useEffect(() => {
     if (isOpen) {
       setActiveTab(initialTab);
       document.body.style.overflow = 'hidden';
+      setFormData({
+        nome: user?.nome || '',
+        cpf: user?.cpf ? mascaraCpf(user.cpf) : '',
+        email: user?.email || '',
+        telefone: user?.telefone ? mascaraTelefone(user.telefone) : '',
+        rg: user?.rg || ''
+      });
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
-  }, [isOpen, initialTab]);
-
-  const [formData, setFormData] = useState({
-    nome: user?.nome || '',
-    cpf: user?.cpf || '',
-    email: user?.email || '',
-    telefone: user?.telefone || '',
-    rg: user?.rg || ''
-  });
+  }, [isOpen, initialTab, user]);
 
   const [senhaData, setSenhaData] = useState({
     senhaAtual: '',
@@ -36,7 +64,15 @@ function EditProfile({ isOpen, onClose, onSuccess, user, categoria, initialTab =
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let val = value;
+    if (name === 'cpf') {
+      val = mascaraCpf(value);
+    } else if (name === 'telefone') {
+      val = mascaraTelefone(value);
+    } else if (name === 'rg') {
+      val = value.replace(/\D/g, '');
+    }
+    setFormData(prev => ({ ...prev, [name]: val }));
   };
 
   const handleSenhaChange = (e) => {
@@ -54,16 +90,17 @@ function EditProfile({ isOpen, onClose, onSuccess, user, categoria, initialTab =
       const payload = {
         nome: formData.nome,
         email: formData.email,
-        cpf: formData.cpf,
+        cpf: formData.cpf.replace(/\D/g, ''),
         telefone: formData.telefone,
         rg: formData.rg
       };
 
-      const isMorador = categoria === 'MORADOR';
-      if (isMorador) {
-        await atualizarDadosPessoais(user.id, payload);
-      } else {
-        await atualizarDadosPessoaisFuncionario(user.id, payload);
+      if (categoria === 'MORADOR') {
+        await AtualizarMeusDadosMorador(payload);
+      } else if (categoria === 'FUNCIONARIO'){
+        await AtualizarMeusDadosFuncionario(payload);
+      } else if (categoria === 'ADMIN'){
+        await AtualizarMeusDadosAdmin(payload);
       }
 
       setSuccessMessage('Dados atualizados com sucesso!');
@@ -97,11 +134,12 @@ function EditProfile({ isOpen, onClose, onSuccess, user, categoria, initialTab =
         confirmarNovaSenha: senhaData.confirmarSenha
       };
 
-      const isMorador = categoria === 'MORADOR';
-      if (isMorador) {
-        await alterarSenhaMorador(user.id, payload);
-      } else {
-        await alterarSenhaFuncionario(user.id, payload);
+      if (categoria === 'MORADOR') {
+        await AlterarMinhaSenhaMorador(payload);
+      } else if (categoria === 'FUNCIONARIO') {
+        await AlterarMinhaSenhaFuncionario(payload);
+      } else if (categoria === 'ADMIN'){
+        await AlterarMinhaSenhaAdmin(payload);
       }
 
       setSuccessMessage('Senha alterada com sucesso!');

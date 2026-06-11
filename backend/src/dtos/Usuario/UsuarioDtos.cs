@@ -57,6 +57,7 @@ public class UsuarioResponseDto
     public string Nome { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Cpf { get; set; } = string.Empty;
+    public string? Telefone { get; set; } = string.Empty;
     public string CategoriaAcesso { get; set; } = string.Empty;
 
     public object? Detalhes { get; set;}

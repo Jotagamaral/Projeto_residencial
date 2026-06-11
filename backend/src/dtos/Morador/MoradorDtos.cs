@@ -12,6 +12,7 @@ public class MoradorResponseDto
     public string? Telefone { get; set; } = string.Empty;
     public string? Bloco { get; set; } = string.Empty;
     public int? Apartamento { get; set; }
+    public bool Verificado {get; set; }
 }
 
 public class MoradorUpdateDto
