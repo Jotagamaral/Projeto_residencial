@@ -50,6 +50,16 @@ export async function atualizarDadosPessoais(id, dadosPessoais) {
   }
 }
 
+export async function atualizarStatusMorador(id) {
+  try {
+    const response = await api.put(`${urlMoradores}/${id}/status`);
+    return response.data;
+  } catch (error) {
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'Erro ao atualizar status.';
+    throw new Error(mensagemErro);
+  }
+}
+
 export async function alterarSenhaMorador(id, senhaData) {
   try {
     // Note que usamos o objeto esperado pelo backend (SenhaAtual, NovaSenha, ConfirmarNovaSenha)

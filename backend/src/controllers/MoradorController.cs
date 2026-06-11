@@ -110,6 +110,20 @@ public class MoradorController : ControllerBase
         return NoContent();
     }
 
+     /// <summary>
+    ///  (Admin) Altera o status do morador para verificado.
+    /// </summary>
+    /// <param name="id">ID do usuário.</param>
+    [HttpPut("{id}/status")]
+    [Authorize(Roles = $"{CategoriaAcessoConstants.ADMIN_ROLE}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AtualizarStatus(long id)
+    {
+        await _moradorService.AtualizarStatusAsync(id);
+        return NoContent();
+    }
+
     // --------------------------- DELETE ---------------------------
     
     /// <summary>

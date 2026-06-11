@@ -44,7 +44,8 @@ public class MoradorService(
             Email = m.Usuario?.Email ?? "Sem Email",
             Cpf = m.Usuario?.Cpf ?? "Sem CPF",
             Bloco = m.Bloco,
-            Apartamento = m.Apartamento
+            Apartamento = m.Apartamento,
+            Verificado = m.Verificado
         }).ToList();
 
         await _cacheService.SetAsync(CACHE_KEY_TODOS_MORADORES, resultado, TimeSpan.FromHours(24));
@@ -69,7 +70,8 @@ public class MoradorService(
             Cpf = morador.Usuario?.Cpf ?? "Sem CPF",
             Telefone = morador.Usuario?.Celular ?? "Sem Telefone",
             Bloco = morador.Bloco,
-            Apartamento = morador.Apartamento
+            Apartamento = morador.Apartamento,
+            Verificado = morador.Verificado
         };
 
         await _cacheService.SetAsync(cacheKey, resultado, TimeSpan.FromHours(12));
@@ -188,6 +190,22 @@ public class MoradorService(
         // Invalida cache se necessário
         await InvalidarCachesAfetadosAsync(morador.Id, morador.IdUser);
     }
+
+    public async Task AtualizarStatusAsync(long id)
+    {
+        var morador = await _moradorRepository.ObterPorIdAsync(id)
+            ?? throw new NotFoundException("Morador não encontrado.");
+        
+        morador.Verificado = true;
+
+
+        await _moradorRepository.AtualizarAsync(morador);
+        await _moradorRepository.SalvarAlteracoesAsync();
+
+        // Invalida os dados obsoletos
+        await InvalidarCachesAfetadosAsync(id);
+    }
+
 
     public async Task DeletarMoradorAsync(long id)
     {
