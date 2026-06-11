@@ -45,14 +45,14 @@ public class AreaRestritaController : ControllerBase
 
     [HttpPut("area-admin/meus-dados")]
     [Authorize(Roles = CategoriaAcessoConstants.ADMIN_ROLE)]
-    [ProducesResponseType(typeof(FuncionarioResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UsuarioResponseDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> AtualizarMeusDadosAdmin([FromBody] FuncionarioUpdateDadosPessoaisDto dto)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
             return Unauthorized(new { message = "Usuário não autenticado." });
 
-        var resultado = await _funcionarioService.AtualizarDadosPessoaisAsync(userId, dto);
+        var resultado = await _usuarioService.AtualizarDadosPessoaisAdminAsync(userId, dto);
         return Ok(resultado);
     }
 
@@ -65,7 +65,7 @@ public class AreaRestritaController : ControllerBase
         if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out long userId))
             return Unauthorized(new { message = "Usuário não autenticado." });
 
-        await _funcionarioService.AlterarSenhaAsync(userId, dto);
+        await _usuarioService.AlterarSenhaAdminAsync(userId, dto);
         return NoContent();
     }
 

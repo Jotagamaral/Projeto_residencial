@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using backend.src.models;
 using backend.src.repositories.interfaces;
@@ -57,6 +58,9 @@ public class UsuarioService : IUsuarioService
             // Verificar se o RG já está cadastrado
             if (!string.IsNullOrWhiteSpace(dto.Rg))
             {
+                if (!dto.Rg.All(char.IsDigit))
+                    throw new BusinessRuleException("O RG deve conter apenas números.");
+
                 var rgEmUso = await _context.Usuario.AnyAsync(u => u.Rg != null && u.Rg.ToLower() == dto.Rg.ToLower());
                 if (rgEmUso)
                     throw new BusinessRuleException("Este RG já está em uso.");
@@ -189,5 +193,67 @@ public class UsuarioService : IUsuarioService
             CategoriaAcesso = CategoriaAcessoConstants.ADMIN_ROLE,
             Detalhes = null
         };
+    }
+
+    public async Task<UsuarioResponseDto> AtualizarDadosPessoaisAdminAsync(long userId, FuncionarioUpdateDadosPessoaisDto dto)
+    {
+        var admin = await _context.Usuario
+            .FirstOrDefaultAsync(u => u.Id == userId && u.Ativo && u.CategoriaAcessoId == CategoriaAcessoConstants.ADMIN_ID)
+            ?? throw new NotFoundException("Administrador não encontrado.");
+
+        // Validar e-mail, CPF e RG em uso por outros usuários
+        var cpfEmUso = await _context.Usuario.AnyAsync(u => u.Id != userId && u.Cpf == dto.Cpf.Trim());
+        if (cpfEmUso)
+            throw new BusinessRuleException("Este CPF já está em uso.");
+
+        var emailEmUso = await _context.Usuario.AnyAsync(u => u.Id != userId && u.Email.ToLower() == dto.Email.Trim().ToLower());
+        if (emailEmUso)
+            throw new BusinessRuleException("Este e-mail já está em uso.");
+
+        if (!string.IsNullOrWhiteSpace(dto.Rg))
+        {
+            if (!dto.Rg.All(char.IsDigit))
+                throw new BusinessRuleException("O RG deve conter apenas números.");
+
+            var rgEmUso = await _context.Usuario.AnyAsync(u => u.Id != userId && u.Rg != null && u.Rg.ToLower() == dto.Rg.Trim().ToLower());
+            if (rgEmUso)
+                throw new BusinessRuleException("Este RG já está em uso.");
+        }
+
+        admin.Nome = dto.Nome.Trim();
+        admin.Email = dto.Email.Trim();
+        admin.Cpf = dto.Cpf.Trim();
+        admin.Rg = string.IsNullOrWhiteSpace(dto.Rg) ? null : dto.Rg.Trim();
+        admin.Celular = string.IsNullOrWhiteSpace(dto.Telefone) ? null : dto.Telefone.Trim();
+
+        _context.Usuario.Update(admin);
+        await _context.SaveChangesAsync();
+
+        return new UsuarioResponseDto
+        {
+            Id = admin.Id,
+            Nome = admin.Nome,
+            Email = admin.Email,
+            Cpf = admin.Cpf,
+            Telefone = admin.Celular ?? "Sem Telefone",
+            CategoriaAcesso = CategoriaAcessoConstants.ADMIN_ROLE,
+            Detalhes = null
+        };
+    }
+
+    public async Task AlterarSenhaAdminAsync(long userId, FuncionarioAlterarSenhaDto dto)
+    {
+        var admin = await _context.Usuario
+            .FirstOrDefaultAsync(u => u.Id == userId && u.Ativo && u.CategoriaAcessoId == CategoriaAcessoConstants.ADMIN_ID)
+            ?? throw new NotFoundException("Administrador não encontrado.");
+
+        bool senhaValida = BCrypt.Net.BCrypt.Verify(dto.SenhaAtual, admin.Senha);
+        if (!senhaValida)
+            throw new BusinessRuleException("A senha atual está incorreta.");
+
+        admin.Senha = BCrypt.Net.BCrypt.HashPassword(dto.NovaSenha);
+
+        _context.Usuario.Update(admin);
+        await _context.SaveChangesAsync();
     }
 }
