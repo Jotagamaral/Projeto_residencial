@@ -1,3 +1,4 @@
+using System.Linq;
 using backend.src.dtos.Visitante;
 using backend.src.exceptions;
 using backend.src.models;
@@ -44,6 +45,12 @@ public class VisitanteService(
     {
         var visitante = await _visitanteRepository.ObterPorIdAsync(id)
             ?? throw new NotFoundException("Visitante não encontrado.");
+
+        if (!string.IsNullOrWhiteSpace(dto.Rg))
+        {
+            if (!dto.Rg.All(char.IsDigit))
+                throw new BusinessRuleException("O RG deve conter apenas números.");
+        }
 
         visitante.Nome = dto.Nome.Trim();
         visitante.Cpf = dto.Cpf?.Trim();
@@ -109,6 +116,8 @@ public class VisitanteService(
             throw new BusinessRuleException("O CPF é obrigatório.");
         if (string.IsNullOrWhiteSpace(dto.Rg))
             throw new BusinessRuleException("O RG é obrigatório.");
+        if (!dto.Rg.All(char.IsDigit))
+            throw new BusinessRuleException("O RG deve conter apenas números.");
 
         var morador = await _moradorRepository.ObterPorIdAsync(dto.IdMorador)
             ?? throw new NotFoundException("Morador não encontrado.");

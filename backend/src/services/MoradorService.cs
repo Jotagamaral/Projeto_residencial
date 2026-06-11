@@ -1,3 +1,4 @@
+using System.Linq;
 using backend.src.dtos.Morador;
 using backend.src.exceptions;
 using backend.src.repositories.interfaces;
@@ -146,6 +147,11 @@ public class MoradorService(
         morador.Usuario.Nome = dto.Nome.Trim();
         morador.Usuario.Email = dto.Email.Trim();
         morador.Usuario.Cpf = dto.Cpf.Trim();
+        if (!string.IsNullOrWhiteSpace(dto.Rg))
+        {
+            if (!dto.Rg.All(char.IsDigit))
+                throw new BusinessRuleException("O RG deve conter apenas números.");
+        }
         morador.Usuario.Rg = dto.Rg?.Trim();
         morador.Usuario.Celular = dto.Telefone?.Trim(); // Mapeado para 'Celular' conforme sua DTO de criação
 
