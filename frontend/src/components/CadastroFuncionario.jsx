@@ -11,6 +11,13 @@ import {
   FaTimes,
 } from 'react-icons/fa';
 
+function mascaraTelefone(valor) {
+  const d = valor.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 10)
+    return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d{1,4})$/, '$1-$2');
+  return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+}
+
 function CadastroFuncionario({ onClose, onSuccess }) {
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
@@ -198,7 +205,7 @@ function CadastroFuncionario({ onClose, onSuccess }) {
                       type='text'
                       placeholder='(00) 00000-0000'
                       value={telefone}
-                      onChange={(e) => setTelefone(e.target.value)}
+                      onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
                       className={inputClass}
                     />
                   </div>
@@ -219,7 +226,7 @@ function CadastroFuncionario({ onClose, onSuccess }) {
                     type='text'
                     placeholder='Digite o RG'
                     value={rg}
-                    onChange={(e) => setRg(e.target.value)}
+                    onChange={(e) => setRg(e.target.value.replace(/\D/g, ''))}
                     className={inputClass}
                   />
                 </div>
