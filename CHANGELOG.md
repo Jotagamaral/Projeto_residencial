@@ -1,3 +1,23 @@
+# [1.9.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.8.0...v1.9.0) (2026-06-11)
+
+
+### Bug Fixes
+
+* **backend:** corrige teste para usuario ([d9b9107](https://github.com/Jotagamaral/Projeto_residencial/commit/d9b9107c150ad528987a7c83bf4407e7fcbad1b8))
+* **backend:** implementa a alteracao de dados de admin ([09853b0](https://github.com/Jotagamaral/Projeto_residencial/commit/09853b0b0c6c1e93c2cd80e140699aa5cddf97d1))
+* **backend:** implementa validacao de rg e telefone ([a9a55ae](https://github.com/Jotagamaral/Projeto_residencial/commit/a9a55aea486971c72975ec9826089c8b8de40122))
+* corrige erro ao atualizar dados de perfil ([2c4333e](https://github.com/Jotagamaral/Projeto_residencial/commit/2c4333e963d92852f93bbbc08f3993a438280582))
+* **frontend:** elimina registro de funcionario em register ([423fb93](https://github.com/Jotagamaral/Projeto_residencial/commit/423fb93b8afd06b1f979c2fcea37200dbaa4a679))
+* **frontend:** implementa validacao e mascara para telefone e rg ([b4be0f9](https://github.com/Jotagamaral/Projeto_residencial/commit/b4be0f93e3240eff9e846ee644221d6b49528e2d))
+* visitantes ([15a0912](https://github.com/Jotagamaral/Projeto_residencial/commit/15a0912311c835239906f962296e3b3711777340))
+
+
+### Features
+
+* adiciona logica de verificacao de morador ([118ba8f](https://github.com/Jotagamaral/Projeto_residencial/commit/118ba8f6e59f1258469f39a7a0731f9078e89056))
+* **docs:** adiciona arquivos finais do projeto ([3cf9ad7](https://github.com/Jotagamaral/Projeto_residencial/commit/3cf9ad7fb134331d752fe81590259962105589fc))
+* mudar local de cadastro e adicionar desativacao de funcionario ([98013dd](https://github.com/Jotagamaral/Projeto_residencial/commit/98013dd85bbc1673ba450828786be54e24f9eb2b))
+
 # [1.8.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.7.0...v1.8.0) (2026-06-09)
 
 
