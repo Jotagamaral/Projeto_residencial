@@ -1,3 +1,11 @@
+## [1.9.1](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.9.0...v1.9.1) (2026-06-15)
+
+
+### Bug Fixes
+
+* add files via upload ([797f649](https://github.com/Jotagamaral/Projeto_residencial/commit/797f649d487d1e280b5772dae68baaef9fcc3d1a))
+* documentos ([02443e4](https://github.com/Jotagamaral/Projeto_residencial/commit/02443e495ad75abe45572a561cca98ff7b1d5885))
+
 # [1.9.0](https://github.com/Jotagamaral/Projeto_residencial/compare/v1.8.0...v1.9.0) (2026-06-11)
 
 

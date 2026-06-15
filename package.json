@@ -1,6 +1,6 @@
 {
   "name": "projeto_residencial",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "CondoSync – Sistema de Gestão de Condomínio",
   "main": "index.js",
   "scripts": {
